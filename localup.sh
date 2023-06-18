@@ -39,6 +39,7 @@ if [ "$1" == "save" ];then
     cp -rf secrets.json $back
     echo "Saving Configs"
     cp -rf config.conf $back
+    cp -rf secrets.json $back
     cp -rf public/settings.json Backup/public/
     cp -rf public/i18n.json Backup/public/
     
@@ -68,8 +69,8 @@ if [ "$1" == "restore" ]; then
     echo 'Restoring "secrets.json"'
     cp -rf secrets.json $back
     echo "Restoring Configs"
-    cp -rf config.conf $back
-    cp -rf Backup/public/settings.json public/
+    cp -rf Backup/config.conf .
+    cp -rf Backup/settings.json .
     cp -rf Backup/public/i18n.json public/
 fi
 
