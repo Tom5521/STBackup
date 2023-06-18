@@ -70,7 +70,7 @@ if [ "$1" == "restore" ]; then
     cp -rf Backup/secrets.json .
     echo "Restoring Configs"
     cp -rf Backup/config.conf .
-    cp -rf Backup/settings.json public/
+    cp -rf Backup/public/settings.json public/
     cp -rf Backup/public/i18n.json public/
 fi
 
