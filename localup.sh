@@ -78,14 +78,6 @@ if [ "$2" == "route" -a "$3" != "" ]; then
     mv Backup/ "$3" -f
 fi
 
-if [ "$1" == "upload" ]; then
-    git add  .
-    git commit -a -m "Upload Files"
-    echo 'Now make a "git push"'
-fi
-if [ "$1" == "download" ]; then
-    git pull
-fi
 if [ "$1" == "" ]; then
     echo "Option not specified"
 fi
