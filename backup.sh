@@ -4,7 +4,6 @@ cd ..
 
 if [ "$1" == "make" ]; then
     mkdir Backup Backup/public
-    mkdir Backup/public/chats Backup/public/themes Backup/public/"User Avatars" Backup/public/worlds Backup/public/characters Backup/public/"OpenAI Settings" Backup/public/backgrounds Backup/public/"group chats"/ Backup/public/groups/
 fi
 chats="Backup/public/chats/"
 characters="Backup/public/characters/"
