@@ -111,11 +111,6 @@ if [ -d "$folder" ] && [ "$1" != "" ]; then
 else
     bash backup make
 fi
-
-if [ "$1" == "" ]; then
-    echo No option selected
-fi
-
 if [ "$1" == "ls" ]; then
     rclone ls $remote
 fi
