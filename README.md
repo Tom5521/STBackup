@@ -109,3 +109,6 @@ Note: The backup directory should already exist at the specified location.
 - The `update` option assumes that the Silly Tavern repository is already cloned in the current or parent directory.
 
 For further assistance or information, please refer to the Silly Tavern documentation or contact the project maintainers.
+
+### Unimportant notes
+I made this program to synchronize my sillytavern files from my pc with those of my mobile phone with termux.
