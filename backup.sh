@@ -82,16 +82,16 @@ if [ "$1" == "" ]; then
     echo "Option not specified"
 fi
 
+cd -
 
 remote="SillyTavernBack:/SillyTavern"
 test="SillyTavernBack:/Test"
-folder="Backup/"
+folder="../Backup/"
 
 if [ -d "$folder" ] && [ "$1" != "" ]; then
     cd "$folder"
 else
-    bash SillyTavernBackup/backup.sh make
-    cd "$folder"
+    bash backup.sh make
 fi
 
 if [ "$1" == "" ]; then
