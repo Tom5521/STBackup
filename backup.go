@@ -36,7 +36,7 @@ func readconf(file string) string {
 }
 
 func cmd(input string) {
-	cmd := exec.Command("bash", "-c", input)
+	cmd := exec.Command("sh", "-c", input)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

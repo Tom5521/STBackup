@@ -4,7 +4,8 @@ This script is used to create a backup of the Silly Tavern program and upload it
 
 ### Prerequisites
 
-- Bash shell environment
+- A sh shell (for the friends of termux or really old pc)
+- If you are using termux or some other rare architecture you will need a go compiler.
 - Rclone installed and properly configured for cloud storage access
 
 ### Usage
@@ -17,7 +18,7 @@ To use this script, follow these steps:
 4. Run the following command:
 
 ```
-./ backup.sh [option] [destination]
+./backup [option] [destination]
 ```
 
 Replace `[option]` with one of the following values:
