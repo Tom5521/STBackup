@@ -90,7 +90,7 @@ folder="Backup/"
 if [ -d "$folder" ] && [ "$1" != "" ]; then
     cd "$folder"
 else
-    bash backup.sh make
+    bash SillyTavernBackup/backup.sh make
     cd "$folder"
 fi
 
