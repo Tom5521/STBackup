@@ -41,7 +41,7 @@ if [ "$1" == "save" ];then
     cp -rf config.conf $back
     cp -rf public/settings.json $public
     cp -rf public/i18n.json $public
-    
+
 fi
 
 if [ "$1" == "restore" ]; then
@@ -80,6 +80,24 @@ fi
 
 if [ "$1" == "" ]; then
     echo "Option not specified"
+fi
+
+if [ "$1" == "start" ]; then
+    node server.js
+fi
+
+if [ "$1" == "update" ]; then
+    if [ "$2" == "" ]; then
+        echo nothing selected
+    fi
+    if [ "$2" == "SillyTavern" ]; then
+        git pull
+    fi
+    if [ "$2" == "me" ]; then
+        cd -
+        git pull
+        cd ..
+    fi
 fi
 
 cd -
