@@ -150,7 +150,7 @@ func main() {
 			os.Chdir("SillyTavernBackup")
 		}
 		if os.Args[2] == "me" {
-			cmd("git pull")
+			cmd("git pull -f")
 		}
 	case "ls":
 		cmd("rclone ls " + remote)
