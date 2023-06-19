@@ -90,7 +90,8 @@ folder="../Backup/"
 if [ -d "$folder" ] && [ "$1" != "" ]; then
     cd "$folder"
 else
-    bash localup.sh make
+    bash backup.sh make
+    cd "$folder"
 fi
 
 if [ "$1" == "" ]; then
