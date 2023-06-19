@@ -48,9 +48,6 @@ func cp(org, dest string) {
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 }
-func save() {
-	fmt.Println("Saving Chats...")
-}
 
 func main() {
 	sav := func(data string) {
