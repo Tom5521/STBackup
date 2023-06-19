@@ -109,7 +109,7 @@ folder="../Backup/"
 if [ -d "$folder" ] && [ "$1" != "" ]; then
     cd "$folder"
 else
-    bash backup.sh make
+    bash backup make
 fi
 
 if [ "$1" == "" ]; then
