@@ -68,19 +68,19 @@ The script also provides functionality to upload the backup to a cloud storage l
 - To list the contents of the cloud storage directory, use the following command:
 
 ```
-./backup.sh ls
+./backup ls
 ```
 
 - To upload the backup to the cloud storage, use the following command:
 
 ```
-./backup.sh upload
+./backup upload
 ```
 
 - To download the backup from the cloud storage, use the following command:
 
 ```
-./backup.sh download
+./backup download
 ```
 
 ### Changing Backup Location
@@ -90,7 +90,7 @@ If you want to change the backup location, you can use the `route` option follow
 To change the backup location, run the following command:
 
 ```
-./backup.sh route [destination]
+./backup route [destination]
 ```
 
 Replace `[destination]` with the desired path for the backup directory.
