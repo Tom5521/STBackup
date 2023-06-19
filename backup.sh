@@ -85,7 +85,7 @@ fi
 
 remote="SillyTavernBack:/SillyTavern"
 test="SillyTavernBack:/Test"
-folder="../Backup/"
+folder="Backup/"
 
 if [ -d "$folder" ] && [ "$1" != "" ]; then
     cd "$folder"
