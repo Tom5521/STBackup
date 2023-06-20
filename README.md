@@ -7,6 +7,7 @@ This script is used to create a backup of the Silly Tavern program and upload it
 - A sh shell (for the friends of termux or really old pc)
 - If you are using termux or some other rare architecture you will need a go compiler.
 - Rclone installed and properly configured for cloud storage access
+- Rsync
 
 ### Usage
 

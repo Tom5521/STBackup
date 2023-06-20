@@ -7,28 +7,13 @@ import (
 )
 
 // declarar variables globales locales de carpetas del backup,no hara falta tocarlas
-var bchats, bcharacters, bthemes, bworlds, bbackgrounds, back, bgroups, bpublic, B_txt_gen_st string = "Backup/public/chats/", "Backup/public/characters/", "Backup/public/themes/", "Backup/public/worlds/", "Backup/public/backgrounds/", "Backup/", "Backup/public/groups", "Backup/public", "Backup/public/TextGen Settings"
-
-// declarar variables globales locales de las carpetas originales
-var chats, characters, themes, worlds, backgrounds, groups, public, txt_gen_st string = "public/chats/", "public/characters/", "public/themes/", "public/worlds/", "public/backgrounds/", "public/groups", "public/", "public/TextGen Settings"
-
-// variables locales de carpetas especiales,son bien ojts con las comillas y todo eso --NO TOCAR--
-
-var openAIst, userAvatr, grpChats string = "public/OpenAI Settings/", "public/User Avatars/", "public/group chats/"
-var B_openAIst, B_userAvatr, B_grpChats string = "Backup/public/OpenAI Settings/", "Backup/public/User Avatars/", "Backup/public/group chats/"
-
-// declarar variables de los archivos dentro de public
-var settings_json, i18n string = "public/settings.json", "public/i18n.json"
-
-var B_settings_json, B_i18n string = "Backup/public/settings.json", "Backup/public/i18n.json"
-
-// declarar variables de las carpetas y archivos fuera de public
-var thumbnails, secrets_json, configs_conf string = "thumbnails", "secrets.json", "config.conf"
-
-var B_thumbnails, B_secrets_json, Bconfigs_conf string = "Backup/thumbnails", "Backup/secrets.json", "Backup/config.conf"
+var back string = "Backup/"
 
 // declarar variables globales remotas. Tampoco hay que tocarlas
 var folder, remote string = "../Backup/", readconf("name-of-remote.txt")
+
+// declarar carpetas y archivos a excluir
+var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude .replit"
 
 func readconf(file string) string {
 	data, _ := os.ReadFile(file)
@@ -50,82 +35,21 @@ func cp(org, dest string) {
 }
 
 func main() {
-	sav := func(data string) {
-		fmt.Println("Saving " + data + "...")
-	}
-	res := func(data string) {
-		fmt.Println("Restoring " + data + "...")
-	}
 	if len(os.Args) < 2 {
 		fmt.Println("Option not specified")
 		return
 	}
 	switch os.Args[1] {
-	case "test":
-		os.Chdir("..")
-		cmd("ls")
 	case "make":
 		os.Chdir("..")
 		os.MkdirAll("Backup/public", os.ModePerm)
 	case "save":
 		os.Chdir("..")
-		sav("Chats")
-		cp(chats, bpublic)
-		sav("Characters")
-		cp(characters, bpublic)
-		sav("OpenAI settings")
-		cp(openAIst, bpublic)
-		sav("Themes")
-		cp(themes, bthemes)
-		sav("Worlds")
-		cp(worlds, bpublic)
-		sav("User Avatars")
-		cp(userAvatr, bpublic)
-		sav("Backgrounds")
-		cp(backgrounds, bpublic)
-		sav("Group Chats")
-		cp(grpChats, bpublic)
-		sav("Groups")
-		cp(groups, bpublic)
-		sav("Thumbnails")
-		cp(thumbnails, back)
-		sav("Secrets.json")
-		cp(secrets_json, back)
-		sav("Confings")
-		cp(configs_conf, back)
-		cp(settings_json, bpublic)
-		cp(i18n, bpublic)
-		cp(txt_gen_st, bpublic)
+		cmd("rsync -av --progress " + exclude_folders + " --delete . " + " " + back)
 		os.Chdir("SillyTavernBackup")
 	case "restore":
 		os.Chdir("..")
-		res("Chats")
-		cp(bchats, public)
-		res("Characters")
-		cp(bcharacters, public)
-		res("OpenAI settings")
-		cp(B_openAIst, public)
-		res("Themes")
-		cp(bthemes, themes)
-		res("Worlds")
-		cp(bworlds, public)
-		res("User Avatars")
-		cp(B_userAvatr, public)
-		res("Backgrounds")
-		cp(bbackgrounds, public)
-		res("Group Chats")
-		cp(B_grpChats, public)
-		res("Groups")
-		cp(bgroups, public)
-		res("Thumbnails")
-		cp(B_thumbnails, ".")
-		res("Secrets.json")
-		cp(B_secrets_json, ".")
-		res("Confings")
-		cp(Bconfigs_conf, ".")
-		cp(B_settings_json, public)
-		cp(B_i18n, public)
-		cp(B_txt_gen_st, public)
+		cmd("cp -rf Backup/* .")
 		os.Chdir("SillyTavernBackup")
 	case "route":
 		if len(os.Args) < 4 {
@@ -140,7 +64,7 @@ func main() {
 		cmd("node server.js")
 		os.Chdir("SillyTavernBackup")
 	case "update":
-		if len(os.Args) < 4 {
+		if len(os.Args) < 2 {
 			fmt.Println("Nothing Selected")
 			return
 		}
