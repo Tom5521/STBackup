@@ -166,5 +166,9 @@ func main() {
 		com.Stdin = os.Stdin
 		com.Stdout = os.Stdout
 		com.Run()
+	case "init":
+		os.Chdir("..")
+		cmd("bash start.sh")
+		os.Chdir("SillyTavernBackup")
 	}
 }
