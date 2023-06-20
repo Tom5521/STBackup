@@ -13,7 +13,9 @@ var back string = "Backup/"
 var folder, remote string = "../Backup/", readconf("name-of-remote.txt")
 
 // declarar carpetas y archivos a excluir
-var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude .replit"
+var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude .replit "
+
+var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
 func readconf(file string) string {
 	data, _ := os.ReadFile(file)
@@ -24,12 +26,6 @@ func cmd(input string) {
 	cmd := exec.Command("sh", "-c", input)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Run()
-}
-func cp(org, dest string) {
-	cmd := exec.Command("cp", "-rf", org, dest)
-	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 }
@@ -45,11 +41,11 @@ func main() {
 		os.MkdirAll("Backup/public", os.ModePerm)
 	case "save":
 		os.Chdir("..")
-		cmd("rsync -av --progress " + exclude_folders + " --delete . " + " " + back)
+		cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
 		os.Chdir("SillyTavernBackup")
 	case "restore":
 		os.Chdir("..")
-		cmd("cp -rf Backup/* .")
+		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
 		os.Chdir("SillyTavernBackup")
 	case "route":
 		if len(os.Args) < 4 {
