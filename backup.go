@@ -29,10 +29,25 @@ func cmd(input string) {
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 }
-
+func rebuild() {
+	cmd("go build backup.go")
+}
+func rclone(parameter string) {
+	var com = exec.Command("")
+	if parameter == "up" {
+		com = exec.Command("rclone", "sync", folder, remote, "-L", "-P")
+	}
+	if parameter == "down" {
+		com = exec.Command("rclone", "sync", remote, folder, "-L", "-P")
+	}
+	com.Stderr = os.Stderr
+	com.Stdin = os.Stdin
+	com.Stdout = os.Stdout
+	com.Run()
+}
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Option not specified")
+		fmt.Println("Option not specified...")
 		return
 	}
 	switch os.Args[1] {
@@ -70,25 +85,22 @@ func main() {
 			os.Chdir("SillyTavernBackup")
 		}
 		if os.Args[2] == "me" {
-			cmd("git pull -f")
+			cmd("git pull")
+			rebuild()
 		}
 	case "ls":
 		cmd("rclone ls " + remote)
 	case "upload":
-		com := exec.Command("rclone", "sync", folder, remote, "-L", "-P")
-		com.Stderr = os.Stderr
-		com.Stdin = os.Stdin
-		com.Stdout = os.Stdout
-		com.Run()
+		rclone("up")
 	case "download":
-		com := exec.Command("rclone", "sync", remote, folder, "-L", "-P")
-		com.Stderr = os.Stderr
-		com.Stdin = os.Stdin
-		com.Stdout = os.Stdout
-		com.Run()
+		rclone("down")
 	case "init":
 		os.Chdir("..")
 		cmd("bash start.sh")
 		os.Chdir("SillyTavernBackup")
+	case "rebuild":
+		rebuild()
+	default:
+		fmt.Println("Option not specified...")
 	}
 }
