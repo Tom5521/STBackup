@@ -35,9 +35,12 @@ func cmd(input string) int {
 }
 func rebuild() {
 	fmt.Println("Rebuilding...")
-	cmd("go build backup.go")
-	fmt.Println("Rebuild Complete.")
-
+	err := cmd("go build backup.go")
+	if err != 1 {
+		fmt.Println("Rebuild Complete.")
+		return
+	}
+	fmt.Println("Error")
 }
 func rclone(parameter string) {
 	var com = exec.Command("")
