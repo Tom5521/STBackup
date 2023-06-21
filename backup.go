@@ -22,15 +22,22 @@ func readconf(file string) string {
 	return string(data)
 }
 
-func cmd(input string) {
+func cmd(input string) int {
 	cmd := exec.Command("sh", "-c", input)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
-	cmd.Run()
+	err := cmd.Run()
+	if err != nil {
+		return 1
+	}
+	return 0
 }
 func rebuild() {
+	fmt.Println("Rebuilding...")
 	cmd("go build backup.go")
+	fmt.Println("Rebuild Complete.")
+
 }
 func rclone(parameter string) {
 	var com = exec.Command("")
