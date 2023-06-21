@@ -43,7 +43,7 @@ func rebuild() {
 	fmt.Println("Error")
 }
 func rclone(parameter string) {
-	var com = exec.Command("")
+	var com = exec.Command("echo", "ERROR-CALLING-RCLONE-FUNCTION")
 	if parameter == "up" {
 		com = exec.Command("rclone", "sync", folder, remote, "-L", "-P")
 	}
