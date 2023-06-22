@@ -30,7 +30,7 @@ The program is run from the command line and accepts various commands and option
 - `restore`: restores the backup files to the application folder.
 - `route`: moves the backup folder to a different location.
 - `start`: starts the application server.
-- `update`: updates the application from a Git repository. Use `update me` to update the script and `update SillyTavern` to update the SillyTavern app.
+- `update`: updates the application from a Git repository. Use `update me` to update the script and `update ST` to update the SillyTavern app.
 - `ls`: lists the files in the cloud storage service.
 - `upload`: uploads the application files to the cloud storage service.
 - `download`: downloads the application files from the cloud storage service.

@@ -89,7 +89,7 @@ func main() {
 			fmt.Println("Nothing Selected")
 			return
 		}
-		if os.Args[2] == "SillyTavern" {
+		if os.Args[2] == "ST" {
 			os.Chdir("..")
 			cmd("git pull")
 			os.Chdir("SillyTavernBackup")
