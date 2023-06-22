@@ -11,7 +11,7 @@ import (
 var back string = "Backup/"
 
 // declarar variables globales remotas. Tampoco hay que tocarlas
-var folder, remote string = "../Backup/", readconf("name-of-remote.txt")
+var folder, remote string = "../Backup/", readconf("remote.txt")
 
 // declarar carpetas y archivos a excluir
 var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit "

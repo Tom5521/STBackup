@@ -41,7 +41,7 @@ The program is run from the command line and accepts various commands and option
 - `link`:Create a link in the root folder of SillyTavern so you don't have to go into the folder to make your backups. The input of the commands is the same, but now you can do it from the SillyTavern folder.
 
 ### Options
-- `name-of-remote.txt`: specifies the name of the cloud storage service.
+- `remote.txt`: specifies the name of the cloud storage service.
 
 
 # SillyTavernBackup Installer

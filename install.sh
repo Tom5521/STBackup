@@ -17,7 +17,7 @@ if [ "$1" != "" ] && [ "$1" != "clone" ] && [ "$1" != "make" ]; then
     mv $binary backup
     chmod +x backup
     ./backup link
-    ln -s name-of-remote.txt ../name-of-remote.txt
+    ln -s remote.txt ../remote.txt
 fi
 
 if [ "$1" == "clone" ]; then
@@ -25,5 +25,5 @@ if [ "$1" == "clone" ]; then
     cd SillyTavernBackup
     go build backup.go
     ./backup link
-    ln -s name-of-remote.txt ../name-of-remote.txt
+    ln -s remote.txt ../remote.txt
 fi
