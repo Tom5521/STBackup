@@ -23,6 +23,9 @@ func readconf(file string) string {
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, "name-of-remote.txt") {
 		fmt.Println("'name-of-remote.txt' not found")
+		fmt.Println("Creating 'name-of-remote.txt...'")
+		cmd("touch name-of-remote.txt")
+		fmt.Println("Copy the name of the remote and/or the corresponding folder into the 'name-of-remote.txt'.")
 		return ""
 	}
 	data, _ := os.ReadFile(file)
