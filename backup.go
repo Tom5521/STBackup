@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // declarar variables globales locales de carpetas del backup,no hara falta tocarlas
@@ -15,11 +16,25 @@ var folder, remote string = "../Backup/", readconf("name-of-remote.txt")
 // declarar carpetas y archivos a excluir
 var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude .replit "
 
+// declarar archivos y carpetas a incluir
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
 func readconf(file string) string {
+	ls, _ := readCommand("ls")
+	if !strings.Contains(ls, "name-of-remote.txt") {
+		fmt.Println("'name-of-remote.txt' not found")
+		return ""
+	}
 	data, _ := os.ReadFile(file)
 	return string(data)
+}
+func readCommand(command string) (string, int) {
+	com := exec.Command("sh", "-c", command)
+	data, err := com.Output()
+	if err != nil {
+		return "", 1
+	}
+	return string(data), 0
 }
 
 func cmd(input string) int {
