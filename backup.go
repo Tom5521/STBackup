@@ -19,6 +19,8 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 // declarar archivos y carpetas a incluir
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
+var version float64 = 1.2
+
 func readconf(file string) string {
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, file) {
@@ -138,6 +140,8 @@ func main() {
 		os.Chmod("backup", 0700)
 		cmd("echo 'cd SillyTavernBackup' > backup")
 		cmd("echo './backup $1 $2' >> backup")
+	case "version":
+		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
 	default:
 		fmt.Println("Option not specified...")
 	}
