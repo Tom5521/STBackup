@@ -1,5 +1,7 @@
 #!/bin/bash
 
+go build backup.go
+
 mkdir builds
 cd builds
 
