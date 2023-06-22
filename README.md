@@ -78,6 +78,7 @@ In any case, the program is executed and the backup or restore process is starte
 
 - This script requires the prior installation of the `curl` tool.
 - To use this script on other platforms, it is necessary to modify the file to add support for the specific platform.
+- *DO NOT REMOVE THE BINARY OUTSIDE THE "SillyTavernBackup" FOLDER.*
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
