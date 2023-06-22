@@ -17,6 +17,7 @@ This is a source code file written in the Go programming language, which provide
 go build backup.go
 ```
 1. Once compiled, you can use the program by running the `backup` binary file in the same folder as the source code file.
+2. (Optional) You can make a `./backup link` to be able to run the script from the root of SillyTavern and not need to enter the binary folder. This process is done automatically in the script
 ### Script Method
 Using the script. Below is how to use it
 It is useful for those who do not like to compile and want the binary once and for all.
@@ -37,6 +38,7 @@ The program is run from the command line and accepts various commands and option
 - `download`: downloads the application files from the cloud storage service.
 - `init`: initializes and configures the cloud storage service.
 - `rebuild`: rebuilds the program binary file.
+- `link`:Create a link in the root folder of SillyTavern so you don't have to go into the folder to make your backups. The input of the commands is the same, but now you can do it from the SillyTavern folder.
 
 ### Options
 - `name-of-remote.txt`: specifies the name of the cloud storage service.

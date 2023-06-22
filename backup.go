@@ -14,21 +14,25 @@ var back string = "Backup/"
 var folder, remote string = "../Backup/", readconf("name-of-remote.txt")
 
 // declarar carpetas y archivos a excluir
-var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude .replit "
+var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit "
 
 // declarar archivos y carpetas a incluir
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
 func readconf(file string) string {
 	ls, _ := readCommand("ls")
-	if !strings.Contains(ls, "name-of-remote.txt") {
-		fmt.Println("'name-of-remote.txt' not found")
-		fmt.Println("Creating 'name-of-remote.txt...'")
-		cmd("touch name-of-remote.txt")
-		fmt.Println("Copy the name of the remote and/or the corresponding folder into the 'name-of-remote.txt'.")
-		return ""
+	if !strings.Contains(ls, file) {
+		fmt.Println(file + " not found")
+		fmt.Println("Creating " + file + "...")
+		cmd("touch " + file)
+		fmt.Println("Copy the name of the remote and/or the corresponding folder into the " + file + ".")
+		return "error"
 	}
 	data, _ := os.ReadFile(file)
+	if string(data) == "" {
+		fmt.Println("No remote was inserted")
+		return "error"
+	}
 	return string(data)
 }
 func readCommand(command string) (string, int) {
@@ -91,12 +95,12 @@ func main() {
 		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
 		os.Chdir("SillyTavernBackup")
 	case "route":
-		if len(os.Args) < 4 {
+		if len(os.Args) < 3 {
 			fmt.Println("Backup destination not specified")
 			return
 		}
 		os.Chdir("..")
-		cmd("mv Backup/ " + os.Args[3] + " -f")
+		cmd("mv Backup/ " + os.Args[2] + " -f")
 		os.Chdir("SillyTavernBackup")
 	case "start":
 		os.Chdir("..")
@@ -128,6 +132,12 @@ func main() {
 		os.Chdir("SillyTavernBackup")
 	case "rebuild":
 		rebuild()
+	case "link":
+		os.Chdir("..")
+		cmd("touch backup")
+		os.Chmod("backup", 0700)
+		cmd("echo 'cd SillyTavernBackup' > backup")
+		cmd("echo './backup $1 $2' >> backup")
 	default:
 		fmt.Println("Option not specified...")
 	}
