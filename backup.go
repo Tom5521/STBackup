@@ -20,7 +20,7 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 // declarar archivos y carpetas a incluir
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version float64 = 1.2
+var version float64 = 1.3
 
 func makeconf() {
 	var data string
