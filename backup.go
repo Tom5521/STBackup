@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 // declarar variables globales locales de carpetas del backup,no hara falta tocarlas
@@ -22,20 +22,11 @@ var include_folders string = "--include backgrounds --include 'group chats' --in
 var version float64 = 1.2
 
 func readconf(file string) string {
-	ls, _ := readCommand("ls")
-	if !strings.Contains(ls, file) {
-		fmt.Println(file + " not found")
-		fmt.Println("Creating " + file + "...")
-		cmd("touch " + file)
-		fmt.Println("Copy the name of the remote and/or the corresponding folder into the " + file + ".")
-		return "error"
-	}
-	data, _ := os.ReadFile(file)
-	if string(data) == "" {
-		fmt.Println("No remote was inserted")
-		return "error"
-	}
-	return string(data)
+	data, _ := os.Open(file)
+	scanner := bufio.NewScanner(data)
+	scanner.Scan()
+	text := scanner.Text()
+	return text
 }
 func readCommand(command string) (string, int) {
 	com := exec.Command("sh", "-c", command)
