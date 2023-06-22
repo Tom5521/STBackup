@@ -79,6 +79,7 @@ In any case, the program is executed and the backup or restore process is starte
 - This script requires the prior installation of the `curl` tool.
 - To use this script on other platforms, it is necessary to modify the file to add support for the specific platform.
 - This is for termux and linux friends. If you use windows i recommend you to learn how to use [Rclone](https://rclone.org/) and [SillyTavernSimpleLauncher](https://github.com/BlueprintCoding/SillyTavernSimpleLauncher).
+- I don't plan to make a windows version... Unless I'm bored. We'll see what I feel like doing.
 - *DO NOT MOVE THE BINARY OUTSIDE THE "SillyTavernBackup" FOLDER.*
 ## License
 
