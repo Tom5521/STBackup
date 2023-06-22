@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // declarar variables globales locales de carpetas del backup,no hara falta tocarlas
@@ -21,8 +22,23 @@ var include_folders string = "--include backgrounds --include 'group chats' --in
 
 var version float64 = 1.2
 
+func makeconf() {
+	var data string
+	fmt.Print("Enter the rclone remote server:")
+	fmt.Scan(&data)
+	cmd("echo " + data + " > remote.txt")
+	pwd, _ := readCommand("pwd")
+	fmt.Printf("Remote Saved in %vYour remote:%v\n", pwd, data)
+}
+
 func readconf(file string) string {
+	ls, _ := readCommand("ls")
+	if !strings.Contains(ls, file) {
+		fmt.Println(file, "not found!")
+		makeconf()
+	}
 	data, _ := os.Open(file)
+	defer data.Close()
 	scanner := bufio.NewScanner(data)
 	scanner.Scan()
 	text := scanner.Text()
@@ -133,6 +149,8 @@ func main() {
 		cmd("echo './backup $1 $2' >> backup")
 	case "version":
 		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
+	case "remote":
+		makeconf()
 	default:
 		fmt.Println("Option not specified...")
 	}

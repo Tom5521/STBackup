@@ -39,6 +39,7 @@ The program is run from the command line and accepts various commands and option
 - `init`: initializes and configures the cloud storage service.
 - `rebuild`: rebuilds the program binary file.
 - `link`:Create a link in the root folder of SillyTavern so you don't have to go into the folder to make your backups. The input of the commands is the same, but now you can do it from the SillyTavern folder.
+- `remote`Ask for rclone's remote server address and write it to remote.txt
 
 ### Options
 - `remote.txt`: specifies the name of the cloud storage service.
