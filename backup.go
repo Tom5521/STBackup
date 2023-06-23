@@ -3,8 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -20,7 +23,43 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 // declarar archivos y carpetas a incluir
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version float64 = 1.3
+var version string = "1.4"
+
+func DownloadFileFromGitHub(apiURL string, fileName string) error {
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	re := regexp.MustCompile(fmt.Sprintf(`"browser_download_url":"(.+/%s)"`, fileName))
+	matches := re.FindStringSubmatch(string(body))
+
+	if len(matches) < 2 {
+		return fmt.Errorf("No se pudo encontrar la URL de descarga del archivo '%s'", fileName)
+	}
+
+	downloadURL := matches[1]
+	resp, err = http.Get(downloadURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	out, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func makeconf() {
 	var data string
@@ -51,6 +90,22 @@ func readCommand(command string) (string, int) {
 		return "", 1
 	}
 	return string(data), 0
+}
+func updateBin(option string) {
+	var fileName string
+	apiURL := "https://api.github.com/repos/Tom5521/SillyTavernBackup/releases/latest"
+	if option == "Termux" {
+		fileName = "backup-aarch64"
+	}
+	if option == "pc" {
+		fileName = "backup-x86-64		"
+	}
+	err := DownloadFileFromGitHub(apiURL, fileName)
+	if err != nil {
+		panic(err)
+	}
+	cmd("mv " + fileName + " backup")
+	os.Chmod("backup", 0700)
 }
 
 func cmd(input string) int {
@@ -126,8 +181,19 @@ func main() {
 			os.Chdir("SillyTavernBackup")
 		}
 		if os.Args[2] == "me" {
-			cmd("git pull")
-			rebuild()
+			_, err := readCommand("git status")
+			if err == 1 {
+				bindata, _ := readCommand("file backup")
+				if strings.Contains(bindata, "x86-64") {
+					updateBin("Termux")
+				}
+				if strings.Contains(bindata, "ARM aarch64") {
+					updateBin("pc")
+				}
+			} else {
+				cmd("git pull")
+				rebuild()
+			}
 		}
 	case "ls":
 		cmd("rclone ls " + remote)
