@@ -19,7 +19,7 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.4.1"
+var version string = "1.4.2"
 
 func makeconf() {
 	fmt.Print("Enter the rclone remote server:")
@@ -81,8 +81,8 @@ func downloadLatestReleaseBinary(repo string, binName string) error {
 func readconf(file string) string {
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, file) {
-		fmt.Println(file, "not found!")
-		makeconf()
+		fmt.Println(file, "not found!\nUse './backup remote' to configure it.")
+		return ""
 	}
 	data, _ := os.Open(file)
 	defer data.Close()
@@ -142,6 +142,15 @@ func rebuild() {
 	fmt.Println("Error")
 }
 func rclone(parameter string) {
+	_, err := readCommand("rclone version")
+	if err == 1 {
+		fmt.Println("Rclone not found.")
+		return
+	}
+	lsstat, _ := readCommand("ls")
+	if !strings.Contains(lsstat, "remote.txt") {
+		makeconf()
+	}
 	var com = exec.Command("echo", "ERROR-CALLING-RCLONE-FUNCTION")
 	if parameter == "up" {
 		com = exec.Command("rclone", "sync", folder, remote, "-L", "-P")
@@ -155,6 +164,11 @@ func rclone(parameter string) {
 	com.Run()
 }
 func main() {
+	_, rsyncstat := readCommand("rsync --version")
+	if rsyncstat == 1 {
+		fmt.Println("Rsync not found.")
+		return
+	}
 	if len(os.Args) < 2 {
 		fmt.Println("Option not specified...")
 		return

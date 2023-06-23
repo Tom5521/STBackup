@@ -22,7 +22,7 @@ if [ "$1" != "" ] && [ "$1" != "clone" ] && [ "$1" != "make" ]; then
     echo "Giving execute permissions to the binary..."
     chmod +x backup
     echo "Configure remote..."
-    ./backup
+    ./backup remote
     echo "Creating link in SillyTavern root directory..."
     ./backup link
     echo Done!
@@ -35,7 +35,7 @@ if [ "$1" == "clone" ]; then
     echo Compiling...
     go build backup.go
     echo "Configure remote..."
-    ./backup
+    ./backup remote
     echo "Creating link in SillyTavern root directory..."
     ./backup link
     echo Done!
