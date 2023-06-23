@@ -23,15 +23,16 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 // declarar archivos y carpetas a incluir
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.4"
+var version string = "1.4.1"
 
 func makeconf() {
-	var data string
 	fmt.Print("Enter the rclone remote server:")
-	fmt.Scan(&data)
-	cmd("echo " + data + " > remote.txt")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	input := scanner.Text()
+	cmd("echo " + input + " > remote.txt")
 	pwd, _ := readCommand("pwd")
-	fmt.Printf("Remote Saved in %vYour remote:%v\n", pwd, data)
+	fmt.Printf("Remote Saved in %vYour remote:%v\n", pwd, input)
 }
 
 func downloadLatestReleaseBinary(repo string, binName string) error {
@@ -231,7 +232,8 @@ func main() {
 		os.Chdir("..")
 		cmd("touch backup")
 		os.Chmod("backup", 0700)
-		cmd("echo 'cd SillyTavernBackup' > backup")
+		cmd("echo #!/bin/bash > backup")
+		cmd("echo 'cd SillyTavernBackup' >> backup")
 		cmd("echo './backup $1 $2' >> backup")
 	case "version":
 		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
