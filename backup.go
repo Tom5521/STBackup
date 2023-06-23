@@ -2,12 +2,12 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 )
 
@@ -25,42 +25,6 @@ var include_folders string = "--include backgrounds --include 'group chats' --in
 
 var version string = "1.4"
 
-func DownloadFileFromGitHub(apiURL string, fileName string) error {
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	re := regexp.MustCompile(fmt.Sprintf(`"browser_download_url":"(.+/%s)"`, fileName))
-	matches := re.FindStringSubmatch(string(body))
-
-	if len(matches) < 2 {
-		return fmt.Errorf("No se pudo encontrar la URL de descarga del archivo '%s'", fileName)
-	}
-
-	downloadURL := matches[1]
-	resp, err = http.Get(downloadURL)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	out, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func makeconf() {
 	var data string
 	fmt.Print("Enter the rclone remote server:")
@@ -68,6 +32,53 @@ func makeconf() {
 	cmd("echo " + data + " > remote.txt")
 	pwd, _ := readCommand("pwd")
 	fmt.Printf("Remote Saved in %vYour remote:%v\n", pwd, data)
+}
+
+func downloadLatestReleaseBinary(repo string, binName string) error {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	var release struct {
+		Assets []struct {
+			Name        string `json:"name"`
+			DownloadURL string `json:"browser_download_url"`
+		} `json:"assets"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return err
+	}
+	var binaryURL string
+	for _, asset := range release.Assets {
+		if asset.Name == binName {
+			binaryURL = asset.DownloadURL
+			break
+		}
+	}
+	if binaryURL == "" {
+		return fmt.Errorf("No se encontró el binario %s en la última versión de %s", binName, repo)
+	}
+	resp, err = http.Get(binaryURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create(binName)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("The %s binary of the latest version of %s has been successfully downloaded.\n", binName, repo)
+	return nil
 }
 
 func readconf(file string) string {
@@ -93,16 +104,16 @@ func readCommand(command string) (string, int) {
 }
 func updateBin(option string) {
 	var fileName string
-	apiURL := "https://api.github.com/repos/Tom5521/SillyTavernBackup/releases/latest"
+	repo := "Tom5521/SillyTavernBackup"
 	if option == "Termux" {
 		fileName = "backup-aarch64"
 	}
 	if option == "pc" {
-		fileName = "backup-x86-64		"
+		fileName = "backup-x86-64"
 	}
-	err := DownloadFileFromGitHub(apiURL, fileName)
+	err := downloadLatestReleaseBinary(repo, fileName)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 	cmd("mv " + fileName + " backup")
 	os.Chmod("backup", 0700)
@@ -120,6 +131,11 @@ func cmd(input string) int {
 	return 0
 }
 func rebuild() {
+	_, errcode := readCommand("go version")
+	if errcode == 1 {
+		fmt.Println("No go compiler found")
+		return
+	}
 	fmt.Println("Rebuilding...")
 	err := cmd("go build backup.go")
 	if err != 1 {
@@ -182,7 +198,11 @@ func main() {
 		}
 		if os.Args[2] == "me" {
 			_, err := readCommand("git status")
-			if err == 1 {
+			_, err2 := readCommand("go version")
+			if err == 1 || err2 == 1 {
+				if err2 == 1 {
+					fmt.Println("No go compiler found... Downloading binaries")
+				}
 				bindata, _ := readCommand("file backup")
 				if strings.Contains(bindata, "x86-64") {
 					updateBin("pc")
