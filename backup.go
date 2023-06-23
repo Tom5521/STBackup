@@ -185,10 +185,10 @@ func main() {
 			if err == 1 {
 				bindata, _ := readCommand("file backup")
 				if strings.Contains(bindata, "x86-64") {
-					updateBin("Termux")
+					updateBin("pc")
 				}
 				if strings.Contains(bindata, "ARM aarch64") {
-					updateBin("pc")
+					updateBin("Termux")
 				}
 			} else {
 				cmd("git pull")
