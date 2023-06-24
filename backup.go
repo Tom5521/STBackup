@@ -20,7 +20,7 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.5"
+var version string = "1.5.1"
 var logger = setupLogger("app.log")
 
 func logerror(text string) {
@@ -33,7 +33,7 @@ func loginfo(text string) {
 	logger.Println("PROGRAM: " + text)
 }
 func logfunc(text string) {
-	logger.Println("FUNC: ---" + text + "---")
+	logger.Println("FUNC:    ---" + text + "---")
 }
 func makeconf() {
 	fmt.Print("Enter the rclone remote server:")
@@ -249,7 +249,7 @@ func main() {
 			os.Chdir("..")
 			cmd("git pull")
 			os.Chdir("SillyTavernBackup")
-			logerror("SillyTavern Updated")
+			loginfo("SillyTavern Updated")
 		}
 		if os.Args[2] == "me" {
 			_, err := readCommand("git status")
