@@ -3,9 +3,12 @@
 This is a source code file written in the Go programming language, which provides a backup and restore tool for SillyTavern. The program uses the `rsync` command to synchronize the application files between the local server and the remote server. It also uses the `rclone` tool to synchronize SillyTavern files with a cloud storage service.
 ## Requirements
 
-- Go (if you want to compile it yourself to your system)
+- ### Required
 - rsync
 - rclone
+- #### Optional
+- Go (if you want to compile it yourself to your system)
+- Tar (if you want use tarballs)
 
 ## Installation
 ### Build Method
@@ -28,19 +31,28 @@ The program is run from the command line and accepts various commands and option
 
 ### Commands
 
-- `make`: creates the backup folder structure
-- `save`: backs up the files to the `Backup/` folder
-- `restore`: restores the files from the `Backup/` folder
-- `route [destination]`: moves the `Backup/` folder to the specified destination
-- `start`: starts the SillyTavern server
-- `update [me/ST]`: updates the tool or the SillyTavern server
-- `ls`: lists the files in the remote server
-- `upload`: uploads the files to the remote server
-- `download`: downloads the files from the remote server
-- `init`: initializes the SillyTavern server
-- `rebuild`: rebuilds the tool
-- `remote`: configures the remote server
-- `cleanlog`: cleans the log file
+- `make`: Creates necessary folders for backup.
+- `save`: Saves files to the backup destination.
+- `save tar`: Saves files to a tarball in the backup destination.
+- `restore`: Restores files from the backup destination.
+- `restore tar`: Restores files from a tarball in the backup destination.
+- `route <destination>`: Moves the backup folder to a new destination.
+- `start`: Starts the SillyTavern application.
+- `update ST`: Updates the SillyTavernBackup application.
+- `update me`: Updates the SillyTavernBackup application and rebuilds if necessary.
+- `ls`: Lists files in the remote backup destination.
+- `upload`: Uploads files to the remote backup destination.
+- `upload tar`: Uploads a tarball to the remote backup destination.
+- `download`: Downloads files from the remote backup destination.
+- `download tar`: Downloads a tarball from the remote backup destination.
+- `init`: Initializes the SillyTavern application.
+- `rebuild`: Rebuilds the SillyTavernBackup application.
+- `link`: Creates a link to the backup program in the SillyTavern root directory.
+- `version`: Displays the version of SillyTavernBackup.
+- `remote`: Configures the rclone remote server.
+- `cleanlog`: Clears the log file.
+- `log`: Displays the content of the log file.
+- `help`: Displays the help message.
 
 ### Configuration
 

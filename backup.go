@@ -16,11 +16,11 @@ var back string = "Backup/"
 
 var folder, remote string = "../Backup/", readconf("remote.txt")
 
-var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit "
+var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar "
 
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.5.3"
+var version string = "1.6"
 var logger = setupLogger("app.log")
 
 func logerror(text string) {
@@ -176,7 +176,17 @@ func rclone(parameter string) {
 	if !strings.Contains(lsstat, "remote.txt") {
 		makeconf()
 	}
-	var com = exec.Command("echo", "ERROR-CALLING-RCLONE-FUNCTION")
+	var com = exec.Command("")
+	if parameter == "uptar" {
+		logfunc("upload tar")
+		com = exec.Command("rclone", "copy", "Backup.tar", remote)
+		defer loginfo("tar uploaded")
+	}
+	if parameter == "downtar" {
+		logfunc("download tar")
+		com = exec.Command("rclone", "copy", remote+"/Backup.tar", "..")
+		defer loginfo("tar downloaded")
+	}
 	if parameter == "up" {
 		logfunc("upload")
 		com = exec.Command("rclone", "sync", folder, remote, "-L", "-P")
@@ -217,9 +227,26 @@ func main() {
 		cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
 		os.Chdir("SillyTavernBackup")
 		loginfo("Files Saved")
+		if os.Args[2] == "tar" {
+			logfunc("save tarball")
+			os.Chdir("..")
+			tar := cmd("tar -cvf Backup.tar Backup/")
+			if tar != 0 {
+				loginfo("Tarbal created.")
+			}
+		}
 	case "restore":
 		logfunc("restore")
 		os.Chdir("..")
+		if os.Args[2] == "tar" {
+			ls, _ := readCommand("ls")
+			logfunc("restore tarball")
+			if strings.Contains(ls, "Backup") {
+				logwarn("Removing Backup/ folder")
+				cmd("rm -rf Backup/")
+			}
+			cmd("tar -xvf Backup.tar")
+		}
 		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
 		os.Chdir("SillyTavernBackup")
 		loginfo("Files restored")
@@ -274,14 +301,21 @@ func main() {
 				loginfo("Updated with git")
 				rebuild()
 			}
+			cmd("./backup link")
 		}
 	case "ls":
 		logfunc("ls")
 		cmd("rclone ls " + remote)
 	case "upload":
 		rclone("up")
+		if os.Args[2] == "tar" {
+			rclone("uptar")
+		}
 	case "download":
 		rclone("down")
+		if os.Args[2] == "tar" {
+			rclone("downtar")
+		}
 	case "init":
 		logfunc("init")
 		os.Chdir("..")
@@ -296,7 +330,7 @@ func main() {
 		os.Chmod("backup", 0700)
 		cmd("echo '#!/bin/bash' > backup")
 		cmd("echo 'cd SillyTavernBackup' >> backup")
-		cmd("echo './backup $1 $2' >> backup")
+		cmd("echo './backup $1 $2 $3 $4' >> backup")
 	case "version":
 		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
 	case "remote":
@@ -305,6 +339,10 @@ func main() {
 	case "cleanlog":
 		cmd("echo '' > app.log")
 		os.Exit(0)
+	case "log":
+		cmd("cat app.log")
+	case "help":
+		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
 	default:
 		logerror("Option not specified.")
 		fmt.Println("Option not specified...")
