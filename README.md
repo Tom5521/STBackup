@@ -25,26 +25,30 @@ It is useful for those who do not like to compile and want the binary once and f
 
 The program is run from the command line and accepts various commands and options.
 
+
 ### Commands
 
-- `make`: creates the backup folder in the application's main directory.
-- `save`: performs a backup of the application files to the backup folder.
-- `restore`: restores the backup files to the application folder.
-- `route`: moves the backup folder to a different location.
-- `start`: starts the application server.
-- `update`: updates the application from a Git repository. Use `update me` to update the script and `update ST` to update the SillyTavern app.
-- `ls`: lists the files in the cloud storage service.
-- `upload`: uploads the application files to the cloud storage service.
-- `download`: downloads the application files from the cloud storage service.
-- `init`: initializes and configures the cloud storage service.
-- `rebuild`: rebuilds the program binary file.
-- `link`:Create a link in the root folder of SillyTavern so you don't have to go into the folder to make your backups. The input of the commands is the same, but now you can do it from the SillyTavern folder.
-- `remote`Ask for rclone's remote server address and write it to remote.txt
-- `cleanlog` Serves... Precisely as the name indicates... To make chicken breaststroke!... It is used to clean the log file (app.log).
+- `make`: creates the backup folder structure
+- `save`: backs up the files to the `Backup/` folder
+- `restore`: restores the files from the `Backup/` folder
+- `route [destination]`: moves the `Backup/` folder to the specified destination
+- `start`: starts the SillyTavern server
+- `update [me/ST]`: updates the tool or the SillyTavern server
+- `ls`: lists the files in the remote server
+- `upload`: uploads the files to the remote server
+- `download`: downloads the files from the remote server
+- `init`: initializes the SillyTavern server
+- `rebuild`: rebuilds the tool
+- `remote`: configures the remote server
+- `cleanlog`: cleans the log file
 
-### Options
-- `remote.txt`: specifies the name of the cloud storage service.
+### Configuration
 
+The program reads the remote server route from the `remote.txt` file. If the file doesn't exist, the program will prompt the user to enter the route.
+
+### Log
+
+The program logs all the actions in the `app.log` file.
 
 # SillyTavernBackup Installer
 
