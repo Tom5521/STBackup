@@ -20,7 +20,7 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.5.2"
+var version string = "1.5.3"
 var logger = setupLogger("app.log")
 
 func logerror(text string) {
@@ -252,9 +252,10 @@ func main() {
 			loginfo("SillyTavern Updated")
 		}
 		if os.Args[2] == "me" {
-			_, err := readCommand("git status")
+			_, ggit := readCommand("git status")
+			err, _ := readCommand("ls")
 			_, err2 := readCommand("go version")
-			if err == 1 || err2 == 1 {
+			if !strings.Contains(err, "backup.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
 					fmt.Println("No go compiler found... Downloading binaries")
 					logerror("No go compiler found. Downloading binaries")
