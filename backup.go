@@ -20,7 +20,7 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.5.1"
+var version string = "1.5.2"
 var logger = setupLogger("app.log")
 
 func logerror(text string) {
@@ -293,7 +293,7 @@ func main() {
 		os.Chdir("..")
 		cmd("touch backup")
 		os.Chmod("backup", 0700)
-		cmd("echo #!/bin/bash > backup")
+		cmd("echo '#!/bin/bash' > backup")
 		cmd("echo 'cd SillyTavernBackup' >> backup")
 		cmd("echo './backup $1 $2' >> backup")
 	case "version":
