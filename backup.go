@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -19,8 +20,21 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.4.2"
+var version string = "1.5"
+var logger = setupLogger("app.log")
 
+func logerror(text string) {
+	logger.Fatalln("ERROR: " + text)
+}
+func logwarn(text string) {
+	logger.Println("WARNING: " + text)
+}
+func loginfo(text string) {
+	logger.Println("PROGRAM: " + text)
+}
+func logfunc(text string) {
+	logger.Println("FUNC: ---" + text + "---")
+}
 func makeconf() {
 	fmt.Print("Enter the rclone remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -30,7 +44,14 @@ func makeconf() {
 	pwd, _ := readCommand("pwd")
 	fmt.Printf("Remote Saved in %vYour remote:%v\n", pwd, input)
 }
-
+func setupLogger(logFilePath string) *log.Logger {
+	file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger := log.New(file, "", log.Ldate|log.Ltime)
+	return logger
+}
 func downloadLatestReleaseBinary(repo string, binName string) error {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
 	resp, err := http.Get(url)
@@ -81,6 +102,7 @@ func downloadLatestReleaseBinary(repo string, binName string) error {
 func readconf(file string) string {
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, file) {
+		logwarn("remote.txt not found. The file was recreated")
 		fmt.Println(file, "not found!\nUse './backup remote' to configure it.")
 		return ""
 	}
@@ -131,20 +153,23 @@ func rebuild() {
 	_, errcode := readCommand("go version")
 	if errcode == 1 {
 		fmt.Println("No go compiler found")
+		logerror("No go compiler found")
 		return
 	}
 	fmt.Println("Rebuilding...")
 	err := cmd("go build backup.go")
 	if err != 1 {
 		fmt.Println("Rebuild Complete.")
+		logfunc("Rebuild")
 		return
 	}
-	fmt.Println("Error")
+	logerror("Error in rebuild prosess")
 }
 func rclone(parameter string) {
 	_, err := readCommand("rclone version")
 	if err == 1 {
 		fmt.Println("Rclone not found.")
+		logerror("Rclone not found")
 		return
 	}
 	lsstat, _ := readCommand("ls")
@@ -153,10 +178,14 @@ func rclone(parameter string) {
 	}
 	var com = exec.Command("echo", "ERROR-CALLING-RCLONE-FUNCTION")
 	if parameter == "up" {
+		logfunc("upload")
 		com = exec.Command("rclone", "sync", folder, remote, "-L", "-P")
+		defer loginfo("Files uploaded")
 	}
 	if parameter == "down" {
+		logfunc("download")
 		com = exec.Command("rclone", "sync", remote, folder, "-L", "-P")
+		defer loginfo("Files downloaded")
 	}
 	com.Stderr = os.Stderr
 	com.Stdin = os.Stdin
@@ -164,48 +193,63 @@ func rclone(parameter string) {
 	com.Run()
 }
 func main() {
+	loginfo("--------Start--------")
+	defer loginfo("---------End---------")
 	_, rsyncstat := readCommand("rsync --version")
 	if rsyncstat == 1 {
 		fmt.Println("Rsync not found.")
+		logerror("Rsync not found.")
 		return
 	}
 	if len(os.Args) < 2 {
+		logerror("Option not specified.")
 		fmt.Println("Option not specified...")
 		return
 	}
 	switch os.Args[1] {
 	case "make":
+		logfunc("Make")
 		os.Chdir("..")
 		os.MkdirAll("Backup/public", os.ModePerm)
 	case "save":
+		logfunc("save")
 		os.Chdir("..")
 		cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
 		os.Chdir("SillyTavernBackup")
+		loginfo("Files Saved")
 	case "restore":
+		logfunc("restore")
 		os.Chdir("..")
 		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
 		os.Chdir("SillyTavernBackup")
+		loginfo("Files restored")
 	case "route":
 		if len(os.Args) < 3 {
 			fmt.Println("Backup destination not specified")
+			logerror("Not enough arguments")
 			return
 		}
 		os.Chdir("..")
 		cmd("mv Backup/ " + os.Args[2] + " -f")
 		os.Chdir("SillyTavernBackup")
+		logfunc("route")
 	case "start":
+		logfunc("start")
 		os.Chdir("..")
 		cmd("node server.js")
 		os.Chdir("SillyTavernBackup")
+		loginfo("SillyTavern ended")
 	case "update":
 		if len(os.Args) < 2 {
 			fmt.Println("Nothing Selected")
+			logerror("Nothing selected in update func")
 			return
 		}
 		if os.Args[2] == "ST" {
 			os.Chdir("..")
 			cmd("git pull")
 			os.Chdir("SillyTavernBackup")
+			logerror("SillyTavern Updated")
 		}
 		if os.Args[2] == "me" {
 			_, err := readCommand("git status")
@@ -213,32 +257,39 @@ func main() {
 			if err == 1 || err2 == 1 {
 				if err2 == 1 {
 					fmt.Println("No go compiler found... Downloading binaries")
+					logerror("No go compiler found. Downloading binaries")
 				}
 				bindata, _ := readCommand("file backup")
 				if strings.Contains(bindata, "x86-64") {
+					loginfo("Downloading x86-64 binary")
 					updateBin("pc")
 				}
 				if strings.Contains(bindata, "ARM aarch64") {
+					loginfo("Downloading aarch64 binary")
 					updateBin("Termux")
 				}
 			} else {
 				cmd("git pull")
+				loginfo("Updated with git")
 				rebuild()
 			}
 		}
 	case "ls":
+		logfunc("ls")
 		cmd("rclone ls " + remote)
 	case "upload":
 		rclone("up")
 	case "download":
 		rclone("down")
 	case "init":
+		logfunc("init")
 		os.Chdir("..")
 		cmd("bash start.sh")
 		os.Chdir("SillyTavernBackup")
 	case "rebuild":
 		rebuild()
 	case "link":
+		logfunc("link")
 		os.Chdir("..")
 		cmd("touch backup")
 		os.Chmod("backup", 0700)
@@ -248,8 +299,13 @@ func main() {
 	case "version":
 		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
 	case "remote":
+		logfunc("remote")
 		makeconf()
+	case "cleanlog":
+		cmd("echo '' > app.log")
+		loginfo("This is a post cleanlog")
 	default:
+		logerror("Option not specified.")
 		fmt.Println("Option not specified...")
 	}
 }

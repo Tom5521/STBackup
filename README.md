@@ -75,7 +75,7 @@ The script works as follows:
 - If "clone" is specified as an argument, the script clones the GitHub repository and compiles the program using the `go build` command.
 - If no arguments are specified, the script does nothing.
 
-In any case, the program is executed and the backup or restore process is started as appropriate.
+In any case, the program is  and the backup or restore process is started as appropriate.
 
 ## Notes
 
