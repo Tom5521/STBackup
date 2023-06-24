@@ -303,7 +303,7 @@ func main() {
 		makeconf()
 	case "cleanlog":
 		cmd("echo '' > app.log")
-		loginfo("This is a post cleanlog")
+		os.Exit(0)
 	default:
 		logerror("Option not specified.")
 		fmt.Println("Option not specified...")
