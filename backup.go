@@ -20,7 +20,7 @@ var exclude_folders string = "--exclude webfonts --exclude scripts --exclude ind
 
 var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-var version string = "1.6"
+var version string = "1.6.1"
 var logger = setupLogger("app.log")
 
 func logerror(text string) {
@@ -227,25 +227,29 @@ func main() {
 		cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
 		os.Chdir("SillyTavernBackup")
 		loginfo("Files Saved")
-		if os.Args[2] == "tar" {
-			logfunc("save tarball")
-			os.Chdir("..")
-			tar := cmd("tar -cvf Backup.tar Backup/")
-			if tar != 0 {
-				loginfo("Tarbal created.")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				logfunc("save tarball")
+				os.Chdir("..")
+				tar := cmd("tar -cvf Backup.tar Backup/")
+				if tar != 0 {
+					loginfo("Tarbal created.")
+				}
 			}
 		}
 	case "restore":
 		logfunc("restore")
 		os.Chdir("..")
-		if os.Args[2] == "tar" {
-			ls, _ := readCommand("ls")
-			logfunc("restore tarball")
-			if strings.Contains(ls, "Backup") {
-				logwarn("Removing Backup/ folder")
-				cmd("rm -rf Backup/")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				ls, _ := readCommand("ls")
+				logfunc("restore tarball")
+				if strings.Contains(ls, "Backup") {
+					logwarn("Removing Backup/ folder")
+					cmd("rm -rf Backup/")
+				}
+				cmd("tar -xvf Backup.tar")
 			}
-			cmd("tar -xvf Backup.tar")
 		}
 		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
 		os.Chdir("SillyTavernBackup")
@@ -308,13 +312,17 @@ func main() {
 		cmd("rclone ls " + remote)
 	case "upload":
 		rclone("up")
-		if os.Args[2] == "tar" {
-			rclone("uptar")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				rclone("uptar")
+			}
 		}
 	case "download":
 		rclone("down")
-		if os.Args[2] == "tar" {
-			rclone("downtar")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				rclone("downtar")
+			}
 		}
 	case "init":
 		logfunc("init")
