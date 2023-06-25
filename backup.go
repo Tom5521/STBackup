@@ -12,15 +12,178 @@ import (
 	"strings"
 )
 
-var back string = "Backup/"
+func main() {
+	loginfo("--------Start--------")
+	defer loginfo("---------End---------")
+	_, rsyncstat := readCommand("rsync --version")
+	if rsyncstat == 1 {
+		fmt.Println("Rsync not found.")
+		logerror("Rsync not found.")
+		return
+	}
+	if len(os.Args) < 2 {
+		logerror("Option not specified.")
+		fmt.Println("Option not specified...")
+		return
+	}
+	switch os.Args[1] {
+	case "make":
+		logfunc("Make")
+		os.Chdir("..")
+		os.MkdirAll("Backup/public", os.ModePerm)
+	case "save":
+		logfunc("save")
+		os.Chdir("..")
+		cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
+		os.Chdir(root)
+		loginfo("Files Saved")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				logfunc("save tarball")
+				os.Chdir("..")
+				tar := cmd("tar -cvf Backup.tar Backup/")
+				if tar != 0 {
+					loginfo("Tarbal created.")
+				}
+			}
+		}
+	case "restore":
+		logfunc("restore")
+		os.Chdir("..")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				ls, _ := readCommand("ls")
+				logfunc("restore tarball")
+				if strings.Contains(ls, "Backup") {
+					logwarn("Removing Backup/ folder")
+					cmd("rm -rf Backup/")
+				}
+				cmd("tar -xvf Backup.tar")
+			}
+		}
+		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
+		os.Chdir(root)
+		loginfo("Files restored")
+	case "route":
+		if len(os.Args) < 3 {
+			fmt.Println("Backup destination not specified")
+			logerror("Not enough arguments")
+			return
+		}
+		os.Chdir("..")
+		cmd("mv Backup/ " + os.Args[2] + " -f")
+		os.Chdir(root)
+		logfunc("route")
+		if os.Args[3] == "tar" {
+			logfunc("route tar")
+			os.Chdir("..")
+			cmd("mv Backup.tar " + os.Args[2] + " -f")
+			loginfo("Tar file moved to" + os.Args[2])
+		}
+	case "start":
+		logfunc("start")
+		cmd("node ../server.js")
+		loginfo("SillyTavern ended")
+	case "update":
+		if len(os.Args) < 2 {
+			fmt.Println("Nothing Selected")
+			logerror("Nothing selected in update func")
+			return
+		}
+		if os.Args[2] == "ST" {
+			os.Chdir("..")
+			cmd("git pull")
+			os.Chdir(root)
+			loginfo("SillyTavern Updated")
+		}
+		if os.Args[2] == "me" {
+			_, ggit := readCommand("git status")
+			err, _ := readCommand("ls")
+			_, err2 := readCommand("go version")
+			if !strings.Contains(err, "backup.go") || err2 == 1 || ggit == 1 {
+				if err2 == 1 {
+					fmt.Println("No go compiler found... Downloading binaries")
+					logerror("No go compiler found. Downloading binaries")
+				}
+				bindata, _ := readCommand("file backup")
+				if strings.Contains(bindata, "x86-64") {
+					loginfo("Downloading x86-64 binary")
+					updateBin("pc")
+				}
+				if strings.Contains(bindata, "ARM aarch64") {
+					loginfo("Downloading aarch64 binary")
+					updateBin("Termux")
+				}
+			} else {
+				cmd("git pull")
+				loginfo("Updated with git")
+				rebuild()
+			}
+			cmd("./backup link")
+		}
+	case "ls":
+		logfunc("ls")
+		cmd("rclone ls " + remote)
+	case "upload":
+		rclone("up")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				rclone("uptar")
+			}
+		}
+	case "download":
+		rclone("down")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				rclone("downtar")
+			}
+		}
+	case "init":
+		logfunc("init")
+		cmd("bash ../start.sh")
+	case "rebuild":
+		rebuild()
+	case "link":
+		logfunc("link")
+		os.Chdir("..")
+		file, _ := os.Create("backup")
+		defer file.Close()
+		cont := "#!/bin/bash\n"
+		cont += "cd SillyTavernBackup\n"
+		cont += "./backup $1 $2 $3 $4\n"
+		file.WriteString(cont)
+		os.Chmod("backup", 0700)
+		loginfo("linked")
+	case "version":
+		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
+	case "remote":
+		logfunc("remote")
+		makeconf()
+	case "cleanlog":
+		cmd("echo '' > app.log")
+		os.Exit(0)
+	case "log":
+		cmd("cat app.log")
+	case "help":
+		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
+	default:
+		logerror("Option not specified.")
+		fmt.Println("Option not specified...")
+	}
+}
 
-var folder, remote string = "../Backup/", readconf("remote.txt")
+const back, root string = "Backup/", "SillyTavernBackup"
 
-var exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar "
+const folder string = "../Backup/"
 
-var include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
+var remote string = readconf("remote.txt")
 
-var version string = "1.6.1"
+const exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar "
+
+const include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
+
+const version string = "1.7"
+
 var logger = setupLogger("app.log")
 
 func logerror(text string) {
@@ -83,18 +246,15 @@ func downloadLatestReleaseBinary(repo string, binName string) error {
 		return err
 	}
 	defer resp.Body.Close()
-
 	out, err := os.Create(binName)
 	if err != nil {
 		return err
 	}
 	defer out.Close()
-
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		return err
 	}
-
 	fmt.Printf("The %s binary of the latest version of %s has been successfully downloaded.\n", binName, repo)
 	return nil
 }
@@ -123,7 +283,7 @@ func readCommand(command string) (string, int) {
 }
 func updateBin(option string) {
 	var fileName string
-	repo := "Tom5521/SillyTavernBackup"
+	const repo string = "Tom5521/SillyTavernBackup"
 	if option == "Termux" {
 		fileName = "backup-aarch64"
 	}
@@ -201,158 +361,4 @@ func rclone(parameter string) {
 	com.Stdin = os.Stdin
 	com.Stdout = os.Stdout
 	com.Run()
-}
-func main() {
-	loginfo("--------Start--------")
-	defer loginfo("---------End---------")
-	_, rsyncstat := readCommand("rsync --version")
-	if rsyncstat == 1 {
-		fmt.Println("Rsync not found.")
-		logerror("Rsync not found.")
-		return
-	}
-	if len(os.Args) < 2 {
-		logerror("Option not specified.")
-		fmt.Println("Option not specified...")
-		return
-	}
-	switch os.Args[1] {
-	case "make":
-		logfunc("Make")
-		os.Chdir("..")
-		os.MkdirAll("Backup/public", os.ModePerm)
-	case "save":
-		logfunc("save")
-		os.Chdir("..")
-		cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
-		os.Chdir("SillyTavernBackup")
-		loginfo("Files Saved")
-		if len(os.Args) == 3 {
-			if os.Args[2] == "tar" {
-				logfunc("save tarball")
-				os.Chdir("..")
-				tar := cmd("tar -cvf Backup.tar Backup/")
-				if tar != 0 {
-					loginfo("Tarbal created.")
-				}
-			}
-		}
-	case "restore":
-		logfunc("restore")
-		os.Chdir("..")
-		if len(os.Args) == 3 {
-			if os.Args[2] == "tar" {
-				ls, _ := readCommand("ls")
-				logfunc("restore tarball")
-				if strings.Contains(ls, "Backup") {
-					logwarn("Removing Backup/ folder")
-					cmd("rm -rf Backup/")
-				}
-				cmd("tar -xvf Backup.tar")
-			}
-		}
-		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
-		os.Chdir("SillyTavernBackup")
-		loginfo("Files restored")
-	case "route":
-		if len(os.Args) < 3 {
-			fmt.Println("Backup destination not specified")
-			logerror("Not enough arguments")
-			return
-		}
-		os.Chdir("..")
-		cmd("mv Backup/ " + os.Args[2] + " -f")
-		os.Chdir("SillyTavernBackup")
-		logfunc("route")
-	case "start":
-		logfunc("start")
-		os.Chdir("..")
-		cmd("node server.js")
-		os.Chdir("SillyTavernBackup")
-		loginfo("SillyTavern ended")
-	case "update":
-		if len(os.Args) < 2 {
-			fmt.Println("Nothing Selected")
-			logerror("Nothing selected in update func")
-			return
-		}
-		if os.Args[2] == "ST" {
-			os.Chdir("..")
-			cmd("git pull")
-			os.Chdir("SillyTavernBackup")
-			loginfo("SillyTavern Updated")
-		}
-		if os.Args[2] == "me" {
-			_, ggit := readCommand("git status")
-			err, _ := readCommand("ls")
-			_, err2 := readCommand("go version")
-			if !strings.Contains(err, "backup.go") || err2 == 1 || ggit == 1 {
-				if err2 == 1 {
-					fmt.Println("No go compiler found... Downloading binaries")
-					logerror("No go compiler found. Downloading binaries")
-				}
-				bindata, _ := readCommand("file backup")
-				if strings.Contains(bindata, "x86-64") {
-					loginfo("Downloading x86-64 binary")
-					updateBin("pc")
-				}
-				if strings.Contains(bindata, "ARM aarch64") {
-					loginfo("Downloading aarch64 binary")
-					updateBin("Termux")
-				}
-			} else {
-				cmd("git pull")
-				loginfo("Updated with git")
-				rebuild()
-			}
-			cmd("./backup link")
-		}
-	case "ls":
-		logfunc("ls")
-		cmd("rclone ls " + remote)
-	case "upload":
-		rclone("up")
-		if len(os.Args) == 3 {
-			if os.Args[2] == "tar" {
-				rclone("uptar")
-			}
-		}
-	case "download":
-		rclone("down")
-		if len(os.Args) == 3 {
-			if os.Args[2] == "tar" {
-				rclone("downtar")
-			}
-		}
-	case "init":
-		logfunc("init")
-		os.Chdir("..")
-		cmd("bash start.sh")
-		os.Chdir("SillyTavernBackup")
-	case "rebuild":
-		rebuild()
-	case "link":
-		logfunc("link")
-		os.Chdir("..")
-		cmd("touch backup")
-		os.Chmod("backup", 0700)
-		cmd("echo '#!/bin/bash' > backup")
-		cmd("echo 'cd SillyTavernBackup' >> backup")
-		cmd("echo './backup $1 $2 $3 $4' >> backup")
-	case "version":
-		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
-	case "remote":
-		logfunc("remote")
-		makeconf()
-	case "cleanlog":
-		cmd("echo '' > app.log")
-		os.Exit(0)
-	case "log":
-		cmd("cat app.log")
-	case "help":
-		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
-	default:
-		logerror("Option not specified.")
-		fmt.Println("Option not specified...")
-	}
 }
