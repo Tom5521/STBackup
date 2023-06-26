@@ -9,10 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
 func main() {
+	os.Chdir(root)
 	loginfo("--------Start--------")
 	defer loginfo("---------End---------")
 	_, rsyncstat := readCommand("rsync --version")
@@ -53,7 +55,7 @@ func main() {
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
 				ls, _ := readCommand("ls")
-				logfunc("restore tarball")
+				logfunc("restore from tarball")
 				if strings.Contains(ls, "Backup") {
 					logwarn("Removing Backup/ folder")
 					cmd("rm -rf Backup/")
@@ -149,8 +151,7 @@ func main() {
 		file, _ := os.Create("backup")
 		defer file.Close()
 		cont := "#!/bin/bash\n"
-		cont += "cd SillyTavernBackup\n"
-		cont += "./backup $1 $2 $3 $4\n"
+		cont += "SillyTavernBackup/backup $1 $2 $3 $4\n"
 		file.WriteString(cont)
 		os.Chmod("backup", 0700)
 		loginfo("linked")
@@ -172,19 +173,7 @@ func main() {
 	}
 }
 
-const back, root string = "Backup/", "SillyTavernBackup"
-
-const folder string = "../Backup/"
-
-var remote string = readconf("remote.txt")
-
-const exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar "
-
-const include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
-
-const version string = "1.7"
-
-var logger = setupLogger("app.log")
+// Functions
 
 func logerror(text string) {
 	logger.Fatalln("ERROR: " + text)
@@ -260,6 +249,9 @@ func downloadLatestReleaseBinary(repo string, binName string) error {
 }
 
 func readconf(file string) string {
+	oldir, _ := os.Getwd()
+	defer os.Chdir(oldir)
+	os.Chdir(root)
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, file) {
 		logwarn("remote.txt not found. The file was recreated")
@@ -310,7 +302,13 @@ func cmd(input string) int {
 	return 0
 }
 func rebuild() {
+	logfunc("rebuild")
 	_, errcode := readCommand("go version")
+	ls, _ := readCommand("ls")
+	if !strings.Contains(ls, "backup.go") {
+		fmt.Println("Source code not found")
+		logerror("Source code not found")
+	}
 	if errcode == 1 {
 		fmt.Println("No go compiler found")
 		logerror("No go compiler found")
@@ -320,7 +318,7 @@ func rebuild() {
 	err := cmd("go build backup.go")
 	if err != 1 {
 		fmt.Println("Rebuild Complete.")
-		logfunc("Rebuild")
+		logfunc("Rebuilded")
 		return
 	}
 	logerror("Error in rebuild prosess")
@@ -337,22 +335,20 @@ func rclone(parameter string) {
 		makeconf()
 	}
 	var com = exec.Command("")
-	if parameter == "uptar" {
+	switch parameter {
+	case "uptar":
 		logfunc("upload tar")
 		com = exec.Command("rclone", "copy", "Backup.tar", remote)
 		defer loginfo("tar uploaded")
-	}
-	if parameter == "downtar" {
+	case "downtar":
 		logfunc("download tar")
 		com = exec.Command("rclone", "copy", remote+"/Backup.tar", "..")
 		defer loginfo("tar downloaded")
-	}
-	if parameter == "up" {
+	case "up":
 		logfunc("upload")
 		com = exec.Command("rclone", "sync", folder, remote, "-L", "-P")
 		defer loginfo("Files uploaded")
-	}
-	if parameter == "down" {
+	case "down":
 		logfunc("download")
 		com = exec.Command("rclone", "sync", remote, folder, "-L", "-P")
 		defer loginfo("Files downloaded")
@@ -362,3 +358,18 @@ func rclone(parameter string) {
 	com.Stdout = os.Stdout
 	com.Run()
 }
+
+// Vars and Constrants
+const folder, back string = "../Backup/", "Backup/"
+
+var binpath, _ = filepath.Abs(os.Args[0])
+var root string = filepath.Dir(binpath)
+var remote string = readconf("remote.txt")
+
+const exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar "
+
+const include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
+
+const version string = "1.7.1"
+
+var logger = setupLogger("app.log")
