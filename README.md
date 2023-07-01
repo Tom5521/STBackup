@@ -56,7 +56,7 @@ The program is run from the command line and accepts various commands and option
 
 ### Configuration
 
-The program reads the remote server route from the `remote.txt` file. If the file doesn't exist, the program will prompt the user to enter the route.
+The program reads the remote server route from the `config.json` file. If the file doesn't exist, the program will prompt the user to enter the route.
 
 ### Log
 

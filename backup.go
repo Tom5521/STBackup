@@ -23,9 +23,9 @@ var root string = filepath.Dir(binpath)
 var pre_remote, _ = getJsonValue("config.json", "remote")
 var remote string = pre_remote.(string)
 
-const exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log"
+const exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log --exclude i18n.json "
 
-const include_folders string = "--include backgrounds --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include i18n.json --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
+const include_folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
 const version string = "1.8"
 
@@ -97,6 +97,12 @@ func readconf() (string, error) {
 	return remote, nil
 }
 func getJsonValue(jsonFile string, variableName string) (interface{}, error) {
+	ls, _ := readCommand("ls")
+	if !strings.Contains(ls, jsonFile) {
+		fmt.Println(jsonFile + " Not found!")
+		logwarn(jsonFile + " Not found!")
+		return os.DevNull, nil
+	}
 	file, err := os.Open(jsonFile)
 	if err != nil {
 		return nil, err
@@ -290,6 +296,7 @@ func main() {
 	}
 	if os.Args[1] == "rebuild" {
 		rebuild()
+		return
 	}
 	switch os.Args[1] {
 	case "make":
@@ -326,7 +333,7 @@ func main() {
 				cmd("tar -xvf Backup.tar")
 			}
 		}
-		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " " + ".")
+		cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " . ")
 		os.Chdir(root)
 		loginfo("Files restored")
 	case "route":
