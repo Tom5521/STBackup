@@ -27,7 +27,7 @@ const exclude_folders string = "--exclude webfonts --exclude scripts --exclude i
 
 const include_folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "
 
-const version string = "1.8"
+const version string = "1.8.1"
 
 var logger = setupLogger("app.log")
 
@@ -74,6 +74,7 @@ func readCommand(command string) (string, int) {
 	return string(data), 0
 }
 func readconf() (string, error) {
+	os.Chdir(root)
 	file, err := os.Open("config.json")
 	if err != nil {
 		return "", err
@@ -97,6 +98,7 @@ func readconf() (string, error) {
 	return remote, nil
 }
 func getJsonValue(jsonFile string, variableName string) (interface{}, error) {
+	os.Chdir(root)
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, jsonFile) {
 		fmt.Println(jsonFile + " Not found!")
@@ -126,6 +128,7 @@ func getJsonValue(jsonFile string, variableName string) (interface{}, error) {
 	return variableValue, nil
 }
 func makeconf() error {
+	os.Chdir(root)
 	cmd("echo '{\"remote\":\"\"}' > config.json")
 	fmt.Print("Enter the rclone remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -161,6 +164,7 @@ func makeconf() error {
 	return nil
 }
 func rebuild() {
+	os.Chdir(root)
 	logfunc("rebuild")
 	_, errcode := readCommand("go version")
 	ls, _ := readCommand("ls")
@@ -183,6 +187,7 @@ func rebuild() {
 	logerror("Error in rebuild prosess")
 }
 func updateBin(option string) {
+	os.Chdir(root)
 	var fileName string
 	const repo string = "Tom5521/SillyTavernBackup"
 	if option == "Termux" {
@@ -419,7 +424,8 @@ func main() {
 		file, _ := os.Create("backup")
 		defer file.Close()
 		cont := "#!/bin/bash\n"
-		cont += "SillyTavernBackup/backup $1 $2 $3 $4\n"
+		cont += "cd SillyTavernBackup/\n"
+		cont += "./backup $1 $2 $3 $4\n"
 		file.WriteString(cont)
 		os.Chmod("backup", 0700)
 		loginfo("linked")
