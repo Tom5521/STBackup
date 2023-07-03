@@ -24,6 +24,10 @@ const version string = "2"
 func main() {
 	os.Chdir(root)
 	src.Loginfo("--------Start--------")
+	if src.CheckBranch() == false {
+		src.Logwarn("You are in the dev branch!")
+		fmt.Println("Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.")
+	}
 	defer src.Loginfo("---------End---------")
 	_, rsyncstat := src.ReadCommand("rsync --version")
 	if rsyncstat == 1 {
@@ -36,7 +40,7 @@ func main() {
 		fmt.Println("Option not specified...")
 		return
 	}
-	if os.Args[1] == "src.Rebuild" {
+	if os.Args[1] == "rebuild" {
 		src.Rebuild()
 		return
 	}
@@ -137,7 +141,7 @@ func main() {
 		}
 	case "ls":
 		src.Logfunc("ls")
-		src.Cmd("src.Rclone ls " + remote)
+		src.Cmd("rclone ls " + remote)
 	case "upload":
 		src.Rclone("up")
 		if len(os.Args) == 3 {

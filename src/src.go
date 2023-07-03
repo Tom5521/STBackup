@@ -174,13 +174,13 @@ func Rebuild() {
 		return
 	}
 	fmt.Println("Rebuilding...")
-	err := Cmd("go build main.go")
+	err := Cmd("go build -o backup main.go")
 	if err != 1 {
 		fmt.Println("Rebuild Complete.")
 		Logfunc("Rebuilded")
 		return
 	}
-	Logerror("Error in src.Rebuild prosess")
+	Logerror("Error in rebuild prosess")
 }
 func UpdateBin(option string) {
 	os.Chdir(Root)
@@ -277,4 +277,12 @@ func DownloadLatestReleaseBinary(repo string, binName string) error {
 	}
 	fmt.Printf("The %s binary of the latest version of %s has been successfully downloaded.\n", binName, repo)
 	return nil
+}
+
+func CheckBranch() bool {
+	data1, _ := ReadCommand("git status")
+	if strings.Contains(data1, "origin/dev") {
+		return false
+	}
+	return true
 }
