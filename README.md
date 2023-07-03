@@ -17,7 +17,7 @@ This is a source code file written in the Go programming language, which provide
 3. Run the following command to compile the program:
 
 ```bash
-go build backup.go
+go build -o backup main.go
 ```
 1. Once compiled, you can use the program by running the `backup` binary file in the same folder as the source code file.
 2. (Optional) You can make a `./backup link` to be able to run the script from the root of SillyTavern and not need to enter the binary folder. This process is done automatically in the script

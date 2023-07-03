@@ -121,7 +121,7 @@ func main() {
 			_, ggit := tools.ReadCommand("git status")
 			err, _ := tools.ReadCommand("ls")
 			_, err2 := tools.ReadCommand("go version")
-			if !strings.Contains(err, "backup.go") || err2 == 1 || ggit == 1 {
+			if !strings.Contains(err, "main.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
 					fmt.Println("No go compiler found... Downloading binaries")
 					log.Logerror("No go compiler found. Downloading binaries")

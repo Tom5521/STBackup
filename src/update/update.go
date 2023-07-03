@@ -39,7 +39,7 @@ func DownloadLatestReleaseBinary(repo string, binName string) error {
 		}
 	}
 	if binaryURL == "" {
-		return fmt.Errorf("No se encontró el binario %s en la última versión de %s", binName, repo)
+		return fmt.Errorf("Failed to find %s binary in the latest version of %s", binName, repo)
 	}
 	resp, err = http.Get(binaryURL)
 	if err != nil {
