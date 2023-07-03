@@ -5,162 +5,165 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tom5521/SillyTavernBackup/src"
+	"github.com/Tom5521/SillyTavernBackup/src/getdata"
+	"github.com/Tom5521/SillyTavernBackup/src/log"
+	"github.com/Tom5521/SillyTavernBackup/src/tools"
+	"github.com/Tom5521/SillyTavernBackup/src/update"
 )
 
 // Vars and Constants
-const folder, back string = src.Folder, src.Back
+const folder, back string = getdata.Folder, getdata.Back
 
-var remote string = src.Remote
+var remote string = getdata.Remote
 
-const exclude_folders string = src.Exclude_Folders
-const include_folders string = src.Include_Folders
+var exclude_folders string = getdata.Exclude_Folders
+var include_folders string = getdata.Include_Folders
 
-var root string = src.Root
+var root string = getdata.Root
 
 const version string = "2"
 
 // MAIN
 func main() {
 	os.Chdir(root)
-	src.Loginfo("--------Start--------")
-	if src.CheckBranch() == false {
-		src.Logwarn("You are in the dev branch!")
+	log.Loginfo("--------Start--------")
+	if tools.CheckBranch() == false {
+		log.Logwarn("You are in the dev branch!")
 		fmt.Println("Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.")
 	}
-	defer src.Loginfo("---------End---------")
-	_, rsyncstat := src.ReadCommand("rsync --version")
+	defer log.Loginfo("---------End---------")
+	_, rsyncstat := tools.ReadCommand("rsync --version")
 	if rsyncstat == 1 {
 		fmt.Println("Rsync not found.")
-		src.Logerror("Rsync not found.")
+		log.Logerror("Rsync not found.")
 		return
 	}
 	if len(os.Args) < 2 {
-		src.Logerror("Option not specified.")
+		log.Logerror("Option not specified.")
 		fmt.Println("Option not specified...")
 		return
 	}
 	if os.Args[1] == "rebuild" {
-		src.Rebuild()
+		update.Rebuild()
 		return
 	}
 	switch os.Args[1] {
 	case "make":
-		src.Logfunc("Make")
+		log.Logfunc("Make")
 		os.Chdir("..")
 		os.MkdirAll("Backup/public", os.ModePerm)
 	case "save":
-		src.Logfunc("save")
+		log.Logfunc("save")
 		os.Chdir("..")
-		src.Cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
+		tools.Cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
 		os.Chdir(root)
-		src.Loginfo("Files Saved")
+		log.Loginfo("Files Saved")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				src.Logfunc("save tarball")
+				log.Logfunc("save tarball")
 				os.Chdir("..")
-				tar := src.Cmd("tar -cvf Backup.tar Backup/")
+				tar := tools.Cmd("tar -cvf Backup.tar Backup/")
 				if tar != 0 {
-					src.Loginfo("Tarbal created.")
+					log.Loginfo("Tarbal created.")
 				}
 			}
 		}
 	case "restore":
-		src.Logfunc("restore")
+		log.Logfunc("restore")
 		os.Chdir("..")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				ls, _ := src.ReadCommand("ls")
-				src.Logfunc("restore from tarball")
+				ls, _ := tools.ReadCommand("ls")
+				log.Logfunc("restore from tarball")
 				if strings.Contains(ls, "Backup") {
-					src.Logwarn("Removing Backup/ folder")
-					src.Cmd("rm -rf Backup/")
+					log.Logwarn("Removing Backup/ folder")
+					tools.Cmd("rm -rf Backup/")
 				}
-				src.Cmd("tar -xvf Backup.tar")
+				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		src.Cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " . ")
+		tools.Cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " . ")
 		os.Chdir(root)
-		src.Loginfo("Files restored")
+		log.Loginfo("Files restored")
 	case "route":
 		if len(os.Args) < 3 {
 			fmt.Println("Backup destination not specified")
-			src.Logerror("Not enough arguments")
+			log.Logerror("Not enough arguments")
 			return
 		}
 		os.Chdir("..")
-		src.Cmd("mv Backup/ " + os.Args[2] + " -f")
+		tools.Cmd("mv Backup/ " + os.Args[2] + " -f")
 		os.Chdir(root)
-		src.Logfunc("route")
+		log.Logfunc("route")
 		if os.Args[3] == "tar" {
-			src.Logfunc("route tar")
+			log.Logfunc("route tar")
 			os.Chdir("..")
-			src.Cmd("mv Backup.tar " + os.Args[2] + " -f")
-			src.Loginfo("Tar file moved to" + os.Args[2])
+			tools.Cmd("mv Backup.tar " + os.Args[2] + " -f")
+			log.Loginfo("Tar file moved to" + os.Args[2])
 		}
 	case "start":
-		src.Logfunc("start")
-		src.Cmd("node ../server.js")
-		src.Loginfo("SillyTavern ended")
+		log.Logfunc("start")
+		tools.Cmd("node ../server.js")
+		log.Loginfo("SillyTavern ended")
 	case "update":
 		if len(os.Args) < 2 {
 			fmt.Println("Nothing Selected")
-			src.Logerror("Nothing selected in update func")
+			log.Logerror("Nothing selected in update func")
 			return
 		}
 		if os.Args[2] == "ST" {
 			os.Chdir("..")
-			src.Cmd("git pull")
+			tools.Cmd("git pull")
 			os.Chdir(root)
-			src.Loginfo("SillyTavern Updated")
+			log.Loginfo("SillyTavern Updated")
 		}
 		if os.Args[2] == "me" {
-			_, ggit := src.ReadCommand("git status")
-			err, _ := src.ReadCommand("ls")
-			_, err2 := src.ReadCommand("go version")
+			_, ggit := tools.ReadCommand("git status")
+			err, _ := tools.ReadCommand("ls")
+			_, err2 := tools.ReadCommand("go version")
 			if !strings.Contains(err, "backup.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
 					fmt.Println("No go compiler found... Downloading binaries")
-					src.Logerror("No go compiler found. Downloading binaries")
+					log.Logerror("No go compiler found. Downloading binaries")
 				}
-				bindata, _ := src.ReadCommand("file backup")
+				bindata, _ := tools.ReadCommand("file backup")
 				if strings.Contains(bindata, "x86-64") {
-					src.Loginfo("Downloading x86-64 binary")
-					src.UpdateBin("pc")
+					log.Loginfo("Downloading x86-64 binary")
+					update.UpdateBin("pc")
 				}
 				if strings.Contains(bindata, "ARM aarch64") {
-					src.Loginfo("Downloading aarch64 binary")
-					src.UpdateBin("Termux")
+					log.Loginfo("Downloading aarch64 binary")
+					update.UpdateBin("Termux")
 				}
 			} else {
-				src.Cmd("git pull")
-				src.Loginfo("Updated with git")
-				src.Rebuild()
+				tools.Cmd("git pull")
+				log.Loginfo("Updated with git")
+				update.Rebuild()
 			}
-			src.Cmd("./backup link")
+			tools.Cmd("./backup link")
 		}
 	case "ls":
-		src.Logfunc("ls")
-		src.Cmd("rclone ls " + remote)
+		log.Logfunc("ls")
+		tools.Cmd("rclone ls " + remote)
 	case "upload":
-		src.Rclone("up")
+		tools.Rclone("up")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				src.Rclone("uptar")
+				tools.Rclone("uptar")
 			}
 		}
 	case "download":
-		src.Rclone("down")
+		tools.Rclone("down")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				src.Rclone("downtar")
+				tools.Rclone("downtar")
 			}
 		}
 	case "init":
-		src.Logfunc("init")
-		src.Cmd("bash ../start.sh")
+		log.Logfunc("init")
+		tools.Cmd("bash ../start.sh")
 	case "link":
-		src.Logfunc("link")
+		log.Logfunc("link")
 		os.Chdir("..")
 		file, _ := os.Create("backup")
 		defer file.Close()
@@ -169,21 +172,21 @@ func main() {
 		cont += "./backup $1 $2 $3 $4\n"
 		file.WriteString(cont)
 		os.Chmod("backup", 0700)
-		src.Loginfo("linked")
+		log.Loginfo("linked")
 	case "version":
 		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
 	case "remote":
-		src.Logfunc("remote")
-		src.Makeconf()
+		log.Logfunc("remote")
+		tools.Makeconf()
 	case "cleanlog":
-		src.Cmd("echo '' > app.log")
+		tools.Cmd("echo '' > app.log")
 		os.Exit(0)
 	case "log":
-		src.Cmd("cat app.log")
+		tools.Cmd("cat app.log")
 	case "help":
 		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
 	default:
-		src.Logerror("Option not specified.")
+		log.Logerror("Option not specified.")
 		fmt.Println("Option not specified...")
 	}
 }
