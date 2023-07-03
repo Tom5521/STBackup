@@ -17,7 +17,7 @@ const Folder, Back string = "../Backup/", "Backup/"
 
 var binpath, _ = filepath.Abs(os.Args[0])
 var Root string = filepath.Dir(binpath)
-var pre_Remote, _ = GetJsonValue("config.json", "config.json")
+var pre_Remote, _ = GetJsonValue("config.json", "remote")
 var Remote string = pre_Remote.(string)
 
 var Include_Folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads "

@@ -66,7 +66,7 @@ func Readconf() (string, error) {
 
 func Makeconf() error {
 	os.Chdir(Root)
-	Cmd("echo '{\"Remote\":\"\"}' > config.json")
+	Cmd("echo '{\"remote\":\"\"}' > config.json")
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -89,7 +89,7 @@ func Makeconf() error {
 	if err != nil {
 		return err
 	}
-	config["Remote"] = input
+	config["remote"] = input
 	bytes, err = json.MarshalIndent(config, "", "    ")
 	if err != nil {
 		return err
