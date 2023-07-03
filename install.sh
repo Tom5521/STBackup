@@ -33,7 +33,7 @@ if [ "$1" == "clone" ]; then
     git clone https://github.com/Tom5521/SillyTavernBackup.git
     cd SillyTavernBackup
     echo Compiling...
-    go build backup.go
+    go build -o backup main.go
     echo "Configure remote..."
     ./backup remote
     echo "Creating link in SillyTavern root directory..."
