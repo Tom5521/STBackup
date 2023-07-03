@@ -182,8 +182,6 @@ func main() {
 		src.Cmd("cat app.log")
 	case "help":
 		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
-	case "test":
-		fmt.Println(remote, root)
 	default:
 		src.Logerror("Option not specified.")
 		fmt.Println("Option not specified...")
