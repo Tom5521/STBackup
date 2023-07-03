@@ -1,12 +1,14 @@
 #!/bin/bash
 
+file="main.go"
+
 if [ "$1" == "d" ]; then
     echo Build for dev use...
-    go build -ldflags="-s -w" -gcflags=-trimpath -tags linux backup.go
+    go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup $file
     exit
 fi
 echo Build for distribution...
-go build -ldflags="-s -w" -gcflags=-trimpath -tags linux backup.go
+go build -ldflags="-s -w" -gcflags=-trimpath -tags linux main.go
 
 if [ ! -d "builds" ]; then
     mkdir builds
@@ -19,7 +21,7 @@ fi
 cd x86-64
 export GOOS=linux
 export GOARCH=amd64
-go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup-x86-64 ../../backup.go
+go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup-x86-64 ../../$file
 
 cd ..
 if [ ! -d "aarch64" ]; then
@@ -28,6 +30,6 @@ fi
 cd aarch64
 export GOOS=android
 export GOARCH=arm64
-go build -ldflags="-s -w" -gcflags=-trimpath -tags android -buildmode=pie -o backup-aarch64 ../../backup.go
+go build -ldflags="-s -w" -gcflags=-trimpath -tags android -buildmode=pie -o backup-aarch64 ../../$file
 
 
