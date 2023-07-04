@@ -8,7 +8,7 @@ if [ "$1" == "d" ]; then
     exit
 fi
 echo Build for distribution...
-go build -ldflags="-s -w" -gcflags=-trimpath -tags linux main.go
+go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup $file
 
 if [ ! -d "builds" ]; then
     mkdir builds
