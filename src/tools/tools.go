@@ -97,6 +97,10 @@ func Makeconf() error {
 }
 
 func Rclone(parameter string) {
+	if getdata.Remote == "" {
+		fmt.Println("Remote dir is null!!!")
+		log.Error("Remote dir is null.")
+	}
 	_, err := ReadCommand("rclone version")
 	if err == 1 {
 		fmt.Println("Rclone not found.")

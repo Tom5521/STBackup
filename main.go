@@ -36,6 +36,7 @@ func main() {
 		log.Func("Make")
 		os.Chdir("..")
 		os.MkdirAll("Backup/public", os.ModePerm)
+		tools.Cmd("")
 	case "save":
 		log.Func("save")
 		os.Chdir("..")
