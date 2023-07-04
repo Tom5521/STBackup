@@ -14,37 +14,21 @@ import (
 // Vars and Constants
 const folder, back string = getdata.Folder, getdata.Back
 
-var remote string = getdata.Remote
-
-var exclude_folders string = getdata.Exclude_Folders
-var include_folders string = getdata.Include_Folders
-
 var root string = getdata.Root
-
-const version string = "2"
 
 // MAIN
 func main() {
-	os.Chdir(root)
 	log.Loginfo("--------Start--------")
+	rebuildcheck := update.RebuildCheck()
+	defer log.Loginfo("---------End---------")
+	os.Chdir(root)
 	if tools.CheckBranch() == false {
 		log.Logwarn("You are in the dev branch!")
 		fmt.Println("Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.")
 	}
-	defer log.Loginfo("---------End---------")
-	_, rsyncstat := tools.ReadCommand("rsync --version")
-	if rsyncstat == 1 {
-		fmt.Println("Rsync not found.")
-		log.Logerror("Rsync not found.")
-		return
-	}
-	if len(os.Args) < 2 {
+	if len(os.Args) < 2 && !rebuildcheck {
 		log.Logerror("Option not specified.")
 		fmt.Println("Option not specified...")
-		return
-	}
-	if os.Args[1] == "rebuild" {
-		update.Rebuild()
 		return
 	}
 	switch os.Args[1] {
@@ -55,7 +39,7 @@ func main() {
 	case "save":
 		log.Logfunc("save")
 		os.Chdir("..")
-		tools.Cmd("rsync -av --progress " + exclude_folders + "--delete . " + " " + back)
+		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + "--delete . " + " " + back)
 		os.Chdir(root)
 		log.Loginfo("Files Saved")
 		if len(os.Args) == 3 {
@@ -82,7 +66,7 @@ func main() {
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd("rsync -av --progress " + exclude_folders + include_folders + "--delete " + back + " . ")
+		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + getdata.Include_Folders + "--delete " + back + " . ")
 		os.Chdir(root)
 		log.Loginfo("Files restored")
 	case "route":
@@ -144,7 +128,7 @@ func main() {
 		}
 	case "ls":
 		log.Logfunc("ls")
-		tools.Cmd("rclone ls " + remote)
+		tools.Cmd("rclone ls " + getdata.Remote)
 	case "upload":
 		tools.Rclone("up")
 		if len(os.Args) == 3 {
@@ -174,7 +158,7 @@ func main() {
 		os.Chmod("backup", 0700)
 		log.Loginfo("linked")
 	case "version":
-		fmt.Println("SillyTavernBackup version", version, "\nUnder the MIT licence\nCreated by Tom5521")
+		fmt.Println("SillyTavernBackup version", getdata.Version, "\nUnder the MIT licence\nCreated by Tom5521")
 	case "remote":
 		log.Logfunc("remote")
 		tools.Makeconf()
@@ -183,6 +167,8 @@ func main() {
 		os.Exit(0)
 	case "log":
 		tools.Cmd("cat app.log")
+	case "printconfig":
+		tools.Cmd("cat config.json")
 	case "help":
 		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
 	default:

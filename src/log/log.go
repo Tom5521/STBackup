@@ -8,7 +8,7 @@ import (
 var logger = setupLogger("app.log")
 
 func Logerror(text string) {
-	logger.Fatalln("ERROR: " + text)
+	logger.Panicln("ERROR: " + text)
 }
 func Logwarn(text string) {
 	logger.Println("WARNING: " + text)
