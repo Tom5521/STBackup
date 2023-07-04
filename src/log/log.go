@@ -7,16 +7,16 @@ import (
 
 var logger = setupLogger("app.log")
 
-func Logerror(text string) {
+func Error(text string) {
 	logger.Panicln("ERROR: " + text)
 }
-func Logwarn(text string) {
+func Warning(text string) {
 	logger.Println("WARNING: " + text)
 }
-func Loginfo(text string) {
+func Info(text string) {
 	logger.Println("PROGRAM: " + text)
 }
-func Logfunc(text string) {
+func Func(text string) {
 	logger.Println("FUNC:    ---" + text + "---")
 }
 func setupLogger(logFilePath string) *log.Logger {

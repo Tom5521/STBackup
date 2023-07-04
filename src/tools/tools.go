@@ -13,12 +13,6 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
 
-var Folder string = getdata.Folder
-var Root string = getdata.Root
-var Remote string = getdata.Remote
-var Exclude_Folders string = getdata.Exclude_Folders
-var Include_Folders string = getdata.Include_Folders
-
 // Important functions
 func Cmd(input string) int {
 	cmd := exec.Command("sh", "-c", input)
@@ -39,8 +33,9 @@ func ReadCommand(command string) (string, int) {
 	}
 	return string(data), 0
 }
+
 func Readconf() (string, error) {
-	os.Chdir(Root)
+	os.Chdir(getdata.Root)
 	file, err := os.Open("config.json")
 	if err != nil {
 		return "", err
@@ -58,14 +53,14 @@ func Readconf() (string, error) {
 	Remote := config["Remote"].(string)
 	if Remote == "" {
 		fmt.Println("Remote is empty.")
-		log.Logwarn("Remote is empty.")
+		log.Warning("Remote is empty.")
 		return "", nil
 	}
 	return Remote, nil
 }
 
 func Makeconf() error {
-	os.Chdir(Root)
+	os.Chdir(getdata.Root)
 	Cmd("echo '{\"remote\":\"\"}' > config.json")
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -73,7 +68,7 @@ func Makeconf() error {
 	input := scanner.Text()
 	pwd, _ := ReadCommand("pwd")
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", pwd, input)
-	log.Loginfo("Remote Saved\nRemote:'" + input + "'\nRoute:'" + pwd + "'")
+	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + pwd + "'")
 
 	file, err := os.OpenFile("config.json", os.O_RDWR, 0644)
 	if err != nil {
@@ -102,10 +97,14 @@ func Makeconf() error {
 }
 
 func Rclone(parameter string) {
+	if getdata.Remote == "" {
+		fmt.Println("Remote dir is null!!!")
+		log.Error("Remote dir is null.")
+	}
 	_, err := ReadCommand("rclone version")
 	if err == 1 {
 		fmt.Println("Rclone not found.")
-		log.Logerror("Rclone not found")
+		log.Error("Rclone not found")
 		return
 	}
 	lsstat, _ := ReadCommand("ls")
@@ -113,23 +112,24 @@ func Rclone(parameter string) {
 		Makeconf()
 	}
 	var com = exec.Command("")
+	var Remote, Folder string = getdata.Remote, getdata.Folder
 	switch parameter {
 	case "uptar":
-		log.Logfunc("upload tar")
+		log.Func("upload tar")
 		com = exec.Command("rclone", "copy", "Backup.tar", Remote)
-		defer log.Loginfo("tar uploaded")
+		defer log.Info("tar uploaded")
 	case "downtar":
-		log.Logfunc("download tar")
+		log.Func("download tar")
 		com = exec.Command("rclone", "copy", Remote+"/Backup.tar", "..")
-		defer log.Loginfo("tar downloaded")
+		defer log.Info("tar downloaded")
 	case "up":
-		log.Logfunc("upload")
+		log.Func("upload")
 		com = exec.Command("rclone", "sync", Folder, Remote, "-L", "-P")
-		defer log.Loginfo("Files uploaded")
+		defer log.Info("Files uploaded")
 	case "down":
-		log.Logfunc("download")
+		log.Func("download")
 		com = exec.Command("rclone", "sync", Remote, Folder, "-L", "-P")
-		defer log.Loginfo("Files downloaded")
+		defer log.Info("Files downloaded")
 	}
 	com.Stderr = os.Stderr
 	com.Stdin = os.Stdin
@@ -149,7 +149,7 @@ func CheckRsync() {
 	_, rsyncstat := ReadCommand("rsync --version")
 	if rsyncstat == 1 {
 		fmt.Println("Rsync not found.")
-		log.Logerror("Rsync not found.")
+		log.Error("Rsync not found.")
 		return
 	}
 }

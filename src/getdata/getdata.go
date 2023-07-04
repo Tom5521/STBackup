@@ -14,7 +14,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.1"
+const Version string = "2.1.1"
 
 var binpath, _ = filepath.Abs(os.Args[0])
 var Root string = filepath.Dir(binpath)
@@ -29,7 +29,7 @@ func GetJsonValue(jsonFile string, variableName string) (interface{}, error) {
 	ls, _ := ReadCommand("ls")
 	if !strings.Contains(ls, jsonFile) {
 		fmt.Println(jsonFile + " Not found!")
-		log.Logwarn(jsonFile + " Not found!")
+		log.Warning(jsonFile + " Not found!")
 		return os.DevNull, nil
 	}
 	file, err := os.Open(jsonFile)
@@ -49,7 +49,7 @@ func GetJsonValue(jsonFile string, variableName string) (interface{}, error) {
 
 	variableValue, ok := jsonData[variableName]
 	if !ok {
-		log.Logerror("Variable does not exist in the JSON file")
+		log.Error("Variable does not exist in the JSON file")
 		return nil, errors.New("Variable does not exist in the JSON file")
 	}
 	return variableValue, nil

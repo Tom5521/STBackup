@@ -13,8 +13,6 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/tools"
 )
 
-var Root string = getdata.Root
-
 func DownloadLatestReleaseBinary(repo string, binName string) error {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
 	resp, err := http.Get(url)
@@ -39,6 +37,7 @@ func DownloadLatestReleaseBinary(repo string, binName string) error {
 		}
 	}
 	if binaryURL == "" {
+		log.Error("Failed to find " + binName + " binary in the latest version of " + repo)
 		return fmt.Errorf("Failed to find %s binary in the latest version of %s", binName, repo)
 	}
 	resp, err = http.Get(binaryURL)
@@ -59,7 +58,7 @@ func DownloadLatestReleaseBinary(repo string, binName string) error {
 	return nil
 }
 func UpdateBin(option string) {
-	os.Chdir(Root)
+	os.Chdir(getdata.Root)
 	var fileName string
 	const repo string = "Tom5521/SillyTavernBackup"
 	if option == "Termux" {
@@ -77,27 +76,27 @@ func UpdateBin(option string) {
 }
 
 func Rebuild() {
-	os.Chdir(Root)
-	log.Logfunc("Rebuild")
+	os.Chdir(getdata.Root)
+	log.Func("Rebuild")
 	_, errcode := tools.ReadCommand("go version")
 	ls, _ := tools.ReadCommand("ls")
 	if !strings.Contains(ls, "main.go") {
 		fmt.Println("Source code not found")
-		log.Logerror("Source code not found")
+		log.Error("Source code not found")
 	}
 	if errcode == 1 {
 		fmt.Println("No go compiler found")
-		log.Logerror("No go compiler found")
+		log.Error("No go compiler found")
 		return
 	}
 	fmt.Println("Rebuilding...")
 	err := tools.Cmd("go build -o backup main.go")
 	if err != 1 {
 		fmt.Println("Rebuild Complete.")
-		log.Logfunc("Rebuilded")
+		log.Func("Rebuilded")
 		return
 	}
-	log.Logerror("Error in rebuild prosess")
+	log.Error("Error in rebuild prosess")
 }
 
 func RebuildCheck() bool {
