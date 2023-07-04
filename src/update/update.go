@@ -99,3 +99,13 @@ func Rebuild() {
 	}
 	log.Logerror("Error in rebuild prosess")
 }
+
+func RebuildCheck() bool {
+	if len(os.Args) == 2 {
+		if os.Args[1] == "rebuild" {
+			Rebuild()
+			return true
+		}
+	}
+	return false
+}

@@ -14,6 +14,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
+const Version string = "2.0.1"
 
 var binpath, _ = filepath.Abs(os.Args[0])
 var Root string = filepath.Dir(binpath)

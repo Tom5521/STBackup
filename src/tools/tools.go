@@ -144,3 +144,12 @@ func CheckBranch() bool {
 	}
 	return true
 }
+
+func CheckRsync() {
+	_, rsyncstat := ReadCommand("rsync --version")
+	if rsyncstat == 1 {
+		fmt.Println("Rsync not found.")
+		log.Logerror("Rsync not found.")
+		return
+	}
+}
