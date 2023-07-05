@@ -98,12 +98,10 @@ func Makeconf() error {
 
 func Rclone(parameter string) {
 	if getdata.Remote == "" {
-		fmt.Println("Remote dir is null!!!")
 		log.Error("Remote dir is null.")
 	}
 	_, err := ReadCommand("rclone version")
 	if err == 1 {
-		fmt.Println("Rclone not found.")
 		log.Error("Rclone not found")
 		return
 	}
@@ -148,7 +146,6 @@ func CheckBranch() bool {
 func CheckRsync() {
 	_, rsyncstat := ReadCommand("rsync --version")
 	if rsyncstat == 1 {
-		fmt.Println("Rsync not found.")
 		log.Error("Rsync not found.")
 		return
 	}

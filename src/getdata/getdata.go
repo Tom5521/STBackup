@@ -2,7 +2,6 @@ package getdata
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -14,7 +13,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.1.1"
+const Version string = "2.1.2"
 
 var binpath, _ = filepath.Abs(os.Args[0])
 var Root string = filepath.Dir(binpath)
@@ -50,7 +49,7 @@ func GetJsonValue(jsonFile string, variableName string) (interface{}, error) {
 	variableValue, ok := jsonData[variableName]
 	if !ok {
 		log.Error("Variable does not exist in the JSON file")
-		return nil, errors.New("Variable does not exist in the JSON file")
+		return nil, nil
 	}
 	return variableValue, nil
 }

@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -8,6 +9,7 @@ import (
 var logger = setupLogger("app.log")
 
 func Error(text string) {
+	fmt.Println("ERROR: " + text)
 	logger.Panicln("ERROR: " + text)
 }
 func Warning(text string) {

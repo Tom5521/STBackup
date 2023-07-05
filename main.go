@@ -11,24 +11,17 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/update"
 )
 
-// Vars and Constants
-const folder, back string = getdata.Folder, getdata.Back
-
-var root string = getdata.Root
-
 // MAIN
 func main() {
 	log.Info("--------Start--------")
-	rebuildcheck := update.RebuildCheck()
 	defer log.Info("---------End---------")
-	os.Chdir(root)
+	os.Chdir(getdata.Root)
 	if tools.CheckBranch() == false {
 		log.Warning("You are in the dev branch!")
 		fmt.Println("Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.")
 	}
-	if len(os.Args) < 2 && !rebuildcheck {
+	if len(os.Args) < 2 && !update.RebuildCheck() {
 		log.Error("Option not specified.")
-		fmt.Println("Option not specified...")
 		return
 	}
 	switch os.Args[1] {
@@ -39,8 +32,8 @@ func main() {
 	case "save":
 		log.Func("save")
 		os.Chdir("..")
-		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + "--delete . " + " " + back)
-		os.Chdir(root)
+		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + "--delete . " + " " + getdata.Back)
+		os.Chdir(getdata.Root)
 		log.Info("Files Saved")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
@@ -66,18 +59,17 @@ func main() {
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + getdata.Include_Folders + "--delete " + back + " . ")
-		os.Chdir(root)
+		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + getdata.Include_Folders + "--delete " + getdata.Back + " . ")
+		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	case "route":
 		if len(os.Args) < 3 {
-			fmt.Println("Backup destination not specified")
-			log.Error("Not enough arguments")
+			log.Error("Backup destination not specified")
 			return
 		}
 		os.Chdir("..")
 		tools.Cmd("mv Backup/ " + os.Args[2] + " -f")
-		os.Chdir(root)
+		os.Chdir(getdata.Root)
 		log.Func("route")
 		if os.Args[3] == "tar" {
 			log.Func("route tar")
@@ -91,14 +83,13 @@ func main() {
 		log.Info("SillyTavern ended")
 	case "update":
 		if len(os.Args) < 2 {
-			fmt.Println("Nothing Selected")
 			log.Error("Nothing selected in update func")
 			return
 		}
 		if os.Args[2] == "ST" {
 			os.Chdir("..")
 			tools.Cmd("git pull")
-			os.Chdir(root)
+			os.Chdir(getdata.Root)
 			log.Info("SillyTavern Updated")
 		}
 		if os.Args[2] == "me" {
@@ -107,7 +98,6 @@ func main() {
 			_, err2 := tools.ReadCommand("go version")
 			if !strings.Contains(err, "main.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
-					fmt.Println("No go compiler found... Downloading binaries")
 					log.Error("No go compiler found. Downloading binaries")
 				}
 				bindata, _ := tools.ReadCommand("file backup")
@@ -159,6 +149,7 @@ func main() {
 		log.Info("linked")
 	case "version":
 		fmt.Println("SillyTavernBackup version", getdata.Version, "\nUnder the MIT licence\nCreated by Tom5521")
+		return
 	case "remote":
 		log.Func("remote")
 		tools.Makeconf()
@@ -172,7 +163,6 @@ func main() {
 	case "help":
 		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
 	default:
-		log.Error("Option not specified.")
-		fmt.Println("Option not specified...")
+		log.Error("Option not specified...")
 	}
 }
