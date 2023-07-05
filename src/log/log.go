@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
-var logger = SetupLogger("app.log")
+var binpath, _ = filepath.Abs(os.Args[0])
+var Root string = filepath.Dir(binpath)
+var logger = SetupLogger(Root + "/app.log")
 
 func Error(text string) {
 	fmt.Println("ERROR: " + text)
