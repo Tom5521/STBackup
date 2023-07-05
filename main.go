@@ -139,12 +139,7 @@ func main() {
 	case "link":
 		log.Func("link")
 		os.Chdir("..")
-		file, _ := os.Create("backup")
-		defer file.Close()
-		cont := "#!/bin/bash\n"
-		cont += "cd SillyTavernBackup/\n"
-		cont += "./backup $1 $2 $3 $4\n"
-		file.WriteString(cont)
+		tools.WriteFile("backup", "#!/bin/bash\ncd SillyTavernBackup/\n./backup $1 $2 $3 $4\n")
 		os.Chmod("backup", 0700)
 		log.Info("linked")
 	case "version":
@@ -154,7 +149,7 @@ func main() {
 		log.Func("remote")
 		tools.Makeconf()
 	case "cleanlog":
-		tools.Cmd("echo '' > app.log")
+		tools.WriteFile("app.log", "")
 		os.Exit(0)
 	case "log":
 		tools.Cmd("cat app.log")

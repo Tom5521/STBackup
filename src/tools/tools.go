@@ -61,7 +61,7 @@ func Readconf() (string, error) {
 
 func Makeconf() error {
 	os.Chdir(getdata.Root)
-	Cmd("echo '{\"remote\":\"\"}' > config.json")
+	WriteFile("config.json", "{\"remote\":\"\"}")
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -149,4 +149,15 @@ func CheckRsync() {
 		log.Error("Rsync not found.")
 		return
 	}
+}
+
+func WriteFile(name, text string) error {
+	file, err1 := os.Create(name)
+	defer file.Close()
+	if err1 != nil {
+		return err1
+	}
+	file.WriteString(text)
+	return err1
+
 }
