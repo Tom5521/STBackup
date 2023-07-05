@@ -81,11 +81,9 @@ func Rebuild() {
 	_, errcode := tools.ReadCommand("go version")
 	ls, _ := tools.ReadCommand("ls")
 	if !strings.Contains(ls, "main.go") {
-		fmt.Println("Source code not found")
 		log.Error("Source code not found")
 	}
 	if errcode == 1 {
-		fmt.Println("No go compiler found")
 		log.Error("No go compiler found")
 		return
 	}
