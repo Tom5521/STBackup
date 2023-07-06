@@ -21,6 +21,7 @@ fi
 cd x86-64
 export GOOS=linux
 export GOARCH=amd64
+echo "Building x86-64"
 go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup-x86-64 ../../$file
 
 cd ..
@@ -30,6 +31,10 @@ fi
 cd aarch64
 export GOOS=android
 export GOARCH=arm64
+echo "building aarch64"
 go build -ldflags="-s -w" -gcflags=-trimpath -tags android -buildmode=pie -o backup-aarch64 ../../$file
+
+cd ../
+tree .
 
 
