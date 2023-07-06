@@ -37,8 +37,8 @@ func DownloadLatestReleaseBinary(repo string, binName string) error {
 		}
 	}
 	if binaryURL == "" {
-		log.Error("Failed to find " + binName + " binary in the latest version of " + repo)
-		return fmt.Errorf("Failed to find %s binary in the latest version of %s", binName, repo)
+		log.Error(fmt.Sprintf("Failed to find %s binary in the latest version of %s", binName, repo))
+		return nil
 	}
 	resp, err = http.Get(binaryURL)
 	if err != nil {
@@ -88,21 +88,20 @@ func Rebuild() {
 		return
 	}
 	fmt.Println("Rebuilding...")
+	log.Info("Rebuilding")
 	err := tools.Cmd("go build -o backup main.go")
 	if err != 1 {
 		fmt.Println("Rebuild Complete.")
-		log.Func("Rebuilded")
+		log.Func("Rebuild Complete.")
 		return
 	}
 	log.Error("Error in rebuild prosess")
 }
 
-func RebuildCheck() bool {
-	if len(os.Args) == 2 {
+func RebuildCheck() {
+	if len(os.Args) > 2 {
 		if os.Args[1] == "rebuild" {
 			Rebuild()
-			return true
 		}
 	}
-	return false
 }

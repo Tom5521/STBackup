@@ -13,16 +13,21 @@ import (
 
 // MAIN
 func main() {
+	os.Chdir(getdata.Root)
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
-	os.Chdir(getdata.Root)
-	if tools.CheckBranch() == false {
+	update.RebuildCheck()
+	if !tools.CheckBranch() {
 		log.Warning("You are in the dev branch!")
 		fmt.Println("Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.")
 	}
-	if len(os.Args) < 2 && !update.RebuildCheck() {
+	if len(os.Args) > 2 {
 		log.Error("Option not specified.")
 		return
+	}
+	if os.Args[1] == "rebuild" {
+		update.Rebuild()
+		os.Exit(0)
 	}
 	switch os.Args[1] {
 	case "make":
@@ -32,7 +37,7 @@ func main() {
 	case "save":
 		log.Func("save")
 		os.Chdir("..")
-		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + "--delete . " + " " + getdata.Back)
+		tools.Cmd(fmt.Sprintf("rsync -av --progress %v --delete . %v", getdata.Exclude_Folders, getdata.Back))
 		os.Chdir(getdata.Root)
 		log.Info("Files Saved")
 		if len(os.Args) == 3 {
@@ -59,7 +64,7 @@ func main() {
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd("rsync -av --progress " + getdata.Exclude_Folders + getdata.Include_Folders + "--delete " + getdata.Back + " . ")
+		tools.Cmd(fmt.Sprintf("rsync -av --progress %s %s --delete %s", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
 		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	case "route":
@@ -74,13 +79,12 @@ func main() {
 		if os.Args[3] == "tar" {
 			log.Func("route tar")
 			os.Chdir("..")
-			tools.Cmd("mv Backup.tar " + os.Args[2] + " -f")
-			log.Info("Tar file moved to" + os.Args[2])
+			tools.Cmd(fmt.Sprintf("mv Backup.tar %v -f", os.Args[2]))
+			log.Info("Tar file moved to " + os.Args[2])
 		}
 	case "start":
 		log.Func("start")
 		tools.Cmd("node ../server.js")
-		log.Info("SillyTavern ended")
 	case "update":
 		if len(os.Args) < 2 {
 			log.Error("Nothing selected in update func")
@@ -136,6 +140,7 @@ func main() {
 	case "init":
 		log.Func("init")
 		tools.Cmd("bash ../start.sh")
+		log.Func("start")
 	case "link":
 		log.Func("link")
 		os.Chdir("..")
@@ -152,12 +157,33 @@ func main() {
 		tools.WriteFile("app.log", "")
 		os.Exit(0)
 	case "log":
-		tools.Cmd("cat app.log")
-	case "printconfig":
-		tools.Cmd("cat config.json")
+		filecont, _ := tools.ReadFileCont("app.log")
+		fmt.Println(filecont)
+	case "printconf":
+		filecont, _ := tools.ReadFileCont("config.json")
+		fmt.Println(filecont)
+	case "resetconf":
+		var test string
+		fmt.Println("Are you sure to reset the configuration (backups will not be deleted)? y/n")
+		fmt.Scanln(&test)
+		if test == "y" {
+			tools.Cmd("rm config.json app.log")
+		} else {
+			fmt.Println("No option selected.")
+		}
 	case "help":
 		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
+	case "test":
+		if tools.CheckBranch() {
+			return
+		}
+		update.Rebuild()
+		fmt.Println(getdata.Exclude_Folders_extra)
+		fmt.Println(getdata.Include_Folders_extra)
+		fmt.Println(getdata.Remote)
+		fmt.Println(getdata.Root)
 	default:
-		log.Error("Option not specified...")
+		log.Error("No option selected.")
 	}
+
 }

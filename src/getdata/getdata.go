@@ -13,45 +13,49 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.1.2"
+const Version string = "2.2"
 
 var binpath, _ = filepath.Abs(os.Args[0])
 var Root string = filepath.Dir(binpath)
-var pre_Remote, _ = GetJsonValue("config.json", "remote")
-var Remote string = pre_Remote.(string)
+var Remote, _ = GetJsonValue("config.json", "remote")
 
-var Include_Folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups"
-var Exclude_Folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log --exclude i18n.json "
+var Include_Folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups " + Include_Folders_extra
+var Exclude_Folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log --exclude i18n.json " + Exclude_Folders_extra
 
-func GetJsonValue(jsonFile string, variableName string) (interface{}, error) {
+var Include_Folders_extra string = ProsessString(pre_include_Folders_extra, "--include ")
+var Exclude_Folders_extra string = ProsessString(pre_exclude_Folders_extra, "--exclude ")
+var pre_exclude_Folders_extra, _ = GetJsonValue("config.json", "exclude-folders")
+var pre_include_Folders_extra, _ = GetJsonValue("config.json", "include-folders")
+
+func GetJsonValue(jsonFile, variableName string) (string, error) {
 	os.Chdir(Root)
 	ls, _ := ReadCommand("ls")
 	if !strings.Contains(ls, jsonFile) {
 		fmt.Println(jsonFile + " Not found!")
 		log.Warning(jsonFile + " Not found!")
-		return os.DevNull, nil
+		return "", nil
 	}
 	file, err := os.Open(jsonFile)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer file.Close()
 	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	var jsonData map[string]interface{}
 	err = json.Unmarshal(bytes, &jsonData)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	variableValue, ok := jsonData[variableName]
 	if !ok {
 		log.Error("Variable does not exist in the JSON file")
-		return nil, nil
+		return "", nil
 	}
-	return variableValue, nil
+	return variableValue.(string), nil
 }
 
 func ReadCommand(command string) (string, int) {
@@ -61,4 +65,19 @@ func ReadCommand(command string) (string, int) {
 		return "", 1
 	}
 	return string(data), 0
+}
+
+func ProsessString(data, cond1 string) string {
+	edit := func(org, sep string) string {
+		words := strings.Split(org, " ")
+		edited := strings.Join(words, sep+cond1+sep)
+		return edited
+	}
+	if pre_exclude_Folders_extra == "" && cond1 == "--exclude " {
+		cond1 = ""
+	}
+	if pre_include_Folders_extra == "" && cond1 == "--include " {
+		cond1 = ""
+	}
+	return cond1 + edit(data, " ")
 }

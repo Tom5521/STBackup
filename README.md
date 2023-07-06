@@ -46,17 +46,22 @@ The program is run from the command line and accepts various commands and option
 - `download`: Downloads files from the remote backup destination.
 - `download tar`: Downloads a tarball from the remote backup destination.
 - `init`: Initializes the SillyTavern application.
-- `rebuild`: Rebuilds the SillyTavernBackup application.
+- `rebuild`: This is a high priority command. It will rebuild the program (if you have the source code at hand) rather than run any other function than the logs and change to the root directory. As soon as it finishes executing the program it will terminate with error code 0.
 - `link`: Creates a link to the backup program in the SillyTavern root directory.
 - `version`: Displays the version of SillyTavernBackup.
 - `remote`: Configures the rclone remote server.
 - `cleanlog`: Clears the log file.
 - `log`: Displays the content of the log file.
 - `help`: Displays the help message.
-
+- `printconf`:Print config.json file
+- `test`: Only works in the dev branch. I use it to debug the code
+- `resetconf`:It is used to delete all program settings. Does not delete backups
 ### Configuration
-
-The program reads the remote server route from the `config.json` file. If the file doesn't exist, the program will prompt the user to enter the route.
+The configuration is located in the config.json file.
+its parameters are:
+1. `remote`: This parameter determines the path to the remote rclone server.
+2. `include-folders`: This parameter adds folders to be included in the backup.
+3. `exclude-folders`: This parameter adds folders to exclude in the backup (you are free to use it if it takes me too long to update SillyTavern)
 
 ### Log
 
