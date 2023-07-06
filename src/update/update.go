@@ -106,3 +106,10 @@ func RebuildCheck() {
 		}
 	}
 }
+
+func EmergencyRebuild() {
+	os.Chdir(getdata.Root)
+	fmt.Println("--EMERGENCY REBUILD--")
+	tools.Cmd("go build -o backup main.go")
+	fmt.Println("--EMERGENCY REBUILD--")
+}
