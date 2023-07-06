@@ -93,6 +93,7 @@ func Rebuild() {
 	if err != 1 {
 		fmt.Println("Rebuild Complete.")
 		log.Func("Rebuild Complete.")
+		os.Exit(0)
 		return
 	}
 	log.Error("Error in rebuild prosess")
