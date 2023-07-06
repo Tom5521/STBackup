@@ -13,7 +13,6 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
 
-// Important functions
 func Cmd(input string) int {
 	cmd := exec.Command("sh", "-c", input)
 	cmd.Stderr = os.Stderr
@@ -34,66 +33,20 @@ func ReadCommand(command string) (string, int) {
 	return string(data), 0
 }
 
-func Readconf() (string, error) {
+func Makeconf() {
 	os.Chdir(getdata.Root)
-	file, err := os.Open("config.json")
-	if err != nil {
-		return "", err
+	ls, _ := ReadCommand("ls")
+	if !strings.Contains(ls, "config.json") {
+		WriteFile("config.json", "{\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}")
 	}
-	defer file.Close()
-	bytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-	var config map[string]interface{}
-	err = json.Unmarshal(bytes, &config)
-	if err != nil {
-		return "", err
-	}
-	Remote := config["Remote"].(string)
-	if Remote == "" {
-		fmt.Println("Remote is empty.")
-		log.Warning("Remote is empty.")
-		return "", nil
-	}
-	return Remote, nil
-}
-
-func Makeconf() error {
-	os.Chdir(getdata.Root)
-	WriteFile("config.json", "{\"remote\":\"\"}")
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
-	pwd, _ := ReadCommand("pwd")
-	fmt.Printf("Remote Saved in %vYour Remote:%v\n", pwd, input)
-	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + pwd + "'")
+	UpdateJSONValue("config.json", "remote", input)
+	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
+	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
 
-	file, err := os.OpenFile("config.json", os.O_RDWR, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	bytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		return err
-	}
-	var config map[string]interface{}
-	err = json.Unmarshal(bytes, &config)
-	if err != nil {
-		return err
-	}
-	config["remote"] = input
-	bytes, err = json.MarshalIndent(config, "", "    ")
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile("config.json", bytes, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func Rclone(parameter string) {
@@ -159,5 +112,38 @@ func WriteFile(name, text string) error {
 	}
 	file.WriteString(text)
 	return err1
+}
 
+func ReadFileCont(filename string) (string, error) {
+	cont, err := os.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	return string(cont), nil
+}
+func UpdateJSONValue(filename, variableName, newValue string) error {
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		log.Error(fmt.Sprintf("error reading the file: %v", err))
+		return err
+	}
+	data := make(map[string]interface{})
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		log.Error(fmt.Sprintf("error when decoding the JSON file: %v", err))
+		return err
+	}
+	data[variableName] = newValue
+
+	updatedJSON, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Error(fmt.Sprintf("error when encoding the JSON file: %v", err))
+		return err
+	}
+	err = ioutil.WriteFile(filename, updatedJSON, 0644)
+	if err != nil {
+		log.Error(fmt.Sprintf("error when writing the JSON file: %v", err))
+		return err
+	}
+	return nil
 }
