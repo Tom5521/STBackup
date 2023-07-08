@@ -64,7 +64,7 @@ func main() {
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd(fmt.Sprintf("rsync -av --progress %s %s --delete %s .", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
+		tools.Cmd(fmt.Sprintf("rsync -av --progress --delete %s%s%s .", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
 		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	case "route":
@@ -185,7 +185,9 @@ func main() {
 		update.EmergencyRebuild()
 		fmt.Println("__END__")
 		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
+		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
 		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
+		fmt.Println("Include folders def:", "||-"+getdata.Include_Folders+"-||")
 		fmt.Println("Remote:", getdata.Remote)
 		fmt.Println("Root Directory:", getdata.Root)
 		fmt.Println("N.V.:", getdata.Version)
