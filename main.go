@@ -64,7 +64,7 @@ func main() {
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd(fmt.Sprintf("rsync -av --progress %s %s --delete %s", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
+		tools.Cmd(fmt.Sprintf("rsync -av --progress %s %s --delete %s .", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
 		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	case "route":
