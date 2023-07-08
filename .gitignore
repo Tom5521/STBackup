@@ -5,3 +5,4 @@ remote.txt
 app.log
 config.json
 main
+src/bin/*

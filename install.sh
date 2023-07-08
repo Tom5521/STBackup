@@ -2,7 +2,7 @@
 
 
 if [ "$1" == "termux" ]; then
-    binary="backup-aarch64"
+    binary="backup-arm"
 fi
 
 if [ "$1" == "pc" ]; then

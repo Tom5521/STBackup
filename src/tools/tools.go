@@ -35,9 +35,8 @@ func ReadCommand(command string) (string, int) {
 
 func Makeconf() {
 	os.Chdir(getdata.Root)
-	ls := ReadDir()
-	if !strings.Contains(ls, "config.json") {
-		WriteFile("config.json", "{\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}")
+	if !CheckDir("config.json") {
+		WriteFile("config.json", "{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}")
 	}
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -58,28 +57,31 @@ func Rclone(parameter string) {
 		log.Error("Rclone not found")
 		return
 	}
-	lsstat := ReadDir()
-	if !strings.Contains(lsstat, "config.json") {
+	if !CheckDir("config.json") {
 		Makeconf()
 	}
 	var com = exec.Command("")
 	var Remote, Folder string = getdata.Remote, getdata.Folder
+	var loc string
+	if getdata.Local_rclone() {
+		loc = getdata.Local_rclone_route
+	}
 	switch parameter {
 	case "uptar":
 		log.Func("upload tar")
-		com = exec.Command("rclone", "copy", "Backup.tar", Remote)
+		com = exec.Command(loc+"rclone", "copy", "Backup.tar", Remote)
 		defer log.Info("tar uploaded")
 	case "downtar":
 		log.Func("download tar")
-		com = exec.Command("rclone", "copy", Remote+"/Backup.tar", "..")
+		com = exec.Command(loc+"rclone", "copy", Remote+"/Backup.tar", "..")
 		defer log.Info("tar downloaded")
 	case "up":
 		log.Func("upload")
-		com = exec.Command("rclone", "sync", Folder, Remote, "-L", "-P")
+		com = exec.Command(loc+"rclone", "sync", Folder, Remote, "-L", "-P")
 		defer log.Info("Files uploaded")
 	case "down":
 		log.Func("download")
-		com = exec.Command("rclone", "sync", Remote, Folder, "-L", "-P")
+		com = exec.Command(loc+"rclone", "sync", Remote, Folder, "-L", "-P")
 		defer log.Info("Files downloaded")
 	}
 	com.Stderr = os.Stderr
@@ -114,9 +116,13 @@ func WriteFile(name, text string) error {
 	return err1
 }
 
-func ReadDir() string {
+func CheckDir(dir string) bool {
 	data, _ := ReadCommand("ls")
-	return data
+	if strings.Contains(data, dir) {
+		return true
+	}
+	return false
+
 }
 
 func ReadFileCont(filename string) (string, error) {

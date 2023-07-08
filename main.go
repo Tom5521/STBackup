@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Tom5521/SillyTavernBackup/src/depends"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 	"github.com/Tom5521/SillyTavernBackup/src/tools"
@@ -55,9 +56,8 @@ func main() {
 		os.Chdir("..")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				ls := tools.ReadDir()
 				log.Func("restore from tarball")
-				if strings.Contains(ls, "Backup") {
+				if tools.CheckDir("Backup") {
 					log.Warning("Removing Backup/ folder")
 					tools.Cmd("rm -rf Backup/")
 				}
@@ -98,9 +98,8 @@ func main() {
 		}
 		if os.Args[2] == "me" {
 			_, ggit := tools.ReadCommand("git status")
-			err := tools.ReadDir()
 			_, err2 := tools.ReadCommand("go version")
-			if !strings.Contains(err, "main.go") || err2 == 1 || ggit == 1 {
+			if !tools.CheckDir("main.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
 					log.Error("No go compiler found. Downloading binaries")
 				}
@@ -132,7 +131,7 @@ func main() {
 		}
 	case "download":
 		tools.Rclone("down")
-		if len(os.Args) == 3 {
+		if len(os.Args) > 3 {
 			if os.Args[2] == "tar" {
 				tools.Rclone("downtar")
 			}
@@ -171,12 +170,19 @@ func main() {
 		} else {
 			fmt.Println("No option selected.")
 		}
+	case "download-rclone":
+		log.Info("rclone download")
+		fmt.Println("Downloading and unzipping rclone...")
+		depends.DownloadRclone()
+		log.Info("Rclone donwloaded")
+		os.Exit(0)
 	case "help":
 		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
 	case "test":
 		if tools.CheckBranch() {
 			return
 		}
+		fmt.Println(os.Args)
 		fmt.Println("Testing...")
 		fmt.Print("F.D.:")
 		fmt.Println(tools.ReadCommand("file backup"))
@@ -184,13 +190,15 @@ func main() {
 		fmt.Println("__REBUILD__")
 		update.EmergencyRebuild()
 		fmt.Println("__END__")
-		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
+		depends.DownloadRclone()
+		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra())
 		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
-		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
+		fmt.Println("Include folders extra:", getdata.Include_Folders_extra())
 		fmt.Println("Include folders def:", "||-"+getdata.Include_Folders+"-||")
 		fmt.Println("Remote:", getdata.Remote)
 		fmt.Println("Root Directory:", getdata.Root)
 		fmt.Println("N.V.:", getdata.Version)
+		fmt.Println("Arch:", getdata.Architecture)
 		fmt.Println("Dirs:", tools.Cmd("exa -a"))
 	default:
 		log.Error("No option selected.")
