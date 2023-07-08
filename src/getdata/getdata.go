@@ -13,7 +13,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.2.1"
+const Version string = "2.2.2"
 
 var binpath, _ = filepath.Abs(os.Args[0])
 var Root string = filepath.Dir(binpath)
@@ -29,7 +29,7 @@ var pre_include_Folders_extra, _ = GetJsonValue("config.json", "include-folders"
 
 func GetJsonValue(jsonFile, variableName string) (string, error) {
 	os.Chdir(Root)
-	ls, _ := ReadCommand("ls")
+	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, jsonFile) {
 		fmt.Println(jsonFile + " Not found!")
 		log.Warning(jsonFile + " Not found!")
@@ -58,7 +58,7 @@ func GetJsonValue(jsonFile, variableName string) (string, error) {
 	return variableValue.(string), nil
 }
 
-func ReadCommand(command string) (string, int) {
+func readCommand(command string) (string, int) {
 	com := exec.Command("sh", "-c", command)
 	data, err := com.Output()
 	if err != nil {

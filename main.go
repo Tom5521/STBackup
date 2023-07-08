@@ -55,7 +55,7 @@ func main() {
 		os.Chdir("..")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				ls, _ := tools.ReadCommand("ls")
+				ls := tools.ReadDir()
 				log.Func("restore from tarball")
 				if strings.Contains(ls, "Backup") {
 					log.Warning("Removing Backup/ folder")
@@ -64,7 +64,7 @@ func main() {
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd(fmt.Sprintf("rsync -av --progress %s %s --delete %s", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
+		tools.Cmd(fmt.Sprintf("rsync -av --progress --delete %s%s%s .", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
 		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	case "route":
@@ -98,7 +98,7 @@ func main() {
 		}
 		if os.Args[2] == "me" {
 			_, ggit := tools.ReadCommand("git status")
-			err, _ := tools.ReadCommand("ls")
+			err := tools.ReadDir()
 			_, err2 := tools.ReadCommand("go version")
 			if !strings.Contains(err, "main.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
@@ -177,11 +177,21 @@ func main() {
 		if tools.CheckBranch() {
 			return
 		}
-		update.Rebuild()
-		fmt.Println(getdata.Exclude_Folders_extra)
-		fmt.Println(getdata.Include_Folders_extra)
-		fmt.Println(getdata.Remote)
-		fmt.Println(getdata.Root)
+		fmt.Println("Testing...")
+		fmt.Print("F.D.:")
+		fmt.Println(tools.ReadCommand("file backup"))
+		fmt.Println("V.:", getdata.Version)
+		fmt.Println("__REBUILD__")
+		update.EmergencyRebuild()
+		fmt.Println("__END__")
+		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
+		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
+		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
+		fmt.Println("Include folders def:", "||-"+getdata.Include_Folders+"-||")
+		fmt.Println("Remote:", getdata.Remote)
+		fmt.Println("Root Directory:", getdata.Root)
+		fmt.Println("N.V.:", getdata.Version)
+		fmt.Println("Dirs:", tools.Cmd("exa -a"))
 	default:
 		log.Error("No option selected.")
 	}

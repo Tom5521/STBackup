@@ -35,7 +35,7 @@ func ReadCommand(command string) (string, int) {
 
 func Makeconf() {
 	os.Chdir(getdata.Root)
-	ls, _ := ReadCommand("ls")
+	ls := ReadDir()
 	if !strings.Contains(ls, "config.json") {
 		WriteFile("config.json", "{\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}")
 	}
@@ -58,7 +58,7 @@ func Rclone(parameter string) {
 		log.Error("Rclone not found")
 		return
 	}
-	lsstat, _ := ReadCommand("ls")
+	lsstat := ReadDir()
 	if !strings.Contains(lsstat, "config.json") {
 		Makeconf()
 	}
@@ -112,6 +112,11 @@ func WriteFile(name, text string) error {
 	}
 	file.WriteString(text)
 	return err1
+}
+
+func ReadDir() string {
+	data, _ := ReadCommand("ls")
+	return data
 }
 
 func ReadFileCont(filename string) (string, error) {
