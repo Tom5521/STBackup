@@ -20,7 +20,9 @@ func DownloadLatestBinary(binName string) int {
 		return 1
 	}
 	defer file.Close()
-	response, err := http.Get("https://github.com/Tom5521/SillyTavernBackup/releases/latest/download/" + binName)
+	response, err := http.Get(
+		"https://github.com/Tom5521/SillyTavernBackup/releases/latest/download/" + binName,
+	)
 	if err != nil {
 		log.Error("Erro performing request")
 		return 1

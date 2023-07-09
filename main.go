@@ -20,7 +20,9 @@ func main() {
 	update.RebuildCheck()
 	if !tools.CheckBranch() {
 		log.Warning("You are in the dev branch!")
-		fmt.Println("Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.")
+		fmt.Println(
+			"Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.",
+		)
 	}
 	if len(os.Args) < 2 {
 		log.Error("Option not specified.")
@@ -38,7 +40,13 @@ func main() {
 	case "save":
 		log.Func("save")
 		os.Chdir("..")
-		tools.Cmd(fmt.Sprintf("rsync -av --progress %v --delete . %v", getdata.Exclude_Folders, getdata.Back))
+		tools.Cmd(
+			fmt.Sprintf(
+				"rsync -av --progress %v --delete . %v",
+				getdata.Exclude_Folders,
+				getdata.Back,
+			),
+		)
 		os.Chdir(getdata.Root)
 		log.Info("Files Saved")
 		if len(os.Args) == 3 {
@@ -64,7 +72,14 @@ func main() {
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd(fmt.Sprintf("rsync -av --progress --delete %s%s%s .", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
+		tools.Cmd(
+			fmt.Sprintf(
+				"rsync -av --progress --delete %s%s%s .",
+				getdata.Exclude_Folders,
+				getdata.Include_Folders,
+				getdata.Back,
+			),
+		)
 		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	case "route":
@@ -147,7 +162,11 @@ func main() {
 		os.Chmod("backup", 0700)
 		log.Info("linked")
 	case "version":
-		fmt.Println("SillyTavernBackup version", getdata.Version, "\nUnder the MIT licence\nCreated by Tom5521")
+		fmt.Println(
+			"SillyTavernBackup version",
+			getdata.Version,
+			"\nUnder the MIT licence\nCreated by Tom5521",
+		)
 		return
 	case "remote":
 		log.Func("remote")
@@ -177,7 +196,9 @@ func main() {
 		log.Info("Rclone donwloaded")
 		os.Exit(0)
 	case "help":
-		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
+		fmt.Println(
+			"Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README",
+		)
 	case "test":
 		if tools.CheckBranch() {
 			return
@@ -192,9 +213,9 @@ func main() {
 		update.DownloadLatestBinary("backup-x86-64")
 		fmt.Println("__END__")
 		depends.DownloadRclone()
-		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra())
+		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
 		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
-		fmt.Println("Include folders extra:", getdata.Include_Folders_extra())
+		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
 		fmt.Println("Include folders def:", "||-"+getdata.Include_Folders+"-||")
 		fmt.Println("Remote:", getdata.Remote)
 		fmt.Println("Root Directory:", getdata.Root)

@@ -27,7 +27,8 @@ func DownloadRclone() {
 		link = link_linux_386
 		arch = getdata.Architecture
 	}
-	if strings.Contains(getdata.Architecture, "arm") || strings.Contains(getdata.Architecture, "aarch64") {
+	if strings.Contains(getdata.Architecture, "arm") ||
+		strings.Contains(getdata.Architecture, "aarch64") {
 		link = link_universal_linux_arm
 		arch = "arm"
 	}

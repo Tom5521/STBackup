@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -36,7 +35,10 @@ func ReadCommand(command string) (string, int) {
 func Makeconf() {
 	os.Chdir(getdata.Root)
 	if !CheckDir("config.json") {
-		WriteFile("config.json", "{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}")
+		WriteFile(
+			"config.json",
+			"{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
+		)
 	}
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -63,7 +65,7 @@ func Rclone(parameter string) {
 	var com = exec.Command("")
 	var Remote, Folder string = getdata.Remote, getdata.Folder
 	var loc string
-	if getdata.Local_rclone() {
+	if getdata.Local_rclone {
 		loc = getdata.Local_rclone_route
 	}
 	switch parameter {
@@ -87,6 +89,9 @@ func Rclone(parameter string) {
 	com.Stderr = os.Stderr
 	com.Stdin = os.Stdin
 	com.Stdout = os.Stdout
+	if getdata.Local_rclone {
+		fmt.Println("Using local rclone...")
+	}
 	com.Run()
 }
 
@@ -108,11 +113,11 @@ func CheckRsync() {
 
 func WriteFile(name, text string) error {
 	file, err1 := os.Create(name)
-	defer file.Close()
 	if err1 != nil {
 		return err1
 	}
 	file.WriteString(text)
+	file.Close()
 	return err1
 }
 
@@ -133,7 +138,7 @@ func ReadFileCont(filename string) (string, error) {
 	return string(cont), nil
 }
 func UpdateJSONValue(filename, variableName, newValue string) error {
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		log.Error(fmt.Sprintf("error reading the file: %v", err))
 		return err
@@ -151,7 +156,7 @@ func UpdateJSONValue(filename, variableName, newValue string) error {
 		log.Error(fmt.Sprintf("error when encoding the JSON file: %v", err))
 		return err
 	}
-	err = ioutil.WriteFile(filename, updatedJSON, 0644)
+	err = os.WriteFile(filename, updatedJSON, 0644)
 	if err != nil {
 		log.Error(fmt.Sprintf("error when writing the JSON file: %v", err))
 		return err
