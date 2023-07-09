@@ -5,7 +5,7 @@ This is a source code file written in the Go programming language, which provide
 
 - ### Required
 - rsync
-- rclone (optional install)
+- rclone (Optional installation)
 - #### Optional
 - Go (if you want to compile it yourself to your system)
 - Tar (if you want use tarballs)

@@ -37,8 +37,9 @@ func local_rclone() bool {
 	local_rclone, _ := GetJsonValue("config.json", "local-rclone")
 	if local_rclone == "yes" {
 		return true
+	} else {
+		return false
 	}
-	return false
 }
 
 func include_Folders_extra() string {

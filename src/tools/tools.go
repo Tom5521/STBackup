@@ -46,7 +46,10 @@ func Makeconf() {
 	UpdateJSONValue("config.json", "remote", input)
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
-
+	if !CheckRclone() {
+		log.Warning("rclone not installed... Using local version")
+		Cmd("./backup download-rclone")
+	}
 }
 func Rclone(parameter string) {
 	if getdata.Remote == "" {
@@ -98,12 +101,22 @@ func Rclone(parameter string) {
 	}
 	com.Run()
 }
+func CheckRclone() bool {
+	_, rclonestat := ReadCommand("rclone version")
+	if rclonestat == 1 {
+		return false
+	} else {
+		return true
+	}
+}
 func CheckBranch() bool {
 	data1, _ := ReadCommand("git status")
 	if strings.Contains(data1, "origin/dev") {
 		return false
+	} else {
+		return true
 	}
-	return true
+
 }
 func CheckRsync() {
 	_, rsyncstat := ReadCommand("rsync --version")
@@ -125,9 +138,9 @@ func CheckDir(dir string) bool {
 	data, _ := ReadCommand("ls")
 	if strings.Contains(data, dir) {
 		return true
+	} else {
+		return false
 	}
-	return false
-
 }
 
 func ReadFileCont(filename string) (string, error) {
