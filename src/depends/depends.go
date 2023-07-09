@@ -32,7 +32,10 @@ func DownloadRclone() {
 		arch = "arm"
 	}
 	os.Chdir(getdata.Root)
-	os.Chdir("src/bin")
+	os.Chdir("src/")
+	if !tools.CheckDir("bin") {
+		os.Mkdir("bin", 0700)
+	}
 	if tools.CheckDir("rclone") {
 		log.Warning("rclone already downloaded.")
 		return
