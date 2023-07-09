@@ -120,11 +120,11 @@ func main() {
 				}
 				if getdata.Architecture == "arm64" {
 					log.Info("Downloading x86-64 binary")
-					update.DownloadLatestBinary("backup-aarch64")
+					update.DownloadLatestBinary("backup-x86-64")
 				}
 				if strings.Contains(getdata.Architecture, "arm") {
 					log.Info("Downloading arm binary")
-					update.DownloadLatestBinary("backup-x86-64")
+					update.DownloadLatestBinary("backup-arm")
 				}
 			} else {
 				tools.Cmd("git pull")
