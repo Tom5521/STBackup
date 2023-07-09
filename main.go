@@ -103,14 +103,13 @@ func main() {
 				if err2 == 1 {
 					log.Error("No go compiler found. Downloading binaries")
 				}
-				bindata, _ := tools.ReadCommand("file backup")
-				if strings.Contains(bindata, "x86-64") {
+				if getdata.Architecture == "arm64" {
 					log.Info("Downloading x86-64 binary")
-					update.UpdateBin("pc")
+					update.DownloadLatestBinary("backup-aarch64")
 				}
-				if strings.Contains(bindata, "ARM aarch64") {
-					log.Info("Downloading aarch64 binary")
-					update.UpdateBin("Termux")
+				if strings.Contains(getdata.Architecture, "arm") {
+					log.Info("Downloading arm binary")
+					update.DownloadLatestBinary("backup-x86-64")
 				}
 			} else {
 				tools.Cmd("git pull")
@@ -118,6 +117,7 @@ func main() {
 				update.Rebuild()
 			}
 			tools.Cmd("./backup link")
+			tools.Cmd("rm config.json")
 		}
 	case "ls":
 		log.Func("ls")
@@ -187,8 +187,9 @@ func main() {
 		fmt.Print("F.D.:")
 		fmt.Println(tools.ReadCommand("file backup"))
 		fmt.Println("V.:", getdata.Version)
-		fmt.Println("__REBUILD__")
-		update.EmergencyRebuild()
+		//fmt.Println("__REBUILD__")
+		//update.EmergencyRebuild()
+		update.DownloadLatestBinary("backup-x86-64")
 		fmt.Println("__END__")
 		depends.DownloadRclone()
 		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra())

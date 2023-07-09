@@ -31,6 +31,12 @@ func DownloadRclone() {
 		link = link_universal_linux_arm
 		arch = "arm"
 	}
+	os.Chdir(getdata.Root)
+	os.Chdir("src/bin")
+	if tools.CheckDir("rclone") {
+		log.Warning("rclone already downloaded.")
+		return
+	}
 	DownloadBinaries("rclone.zip", link)
 	tools.Cmd("unzip rclone.zip -d rclone-zip")
 	tools.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
@@ -40,8 +46,6 @@ func DownloadRclone() {
 }
 
 func DownloadBinaries(filepath, url string) int {
-	os.Chdir(getdata.Root)
-	os.Chdir("src/bin")
 	file, err := os.Create(filepath)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error creating the %s file", filepath))
