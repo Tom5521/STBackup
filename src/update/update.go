@@ -16,7 +16,7 @@ func DownloadLatestBinary(binName string) int {
 	os.Chdir(getdata.Root)
 	file, err := os.Create(binName)
 	if err != nil {
-		log.Error(fmt.Sprintf("Error creating the %s file", binName))
+		log.Error(fmt.Sprintf("Error creating the %s file", binName), 16)
 		return 1
 	}
 	defer file.Close()
@@ -24,13 +24,13 @@ func DownloadLatestBinary(binName string) int {
 		"https://github.com/Tom5521/SillyTavernBackup/releases/latest/download/" + binName,
 	)
 	if err != nil {
-		log.Error("Erro performing request")
+		log.Error("Erro performing request", 17)
 		return 1
 	}
 	defer response.Body.Close()
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		log.Error("Error copyng the content")
+		log.Error("Error copyng the content", 18)
 	}
 	fmt.Printf("%s downloaded successfully\n", binName)
 	tools.Cmd("mv " + binName + " backup -f")
@@ -49,10 +49,10 @@ func Rebuild() {
 	_, errcode := tools.ReadCommand("go version")
 	ls, _ := tools.ReadCommand("ls")
 	if !strings.Contains(ls, "main.go") {
-		log.Error("Source code not found")
+		log.Error("Source code not found", 19)
 	}
 	if errcode == 1 {
-		log.Error("No go compiler found")
+		log.Error("No go compiler found", 20)
 		return
 	}
 	fmt.Println("Rebuilding...")
@@ -64,7 +64,7 @@ func Rebuild() {
 		os.Exit(0)
 		return
 	}
-	log.Error("Error in rebuild prosess")
+	log.Error("Error in rebuild prosess", 21)
 }
 
 func RebuildCheck() {

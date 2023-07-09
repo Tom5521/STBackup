@@ -37,7 +37,9 @@ func DownloadRclone() {
 	if !tools.CheckDir("bin") {
 		os.Mkdir("bin", 0700)
 	}
-	if tools.CheckDir("rclone") {
+	os.Chdir("bin")
+	if tools.CheckDir("rclone") || tools.CheckDir("rclone.zip") {
+		fmt.Println("rclone already downloaded.")
 		log.Warning("rclone already downloaded.")
 		return
 	}
@@ -45,26 +47,26 @@ func DownloadRclone() {
 	tools.Cmd("unzip rclone.zip -d rclone-zip")
 	tools.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
 	tools.Cmd("rm -rf rclone-zip rclone.zip")
-	tools.UpdateJSONValue("config.json", "local-rclone", "yes")
 	os.Chdir(getdata.Root)
+	tools.UpdateJSONValue("config.json", "local-rclone", "yes")
 }
 
 func DownloadBinaries(filepath, url string) int {
 	file, err := os.Create(filepath)
 	if err != nil {
-		log.Error(fmt.Sprintf("Error creating the %s file", filepath))
+		log.Error(fmt.Sprintf("Error creating the %s file", filepath), 4)
 		return 1
 	}
 	defer file.Close()
 	response, err := http.Get(url)
 	if err != nil {
-		log.Error("Erro performing request")
+		log.Error("Error performing request", 5)
 		return 1
 	}
 	defer response.Body.Close()
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		log.Error("Error copyng the content")
+		log.Error("Error copyng the content", 6)
 	}
 	fmt.Printf("%s downloaded successfully\n", filepath)
 	return 0

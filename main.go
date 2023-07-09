@@ -14,9 +14,9 @@ import (
 
 // MAIN
 func main() {
-	os.Chdir(getdata.Root)
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
+	os.Chdir(getdata.Root)
 	update.RebuildCheck()
 	if !tools.CheckBranch() {
 		log.Warning("You are in the dev branch!")
@@ -25,7 +25,7 @@ func main() {
 		)
 	}
 	if len(os.Args) < 2 {
-		log.Error("Option not specified.")
+		log.Error("Option not specified.", 1)
 		return
 	}
 	if os.Args[1] == "rebuild" {
@@ -84,7 +84,7 @@ func main() {
 		log.Info("Files restored")
 	case "route":
 		if len(os.Args) < 3 {
-			log.Error("Backup destination not specified")
+			log.Error("Backup destination not specified", 2)
 			return
 		}
 		os.Chdir("..")
@@ -102,7 +102,7 @@ func main() {
 		tools.Cmd("node ../server.js")
 	case "update":
 		if len(os.Args) < 2 {
-			log.Error("Nothing selected in update func")
+			log.Error("Nothing selected in update func", 3)
 			return
 		}
 		if os.Args[2] == "ST" {
@@ -116,7 +116,7 @@ func main() {
 			_, err2 := tools.ReadCommand("go version")
 			if !tools.CheckDir("main.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
-					log.Error("No go compiler found. Downloading binaries")
+					log.Warning("No go compiler found. Downloading binaries")
 				}
 				if getdata.Architecture == "arm64" {
 					log.Info("Downloading x86-64 binary")
@@ -135,8 +135,7 @@ func main() {
 			tools.Cmd("rm config.json")
 		}
 	case "ls":
-		log.Func("ls")
-		tools.Cmd("rclone ls " + getdata.Remote)
+		tools.Rclone("ls")
 	case "upload":
 		tools.Rclone("up")
 		if len(os.Args) == 3 {
@@ -187,7 +186,7 @@ func main() {
 		if test == "y" {
 			tools.Cmd("rm config.json app.log")
 		} else {
-			fmt.Println("No option selected.")
+			log.Error("No option selected.", 1)
 		}
 	case "download-rclone":
 		log.Info("rclone download")
@@ -223,7 +222,7 @@ func main() {
 		fmt.Println("Arch:", getdata.Architecture)
 		fmt.Println("Dirs:", tools.Cmd("exa -a"))
 	default:
-		log.Error("No option selected.")
+		log.Error("No option selected.", 1)
 	}
 
 }

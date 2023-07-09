@@ -31,7 +31,6 @@ func ReadCommand(command string) (string, int) {
 	}
 	return string(data), 0
 }
-
 func Makeconf() {
 	os.Chdir(getdata.Root)
 	if !CheckDir("config.json") {
@@ -49,14 +48,16 @@ func Makeconf() {
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
 
 }
-
 func Rclone(parameter string) {
 	if getdata.Remote == "" {
-		log.Error("Remote dir is null.")
+		log.Error("Remote dir is null.", 9)
 	}
 	_, err := ReadCommand("rclone version")
 	if err == 1 {
-		log.Error("Rclone not found")
+		log.Error(
+			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
+			10,
+		)
 		return
 	}
 	if !CheckDir("config.json") {
@@ -85,6 +86,9 @@ func Rclone(parameter string) {
 		log.Func("download")
 		com = exec.Command(loc+"rclone", "sync", Remote, Folder, "-L", "-P")
 		defer log.Info("Files downloaded")
+	case "ls":
+		log.Func("ls")
+		com = exec.Command(loc+"rclone", "ls", Remote)
 	}
 	com.Stderr = os.Stderr
 	com.Stdin = os.Stdin
@@ -94,7 +98,6 @@ func Rclone(parameter string) {
 	}
 	com.Run()
 }
-
 func CheckBranch() bool {
 	data1, _ := ReadCommand("git status")
 	if strings.Contains(data1, "origin/dev") {
@@ -102,15 +105,13 @@ func CheckBranch() bool {
 	}
 	return true
 }
-
 func CheckRsync() {
 	_, rsyncstat := ReadCommand("rsync --version")
 	if rsyncstat == 1 {
-		log.Error("Rsync not found.")
+		log.Error("Rsync not found.", 11)
 		return
 	}
 }
-
 func WriteFile(name, text string) error {
 	file, err1 := os.Create(name)
 	if err1 != nil {
@@ -120,7 +121,6 @@ func WriteFile(name, text string) error {
 	file.Close()
 	return err1
 }
-
 func CheckDir(dir string) bool {
 	data, _ := ReadCommand("ls")
 	if strings.Contains(data, dir) {
@@ -140,25 +140,25 @@ func ReadFileCont(filename string) (string, error) {
 func UpdateJSONValue(filename, variableName, newValue string) error {
 	file, err := os.ReadFile(filename)
 	if err != nil {
-		log.Error(fmt.Sprintf("error reading the file: %v", err))
+		log.Error(fmt.Sprintf("error reading the file: %v", err), 12)
 		return err
 	}
 	data := make(map[string]interface{})
 	err = json.Unmarshal(file, &data)
 	if err != nil {
-		log.Error(fmt.Sprintf("error when decoding the JSON file: %v", err))
+		log.Error(fmt.Sprintf("error when decoding the JSON file: %v", err), 13)
 		return err
 	}
 	data[variableName] = newValue
 
 	updatedJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Error(fmt.Sprintf("error when encoding the JSON file: %v", err))
+		log.Error(fmt.Sprintf("error when encoding the JSON file: %v", err), 14)
 		return err
 	}
 	err = os.WriteFile(filename, updatedJSON, 0644)
 	if err != nil {
-		log.Error(fmt.Sprintf("error when writing the JSON file: %v", err))
+		log.Error(fmt.Sprintf("error when writing the JSON file: %v", err), 15)
 		return err
 	}
 	return nil

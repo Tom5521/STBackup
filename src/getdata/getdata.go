@@ -2,7 +2,6 @@ package getdata
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -14,7 +13,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.3-dev"
+const Version string = "2.3"
 
 var Remote, _ = GetJsonValue("config.json", "remote")
 
@@ -56,8 +55,13 @@ func GetJsonValue(jsonFile, variableName string) (string, error) {
 	os.Chdir(Root)
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, jsonFile) {
-		fmt.Println(jsonFile + " Not found!")
-		log.Warning(jsonFile + " Not found!")
+		os.Chdir(Root)
+		file, _ := os.Create("config.json")
+		file.WriteString(
+			"{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
+		)
+		file.Close()
+		log.Error(jsonFile+" file not foud", 7)
 		return "", nil
 	}
 	file, err := os.Open(jsonFile)
@@ -77,7 +81,7 @@ func GetJsonValue(jsonFile, variableName string) (string, error) {
 
 	variableValue, ok := jsonData[variableName]
 	if !ok {
-		log.Error("Variable does not exist in the JSON file")
+		log.Error("Variable does not exist in the JSON file", 8)
 		return "", nil
 	}
 	return variableValue.(string), nil
