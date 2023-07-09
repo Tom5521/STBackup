@@ -25,14 +25,15 @@ echo "Building x86-64"
 go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup-x86-64 ../../$file
 
 cd ..
-if [ ! -d "aarch64" ]; then
-    mkdir aarch64
+if [ ! -d "ARM" ]; then
+    mkdir ARM
 fi
-cd aarch64
-export GOOS=android
-export GOARCH=arm64
-echo "building aarch64"
-go build -ldflags="-s -w" -gcflags=-trimpath -tags android -buildmode=pie -o backup-aarch64 ../../$file
+cd ARM
+export GOOS=linux
+export GOARCH=arm
+echo "building ARM"
+go build -ldflags="-s -w" -gcflags=-trimpath -o backup-arm ../../$file
+
 
 cd ../
 tree .

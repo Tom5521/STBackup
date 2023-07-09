@@ -1,24 +1,22 @@
 #!/bin/bash
 
 
-if [ "$1" == "termux" ]; then
-    binary="backup-aarch64"
+if [ "$1" == "arm" ]; then
+    binary="backup-arm"
 fi
 
-if [ "$1" == "pc" ]; then
+if [ "$1" == "x64" ]; then
     binary="backup-x86-64"
 fi
 
 
-if [ "$1" != "" ] && [ "$1" != "clone" ] && [ "$1" != "make" ]; then
+if [ "$1" != "" ] && [ "$1" != "clone" ]; then
     if [ ! -d "SillyTavernBackup" ]; then
         mkdir SillyTavernBackup
     fi
     cd SillyTavernBackup
     echo "Downloading latest binary..."
-    curl -LJO $(curl -s https://api.github.com/repos/Tom5521/SillyTavernBackup/releases/latest | grep "browser_download_url.*$binary" | cut -d : -f 2,3 | tr -d \")
-    echo "renaming..."
-    mv $binary backup
+    curl -LJo backup https://github.com/Tom5521/SillyTavernBackup/releases/latest/download/$binary
     echo "Giving execute permissions to the binary..."
     chmod +x backup
     echo "Configure remote..."

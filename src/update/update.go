@@ -1,7 +1,6 @@
 package update
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,78 +12,47 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/tools"
 )
 
-func DownloadLatestReleaseBinary(repo string, binName string) error {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	var release struct {
-		Assets []struct {
-			Name        string `json:"name"`
-			DownloadURL string `json:"browser_download_url"`
-		} `json:"assets"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
-		return err
-	}
-	var binaryURL string
-	for _, asset := range release.Assets {
-		if asset.Name == binName {
-			binaryURL = asset.DownloadURL
-			break
-		}
-	}
-	if binaryURL == "" {
-		log.Error(fmt.Sprintf("Failed to find %s binary in the latest version of %s", binName, repo))
-		return nil
-	}
-	resp, err = http.Get(binaryURL)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	out, err := os.Create(binName)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("The %s binary of the latest version of %s has been successfully downloaded.\n", binName, repo)
-	return nil
-}
-func UpdateBin(option string) {
+func DownloadLatestBinary(binName string) int {
 	os.Chdir(getdata.Root)
-	var fileName string
-	const repo string = "Tom5521/SillyTavernBackup"
-	if option == "Termux" {
-		fileName = "backup-aarch64"
-	}
-	if option == "pc" {
-		fileName = "backup-x86-64"
-	}
-	err := DownloadLatestReleaseBinary(repo, fileName)
+	file, err := os.Create(binName)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(fmt.Sprintf("Error creating the %s file", binName), 16)
+		return 1
 	}
-	tools.Cmd("mv " + fileName + " backup")
+	defer file.Close()
+	response, err := http.Get(
+		"https://github.com/Tom5521/SillyTavernBackup/releases/latest/download/" + binName,
+	)
+	if err != nil {
+		log.Error("Erro performing request", 17)
+		return 1
+	}
+	defer response.Body.Close()
+	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		log.Error("Error copyng the content", 18)
+	}
+	fmt.Printf("%s downloaded successfully\n", binName)
+	tools.Cmd("mv " + binName + " backup -f")
 	os.Chmod("backup", 0700)
+	return 0
 }
 
 func Rebuild() {
 	os.Chdir(getdata.Root)
+	if !tools.CheckBranch() {
+		tools.Cmd("bash build.sh d")
+		os.Exit(0)
+		return
+	}
 	log.Func("Rebuild")
 	_, errcode := tools.ReadCommand("go version")
 	ls, _ := tools.ReadCommand("ls")
 	if !strings.Contains(ls, "main.go") {
-		log.Error("Source code not found")
+		log.Error("Source code not found", 19)
 	}
 	if errcode == 1 {
-		log.Error("No go compiler found")
+		log.Error("No go compiler found", 20)
 		return
 	}
 	fmt.Println("Rebuilding...")
@@ -96,7 +64,7 @@ func Rebuild() {
 		os.Exit(0)
 		return
 	}
-	log.Error("Error in rebuild prosess")
+	log.Error("Error in rebuild prosess", 21)
 }
 
 func RebuildCheck() {

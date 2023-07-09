@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -32,12 +31,13 @@ func ReadCommand(command string) (string, int) {
 	}
 	return string(data), 0
 }
-
 func Makeconf() {
 	os.Chdir(getdata.Root)
-	ls := ReadDir()
-	if !strings.Contains(ls, "config.json") {
-		WriteFile("config.json", "{\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}")
+	if !CheckDir("config.json") {
+		WriteFile(
+			"config.json",
+			"{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
+		)
 	}
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -46,77 +46,101 @@ func Makeconf() {
 	UpdateJSONValue("config.json", "remote", input)
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
-
+	if !CheckRclone() {
+		log.Warning("rclone not installed... Using local version")
+		Cmd("./backup download-rclone")
+	}
 }
-
 func Rclone(parameter string) {
 	if getdata.Remote == "" {
-		log.Error("Remote dir is null.")
+		log.Error("Remote dir is null.", 9)
 	}
 	_, err := ReadCommand("rclone version")
 	if err == 1 {
-		log.Error("Rclone not found")
+		log.Error(
+			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
+			10,
+		)
 		return
 	}
-	lsstat := ReadDir()
-	if !strings.Contains(lsstat, "config.json") {
+	if !CheckDir("config.json") {
 		Makeconf()
 	}
 	var com = exec.Command("")
 	var Remote, Folder string = getdata.Remote, getdata.Folder
+	var loc string
+	if getdata.Local_rclone {
+		loc = getdata.Local_rclone_route
+	}
 	switch parameter {
 	case "uptar":
 		log.Func("upload tar")
-		com = exec.Command("rclone", "copy", "Backup.tar", Remote)
+		com = exec.Command(loc+"rclone", "copy", "Backup.tar", Remote)
 		defer log.Info("tar uploaded")
 	case "downtar":
 		log.Func("download tar")
-		com = exec.Command("rclone", "copy", Remote+"/Backup.tar", "..")
+		com = exec.Command(loc+"rclone", "copy", Remote+"/Backup.tar", "..")
 		defer log.Info("tar downloaded")
 	case "up":
 		log.Func("upload")
-		com = exec.Command("rclone", "sync", Folder, Remote, "-L", "-P")
+		com = exec.Command(loc+"rclone", "sync", Folder, Remote, "-L", "-P")
 		defer log.Info("Files uploaded")
 	case "down":
 		log.Func("download")
-		com = exec.Command("rclone", "sync", Remote, Folder, "-L", "-P")
+		com = exec.Command(loc+"rclone", "sync", Remote, Folder, "-L", "-P")
 		defer log.Info("Files downloaded")
+	case "ls":
+		log.Func("ls")
+		com = exec.Command(loc+"rclone", "ls", Remote)
 	}
 	com.Stderr = os.Stderr
 	com.Stdin = os.Stdin
 	com.Stdout = os.Stdout
+	if getdata.Local_rclone {
+		fmt.Println("Using local rclone...")
+	}
 	com.Run()
 }
-
+func CheckRclone() bool {
+	_, rclonestat := ReadCommand("rclone version")
+	if rclonestat == 1 {
+		return false
+	} else {
+		return true
+	}
+}
 func CheckBranch() bool {
 	data1, _ := ReadCommand("git status")
 	if strings.Contains(data1, "origin/dev") {
 		return false
+	} else {
+		return true
 	}
-	return true
-}
 
+}
 func CheckRsync() {
 	_, rsyncstat := ReadCommand("rsync --version")
 	if rsyncstat == 1 {
-		log.Error("Rsync not found.")
+		log.Error("Rsync not found.", 11)
 		return
 	}
 }
-
 func WriteFile(name, text string) error {
 	file, err1 := os.Create(name)
-	defer file.Close()
 	if err1 != nil {
 		return err1
 	}
 	file.WriteString(text)
+	file.Close()
 	return err1
 }
-
-func ReadDir() string {
+func CheckDir(dir string) bool {
 	data, _ := ReadCommand("ls")
-	return data
+	if strings.Contains(data, dir) {
+		return true
+	} else {
+		return false
+	}
 }
 
 func ReadFileCont(filename string) (string, error) {
@@ -127,27 +151,27 @@ func ReadFileCont(filename string) (string, error) {
 	return string(cont), nil
 }
 func UpdateJSONValue(filename, variableName, newValue string) error {
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 	if err != nil {
-		log.Error(fmt.Sprintf("error reading the file: %v", err))
+		log.Error(fmt.Sprintf("error reading the file: %v", err), 12)
 		return err
 	}
 	data := make(map[string]interface{})
 	err = json.Unmarshal(file, &data)
 	if err != nil {
-		log.Error(fmt.Sprintf("error when decoding the JSON file: %v", err))
+		log.Error(fmt.Sprintf("error when decoding the JSON file: %v", err), 13)
 		return err
 	}
 	data[variableName] = newValue
 
 	updatedJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Error(fmt.Sprintf("error when encoding the JSON file: %v", err))
+		log.Error(fmt.Sprintf("error when encoding the JSON file: %v", err), 14)
 		return err
 	}
-	err = ioutil.WriteFile(filename, updatedJSON, 0644)
+	err = os.WriteFile(filename, updatedJSON, 0644)
 	if err != nil {
-		log.Error(fmt.Sprintf("error when writing the JSON file: %v", err))
+		log.Error(fmt.Sprintf("error when writing the JSON file: %v", err), 15)
 		return err
 	}
 	return nil

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Tom5521/SillyTavernBackup/src/depends"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 	"github.com/Tom5521/SillyTavernBackup/src/tools"
@@ -13,16 +14,18 @@ import (
 
 // MAIN
 func main() {
-	os.Chdir(getdata.Root)
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
+	os.Chdir(getdata.Root)
 	update.RebuildCheck()
 	if !tools.CheckBranch() {
 		log.Warning("You are in the dev branch!")
-		fmt.Println("Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.")
+		fmt.Println(
+			"Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.",
+		)
 	}
 	if len(os.Args) < 2 {
-		log.Error("Option not specified.")
+		log.Error("Option not specified.", 1)
 		return
 	}
 	if os.Args[1] == "rebuild" {
@@ -37,7 +40,13 @@ func main() {
 	case "save":
 		log.Func("save")
 		os.Chdir("..")
-		tools.Cmd(fmt.Sprintf("rsync -av --progress %v --delete . %v", getdata.Exclude_Folders, getdata.Back))
+		tools.Cmd(
+			fmt.Sprintf(
+				"rsync -av --progress %v --delete . %v",
+				getdata.Exclude_Folders,
+				getdata.Back,
+			),
+		)
 		os.Chdir(getdata.Root)
 		log.Info("Files Saved")
 		if len(os.Args) == 3 {
@@ -55,21 +64,27 @@ func main() {
 		os.Chdir("..")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				ls := tools.ReadDir()
 				log.Func("restore from tarball")
-				if strings.Contains(ls, "Backup") {
+				if tools.CheckDir("Backup") {
 					log.Warning("Removing Backup/ folder")
 					tools.Cmd("rm -rf Backup/")
 				}
 				tools.Cmd("tar -xvf Backup.tar")
 			}
 		}
-		tools.Cmd(fmt.Sprintf("rsync -av --progress --delete %s%s%s .", getdata.Exclude_Folders, getdata.Include_Folders, getdata.Back))
+		tools.Cmd(
+			fmt.Sprintf(
+				"rsync -av --progress --delete %s%s%s .",
+				getdata.Exclude_Folders,
+				getdata.Include_Folders,
+				getdata.Back,
+			),
+		)
 		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	case "route":
 		if len(os.Args) < 3 {
-			log.Error("Backup destination not specified")
+			log.Error("Backup destination not specified", 2)
 			return
 		}
 		os.Chdir("..")
@@ -87,7 +102,7 @@ func main() {
 		tools.Cmd("node ../server.js")
 	case "update":
 		if len(os.Args) < 2 {
-			log.Error("Nothing selected in update func")
+			log.Error("Nothing selected in update func", 3)
 			return
 		}
 		if os.Args[2] == "ST" {
@@ -98,20 +113,18 @@ func main() {
 		}
 		if os.Args[2] == "me" {
 			_, ggit := tools.ReadCommand("git status")
-			err := tools.ReadDir()
 			_, err2 := tools.ReadCommand("go version")
-			if !strings.Contains(err, "main.go") || err2 == 1 || ggit == 1 {
+			if !tools.CheckDir("main.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
-					log.Error("No go compiler found. Downloading binaries")
+					log.Warning("No go compiler found. Downloading binaries")
 				}
-				bindata, _ := tools.ReadCommand("file backup")
-				if strings.Contains(bindata, "x86-64") {
+				if getdata.Architecture == "arm64" {
 					log.Info("Downloading x86-64 binary")
-					update.UpdateBin("pc")
+					update.DownloadLatestBinary("backup-x86-64")
 				}
-				if strings.Contains(bindata, "ARM aarch64") {
-					log.Info("Downloading aarch64 binary")
-					update.UpdateBin("Termux")
+				if strings.Contains(getdata.Architecture, "arm") {
+					log.Info("Downloading arm binary")
+					update.DownloadLatestBinary("backup-arm")
 				}
 			} else {
 				tools.Cmd("git pull")
@@ -119,10 +132,10 @@ func main() {
 				update.Rebuild()
 			}
 			tools.Cmd("./backup link")
+			tools.Cmd("rm config.json")
 		}
 	case "ls":
-		log.Func("ls")
-		tools.Cmd("rclone ls " + getdata.Remote)
+		tools.Rclone("ls")
 	case "upload":
 		tools.Rclone("up")
 		if len(os.Args) == 3 {
@@ -132,7 +145,7 @@ func main() {
 		}
 	case "download":
 		tools.Rclone("down")
-		if len(os.Args) == 3 {
+		if len(os.Args) > 3 {
 			if os.Args[2] == "tar" {
 				tools.Rclone("downtar")
 			}
@@ -148,7 +161,11 @@ func main() {
 		os.Chmod("backup", 0700)
 		log.Info("linked")
 	case "version":
-		fmt.Println("SillyTavernBackup version", getdata.Version, "\nUnder the MIT licence\nCreated by Tom5521")
+		fmt.Println(
+			"SillyTavernBackup version",
+			getdata.Version,
+			"\nUnder the MIT licence\nCreated by Tom5521",
+		)
 		return
 	case "remote":
 		log.Func("remote")
@@ -169,21 +186,32 @@ func main() {
 		if test == "y" {
 			tools.Cmd("rm config.json app.log")
 		} else {
-			fmt.Println("No option selected.")
+			log.Error("No option selected.", 1)
 		}
+	case "download-rclone":
+		log.Info("rclone download")
+		fmt.Println("Downloading and unzipping rclone...")
+		depends.DownloadRclone()
+		log.Info("Rclone donwloaded")
+		os.Exit(0)
 	case "help":
-		fmt.Println("Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README")
+		fmt.Println(
+			"Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README",
+		)
 	case "test":
 		if tools.CheckBranch() {
 			return
 		}
+		fmt.Println(os.Args)
 		fmt.Println("Testing...")
 		fmt.Print("F.D.:")
 		fmt.Println(tools.ReadCommand("file backup"))
 		fmt.Println("V.:", getdata.Version)
-		fmt.Println("__REBUILD__")
-		update.EmergencyRebuild()
+		//fmt.Println("__REBUILD__")
+		//update.EmergencyRebuild()
+		update.DownloadLatestBinary("backup-x86-64")
 		fmt.Println("__END__")
+		depends.DownloadRclone()
 		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
 		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
 		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
@@ -191,9 +219,10 @@ func main() {
 		fmt.Println("Remote:", getdata.Remote)
 		fmt.Println("Root Directory:", getdata.Root)
 		fmt.Println("N.V.:", getdata.Version)
+		fmt.Println("Arch:", getdata.Architecture)
 		fmt.Println("Dirs:", tools.Cmd("exa -a"))
 	default:
-		log.Error("No option selected.")
+		log.Error("No option selected.", 1)
 	}
 
 }

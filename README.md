@@ -5,10 +5,11 @@ This is a source code file written in the Go programming language, which provide
 
 - ### Required
 - rsync
-- rclone
+- rclone (Optional installation)
 - #### Optional
 - Go (if you want to compile it yourself to your system)
 - Tar (if you want use tarballs)
+- unzip (If you do not want to install rclone)
 
 ## Installation
 ### Build Method
@@ -55,13 +56,15 @@ The program is run from the command line and accepts various commands and option
 - `help`: Displays the help message.
 - `printconf`:Print config.json file
 - `test`: Only works in the dev branch. I use it to debug the code
-- `resetconf`:It is used to delete all program settings. Does not delete backups
+- `resetconf`: It is used to delete all program settings. Does not delete backups
+- `download-rclone`: Download and extract the rclone binary, it is useful if the rclone installed in your distro does not work correctly or if you do not want to install it.
 ### Configuration
 The configuration is located in the config.json file.
 its parameters are:
 1. `remote`: This parameter determines the path to the remote rclone server.
 2. `include-folders`: This parameter adds folders to be included in the backup.
 3. `exclude-folders`: This parameter adds folders to exclude in the backup (you are free to use it if it takes me too long to update SillyTavern)
+4. `local-rclone`: Is used to determine whether to use a local rclone binary or the one that comes installed with the system, its possible values are yes and no.
 
 ### Log
 
@@ -84,10 +87,10 @@ bash install.sh <platform>
 
 Where `<platform>` is the platform on which you want to install the program. You can use the following values:
 
-- `termux`: if you want to install the program on an Android device using the Termux app.
-- `pc`: if you want to install the program on a computer with x86-64 architecture.
+- `arm`: if you want to install the program on an Android device using the Termux app.
+- `x64`: if you want to install the program on a computer with x86-64 architecture.
 
-3. If you want to install the program on a platform other than `termux` or `pc`, you can modify the script to add support for that platform.
+3. If you want to install the program on a platform other than `arm` or `x64`, you can modify the script to add support for that platform.
 
 ## Functionality
 
