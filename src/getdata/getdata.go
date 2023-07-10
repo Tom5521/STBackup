@@ -46,7 +46,7 @@ func GetJsonData() Config {
 	}
 	readfile, err := os.ReadFile("config.json")
 	if err != nil {
-		log.Error("Error oppening the config file", 22)
+		log.Error("Error oppening the config file", 23)
 	}
 	bytedata := []byte(string(readfile))
 	json.Unmarshal(bytedata, &Conf)
