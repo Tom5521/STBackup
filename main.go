@@ -205,16 +205,9 @@ func main() {
 		}
 		fmt.Println(os.Args)
 		fmt.Println("Testing...")
-		//fmt.Print("F.D.:")
-		//fmt.Println(tools.ReadCommand("file backup"))
+		fmt.Print("F.D.:")
+		fmt.Println(getdata.ReadCommand("file backup"))
 		fmt.Println("V.:", getdata.Version)
-		//fmt.Println("__REBUILD__")
-		//update.EmergencyRebuild()
-		//update.DownloadLatestBinary("backup-x86-64")
-		fmt.Println("__END__")
-		//depends.DownloadRclone()
-		//getdata.NewConFile()
-
 		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
 		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
 		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
@@ -224,8 +217,6 @@ func main() {
 		fmt.Println("N.V.:", getdata.Version)
 		fmt.Println("Arch:", getdata.Architecture)
 		fmt.Println("Dirs:", tools.Cmd("exa -a"))
-		getdata.DATA.Local_rclone = true
-		getdata.UpdateJsonData()
 	default:
 		log.Error("No option selected.", 1)
 	}

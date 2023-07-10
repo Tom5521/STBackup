@@ -12,7 +12,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.3.1"
+const Version string = "2.3.2"
 
 var Remote string = DATA.Remote
 
