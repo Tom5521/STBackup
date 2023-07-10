@@ -2,7 +2,6 @@ package getdata
 
 import (
 	"encoding/json"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -15,7 +14,7 @@ import (
 const Folder, Back string = "../Backup/", "Backup/"
 const Version string = "2.3.1"
 
-var Remote, _ = GetJsonValue("config.json", "remote")
+var Remote string = DATA.Remote
 
 var Include_Folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups " + Include_Folders_extra
 
@@ -24,77 +23,46 @@ var Exclude_Folders string = "--exclude webfonts --exclude scripts --exclude ind
 var Architecture string = runtime.GOARCH
 var Local_rclone_route string = "src/bin/"
 var Root string = root()
-var Local_rclone bool = local_rclone()
-var Include_Folders_extra string = include_Folders_extra()
-var Exclude_Folders_extra string = exclude_Folders_extra()
+var Local_rclone bool = DATA.Local_rclone
+var Include_Folders_extra string = ProsessString(DATA.Include_Folders, "--include ")
+var Exclude_Folders_extra string = ProsessString(DATA.Exclude_Folders, "--exclude ")
 
-func root() string {
-	binpath, _ := filepath.Abs(os.Args[0])
-	return filepath.Dir(binpath)
+var DATA = GetJsonData()
+
+type Config struct {
+	Include_Folders string `json:"include-folders"`
+	Exclude_Folders string `json:"exclude-folders"`
+	Remote          string `json:"remote"`
+	Local_rclone    bool   `json:"local-rclone"`
 }
 
-func local_rclone() bool {
-	local_rclone, _ := GetJsonValue("config.json", "local-rclone")
-	if local_rclone == "yes" {
-		return true
+func GetJsonData() Config {
+	Conf := Config{}
+	os.Chdir(Root)
+	ls, _ := ReadCommand("ls")
+	if !strings.Contains(ls, "config.json") {
+		log.Warning("config.json does not exist... Creating a new one...")
+		NewConFile()
 	}
-	if local_rclone == "no" {
-		return false
+	readfile, err := os.ReadFile("config.json")
+	if err != nil {
+		log.Error("Error oppening the config file", 22)
 	}
-	return false
+	bytedata := []byte(string(readfile))
+	json.Unmarshal(bytedata, &Conf)
+	return Conf
 }
 
-func include_Folders_extra() string {
-	pre_include_Folders_extra, _ := GetJsonValue("config.json", "include-folders")
-	return ProsessString(pre_include_Folders_extra, "--include ")
-}
-
-func exclude_Folders_extra() string {
-	pre_exclude_Folders_extra, _ := GetJsonValue("config.json", "exclude-folders")
-	return ProsessString(pre_exclude_Folders_extra, "--exclude ")
-}
 func NewConFile() {
 	os.Chdir(Root)
+	newdata := Config{}
 	file, _ := os.Create("config.json")
-	file.WriteString(
-		"{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
-	)
+	data, _ := json.Marshal(newdata)
+	file.WriteString(string(data))
 	file.Close()
 }
 
-func GetJsonValue(jsonFile, variableName string) (string, error) {
-	os.Chdir(Root)
-	ls, _ := readCommand("ls")
-	if !strings.Contains(ls, jsonFile) {
-		NewConFile()
-		log.Error(jsonFile+" file not foud", 7)
-		return "", nil
-	}
-	file, err := os.Open(jsonFile)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-	var jsonData map[string]interface{}
-	err = json.Unmarshal(bytes, &jsonData)
-	if err != nil {
-		return "", err
-	}
-
-	variableValue, ok := jsonData[variableName]
-	if !ok {
-		NewConFile()
-		log.Error("Variable does not exist in the JSON file", 8)
-		return "", nil
-	}
-	return variableValue.(string), nil
-}
-
-func readCommand(command string) (string, int) {
+func ReadCommand(command string) (string, int) {
 	com := exec.Command("sh", "-c", command)
 	data, err := com.Output()
 	if err != nil {
@@ -109,13 +77,27 @@ func ProsessString(data, cond1 string) string {
 		edited := strings.Join(words, sep+cond1+sep)
 		return edited
 	}
-	pre_include_Folders_extra, _ := GetJsonValue("config.json", "include-folders")
-	pre_exclude_Folders_extra, _ := GetJsonValue("config.json", "exclude-folders")
-	if pre_exclude_Folders_extra == "" && cond1 == "--exclude " {
+	if DATA.Exclude_Folders == "" && cond1 == "--exclude " {
 		cond1 = ""
 	}
-	if pre_include_Folders_extra == "" && cond1 == "--include " {
+	if DATA.Include_Folders == "" && cond1 == "--include " {
 		cond1 = ""
 	}
 	return cond1 + edit(data, " ")
+}
+
+func root() string {
+	binpath, _ := filepath.Abs(os.Args[0])
+	return filepath.Dir(binpath)
+}
+
+func UpdateJsonData() {
+	data, err := json.MarshalIndent(DATA, "", "  ")
+	if err != nil {
+		log.Error("error when serializing the structure", 22)
+	}
+	err = os.WriteFile("config.json", data, 0644)
+	if err != nil {
+		log.Error("Error writing to the config.json file.", 15)
+	}
 }

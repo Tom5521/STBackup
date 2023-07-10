@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 	"github.com/Tom5521/SillyTavernBackup/src/tools"
@@ -32,16 +33,16 @@ func DownloadRclone() {
 		link = link_universal_linux_arm
 		arch = "arm"
 	}
-	if tools.CheckRclone() && getdata.Local_rclone {
+	if checks.CheckRclone() && getdata.Local_rclone {
 		return
 	}
 	os.Chdir(getdata.Root)
 	os.Chdir("src/")
-	if !tools.CheckDir("bin") {
+	if !checks.CheckDir("bin") {
 		os.Mkdir("bin", 0700)
 	}
 	os.Chdir("bin")
-	if tools.CheckDir("rclone") || tools.CheckDir("rclone.zip") {
+	if checks.CheckDir("rclone") || checks.CheckDir("rclone.zip") {
 		fmt.Println("rclone already downloaded.")
 		log.Warning("rclone already downloaded.")
 		return
@@ -51,7 +52,8 @@ func DownloadRclone() {
 	tools.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
 	tools.Cmd("rm -rf rclone-zip rclone.zip")
 	os.Chdir(getdata.Root)
-	tools.UpdateJSONValue("config.json", "local-rclone", "yes")
+	getdata.Local_rclone = true
+	getdata.UpdateJsonData()
 }
 
 func DownloadBinaries(filepath, url string) int {

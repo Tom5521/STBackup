@@ -2,12 +2,11 @@ package tools
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 
+	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
@@ -23,30 +22,21 @@ func Cmd(input string) int {
 	}
 	return 0
 }
-func ReadCommand(command string) (string, int) {
-	com := exec.Command("sh", "-c", command)
-	data, err := com.Output()
-	if err != nil {
-		return "", 1
-	}
-	return string(data), 0
-}
+
 func Makeconf() {
 	os.Chdir(getdata.Root)
-	if !CheckDir("config.json") {
-		WriteFile(
-			"config.json",
-			"{\"local-rclone\":\"no\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
-		)
+	if !checks.CheckDir("config.json") {
+		getdata.NewConFile()
 	}
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
-	UpdateJSONValue("config.json", "remote", input)
+	getdata.DATA.Remote = input
+	getdata.UpdateJsonData()
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
-	if !CheckRclone() {
+	if !checks.CheckRclone() {
 		log.Warning("rclone not installed... Using local version")
 		Cmd("./backup download-rclone")
 	}
@@ -55,14 +45,14 @@ func Rclone(parameter string) {
 	if getdata.Remote == "" {
 		log.Error("Remote dir is null.", 9)
 	}
-	if !CheckRclone() {
+	if !checks.CheckRclone() {
 		log.Error(
 			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
 			10,
 		)
 		return
 	}
-	if !CheckDir("config.json") {
+	if !checks.CheckDir("config.json") {
 		Makeconf()
 	}
 	var com = exec.Command("")
@@ -100,30 +90,7 @@ func Rclone(parameter string) {
 	}
 	com.Run()
 }
-func CheckRclone() bool {
-	_, rclonestat := ReadCommand("rclone version")
-	if rclonestat == 1 {
-		return false
-	} else {
-		return true
-	}
-}
-func CheckBranch() bool {
-	data1, _ := ReadCommand("git status")
-	if strings.Contains(data1, "origin/dev") {
-		return false
-	} else {
-		return true
-	}
 
-}
-func CheckRsync() {
-	_, rsyncstat := ReadCommand("rsync --version")
-	if rsyncstat == 1 {
-		log.Error("Rsync not found.", 11)
-		return
-	}
-}
 func WriteFile(name, text string) error {
 	file, err1 := os.Create(name)
 	if err1 != nil {
@@ -133,45 +100,10 @@ func WriteFile(name, text string) error {
 	file.Close()
 	return err1
 }
-func CheckDir(dir string) bool {
-	data, _ := ReadCommand("ls")
-	if strings.Contains(data, dir) {
-		return true
-	} else {
-		return false
-	}
-}
-
 func ReadFileCont(filename string) (string, error) {
 	cont, err := os.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}
 	return string(cont), nil
-}
-func UpdateJSONValue(filename, variableName, newValue string) error {
-	file, err := os.ReadFile(filename)
-	if err != nil {
-		log.Error(fmt.Sprintf("error reading the file: %v", err), 12)
-		return err
-	}
-	data := make(map[string]interface{})
-	err = json.Unmarshal(file, &data)
-	if err != nil {
-		log.Error(fmt.Sprintf("error when decoding the JSON file: %v", err), 13)
-		return err
-	}
-	data[variableName] = newValue
-
-	updatedJSON, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Error(fmt.Sprintf("error when encoding the JSON file: %v", err), 14)
-		return err
-	}
-	err = os.WriteFile(filename, updatedJSON, 0644)
-	if err != nil {
-		log.Error(fmt.Sprintf("error when writing the JSON file: %v", err), 15)
-		return err
-	}
-	return nil
 }
