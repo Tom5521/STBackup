@@ -13,7 +13,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.3"
+const Version string = "2.3.1"
 
 var Remote, _ = GetJsonValue("config.json", "remote")
 
@@ -37,9 +37,11 @@ func local_rclone() bool {
 	local_rclone, _ := GetJsonValue("config.json", "local-rclone")
 	if local_rclone == "yes" {
 		return true
-	} else {
+	}
+	if local_rclone == "no" {
 		return false
 	}
+	return false
 }
 
 func include_Folders_extra() string {
@@ -51,17 +53,20 @@ func exclude_Folders_extra() string {
 	pre_exclude_Folders_extra, _ := GetJsonValue("config.json", "exclude-folders")
 	return ProsessString(pre_exclude_Folders_extra, "--exclude ")
 }
+func NewConFile() {
+	os.Chdir(Root)
+	file, _ := os.Create("config.json")
+	file.WriteString(
+		"{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
+	)
+	file.Close()
+}
 
 func GetJsonValue(jsonFile, variableName string) (string, error) {
 	os.Chdir(Root)
 	ls, _ := readCommand("ls")
 	if !strings.Contains(ls, jsonFile) {
-		os.Chdir(Root)
-		file, _ := os.Create("config.json")
-		file.WriteString(
-			"{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
-		)
-		file.Close()
+		NewConFile()
 		log.Error(jsonFile+" file not foud", 7)
 		return "", nil
 	}
@@ -82,6 +87,7 @@ func GetJsonValue(jsonFile, variableName string) (string, error) {
 
 	variableValue, ok := jsonData[variableName]
 	if !ok {
+		NewConFile()
 		log.Error("Variable does not exist in the JSON file", 8)
 		return "", nil
 	}
