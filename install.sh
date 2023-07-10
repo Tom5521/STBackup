@@ -21,6 +21,7 @@ if [ "$1" != "" ] && [ "$1" != "clone" ]; then
     chmod +x backup
     echo "Configure remote..."
     ./backup remote
+    ./backup remote
     echo "Creating link in SillyTavern root directory..."
     ./backup link
     echo Done!

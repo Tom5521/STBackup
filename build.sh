@@ -29,10 +29,10 @@ if [ ! -d "ARM" ]; then
     mkdir ARM
 fi
 cd ARM
-export GOOS=linux
-export GOARCH=arm
+export GOOS=android
+export GOARCH=arm64
 echo "building ARM"
-go build -ldflags="-s -w" -gcflags=-trimpath -o backup-arm ../../$file
+go build -ldflags="-s -w" -gcflags=-trimpath -o -tags android backup-arm ../../$file
 
 
 cd ../
