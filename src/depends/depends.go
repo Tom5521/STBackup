@@ -32,7 +32,7 @@ func DownloadRclone() {
 		link = link_universal_linux_arm
 		arch = "arm"
 	}
-	if tools.CheckRclone() {
+	if tools.CheckRclone() && getdata.Local_rclone {
 		return
 	}
 	os.Chdir(getdata.Root)
