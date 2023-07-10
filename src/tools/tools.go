@@ -36,7 +36,7 @@ func Makeconf() {
 	if !CheckDir("config.json") {
 		WriteFile(
 			"config.json",
-			"{\"local-rclone\":\"\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
+			"{\"local-rclone\":\"no\",\"remote\":\"\",\"include-folders\":\"\",\"exclude-folders\":\"\"}",
 		)
 	}
 	fmt.Print("Enter the rclone Remote server:")
@@ -55,8 +55,7 @@ func Rclone(parameter string) {
 	if getdata.Remote == "" {
 		log.Error("Remote dir is null.", 9)
 	}
-	_, err := ReadCommand("rclone version")
-	if err == 1 {
+	if !CheckRclone() {
 		log.Error(
 			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
 			10,
