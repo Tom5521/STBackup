@@ -11,14 +11,17 @@ import (
 var binpath, _ = filepath.Abs(os.Args[0])
 var Root string = filepath.Dir(binpath)
 var logger = SetupLogger(Root + "/app.log")
-var _, filePath, _, _ = runtime.Caller(1)
 
 func Error(text string, errcode int) {
+	_, fPath, _, _ := runtime.Caller(1)
+	filePath := filepath.Base(fPath)
 	fmt.Printf("ERROR: %s | code: %d | file: %v\n", text, errcode, filePath)
 	logger.Printf("ERROR: %s | code: %d | file: %v\n", text, errcode, filePath)
 	os.Exit(errcode)
 }
 func Warning(text string) {
+	_, fPath, _, _ := runtime.Caller(1)
+	filePath := filepath.Base(fPath)
 	logger.Printf("WARNING: %s | file: %v\b", text, filePath)
 }
 func Info(text string) {
