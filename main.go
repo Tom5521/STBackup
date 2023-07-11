@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/depends"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
@@ -18,7 +19,7 @@ func main() {
 	defer log.Info("---------End---------")
 	os.Chdir(getdata.Root)
 	update.RebuildCheck()
-	if !tools.CheckBranch() {
+	if !checks.CheckBranch() {
 		log.Warning("You are in the dev branch!")
 		fmt.Println(
 			"Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.",
@@ -65,7 +66,7 @@ func main() {
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
 				log.Func("restore from tarball")
-				if tools.CheckDir("Backup") {
+				if checks.CheckDir("Backup") {
 					log.Warning("Removing Backup/ folder")
 					tools.Cmd("rm -rf Backup/")
 				}
@@ -112,9 +113,9 @@ func main() {
 			log.Info("SillyTavern Updated")
 		}
 		if os.Args[2] == "me" {
-			_, ggit := tools.ReadCommand("git status")
-			_, err2 := tools.ReadCommand("go version")
-			if !tools.CheckDir("main.go") || err2 == 1 || ggit == 1 {
+			_, ggit := getdata.ReadCommand("git status")
+			_, err2 := getdata.ReadCommand("go version")
+			if !checks.CheckDir("main.go") || err2 == 1 || ggit == 1 {
 				if err2 == 1 {
 					log.Warning("No go compiler found. Downloading binaries")
 				}
@@ -199,19 +200,14 @@ func main() {
 			"Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README",
 		)
 	case "test":
-		if tools.CheckBranch() {
+		if checks.CheckBranch() {
 			return
 		}
 		fmt.Println(os.Args)
 		fmt.Println("Testing...")
 		fmt.Print("F.D.:")
-		fmt.Println(tools.ReadCommand("file backup"))
+		fmt.Println(getdata.ReadCommand("file backup"))
 		fmt.Println("V.:", getdata.Version)
-		//fmt.Println("__REBUILD__")
-		//update.EmergencyRebuild()
-		update.DownloadLatestBinary("backup-x86-64")
-		fmt.Println("__END__")
-		depends.DownloadRclone()
 		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
 		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
 		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)

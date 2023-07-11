@@ -6,3 +6,4 @@ app.log
 config.json
 main
 src/bin/*
+errors.log
