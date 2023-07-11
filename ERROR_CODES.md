@@ -13,8 +13,8 @@
 - **10:** Rclone was not found installed. You can fix it by downloading the binary using `./backup download-rclone`.
 - **11:** No rsync was found installed. There is no option to use the binary locally because... It's RSYNC!!! It's not even 7MB!!! It's in all the damn repositories everywhere!!!
 - **12:** There was an error reading the config.json file.
-- **13:** Error decoding the config.json file.
-- **14:** Error encoding the config.json file.
+- **13:** ~~Error decoding the config.json file.~~ (*deleted*)
+- **14:** ~~Error encoding the config.json file.~~ (*deleted*)
 - **15:** Error writing to the config.json file.
 - **16:** Error creating the binary file for download.
 - **17:** Error making the download request.
@@ -24,3 +24,5 @@
 - **21:** There was an unknown error in the rebuild function.
 - **22:** Error when serializing the structure in the update json function
 - **23:** Error oppening the json file
+- **24:** Error creating file in `WriteFile` function 
+- **25:** Error writing in new file in WriteFile func

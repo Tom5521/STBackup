@@ -91,18 +91,25 @@ func Rclone(parameter string) {
 	com.Run()
 }
 
-func WriteFile(name, text string) error {
-	file, err1 := os.Create(name)
-	if err1 != nil {
-		return err1
+func WriteFile(name, text string) {
+	file, err := os.Create(name)
+	if err != nil {
+		log.Error("Error creating file in WriteFile func", 24)
+		return
 	}
-	file.WriteString(text)
+	_, err = file.WriteString(text)
+	if err != nil {
+		log.Error("Error writing in new file (WriteFile func)", 25)
+	}
 	file.Close()
-	return err1
 }
 func ReadFileCont(filename string) (string, error) {
+	if !checks.CheckDir(filename) {
+		log.Warning("File not found in ReadFileCont func")
+	}
 	cont, err := os.ReadFile(filename)
 	if err != nil {
+		log.Warning("Error reading file in ReadFileCont func")
 		return "", err
 	}
 	return string(cont), nil
