@@ -112,3 +112,6 @@ In any case, the program is  and the backup or restore process is started as app
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+
+### At what point did this project go from being a personal bullshit to a moderately serious project?
