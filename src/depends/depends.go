@@ -10,8 +10,9 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
-	"github.com/Tom5521/SillyTavernBackup/src/tools"
 )
+
+var sh = getdata.Sh{}
 
 func DownloadRclone() {
 	var arch string = getdata.Architecture
@@ -50,9 +51,9 @@ func DownloadRclone() {
 		return
 	}
 	DownloadBinaries("rclone.zip", link)
-	tools.Cmd("unzip rclone.zip -d rclone-zip")
-	tools.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
-	tools.Cmd("rm -rf rclone-zip rclone.zip")
+	sh.Cmd("unzip rclone.zip -d rclone-zip")
+	sh.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
+	sh.Cmd("rm -rf rclone-zip rclone.zip")
 	os.Chdir(getdata.Root)
 	getdata.Configs.Local_rclone = true
 	getdata.UpdateJsonData()

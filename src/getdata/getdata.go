@@ -12,7 +12,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.3.3"
+const Version string = "2.3.4"
 
 var Remote string = remote()
 
@@ -28,6 +28,7 @@ var Include_Folders_extra string = ProsessString(Configs.Include_Folders, "--inc
 var Exclude_Folders_extra string = ProsessString(Configs.Exclude_Folders, "--exclude ")
 
 var Configs = GetJsonData()
+var sh = Sh{}
 
 type config struct {
 	Include_Folders string `json:"include-folders"`
@@ -36,10 +37,12 @@ type config struct {
 	Local_rclone    bool   `json:"local-rclone"`
 }
 
+type Sh struct{}
+
 func GetJsonData() config {
 	Conf := config{}
 	os.Chdir(Root)
-	ls, _ := ReadCommand("ls")
+	ls, _ := sh.Out("ls")
 	if !strings.Contains(ls, "config.json") {
 		log.Warning("config.json does not exist... Creating a new one...")
 		NewConFile()
@@ -59,15 +62,6 @@ func NewConFile() {
 	data, _ := json.Marshal(newdata)
 	file.WriteString(string(data))
 	file.Close()
-}
-
-func ReadCommand(command string) (string, int) {
-	com := exec.Command("sh", "-c", command)
-	data, err := com.Output()
-	if err != nil {
-		return "", 1
-	}
-	return string(data), 0
 }
 
 func ProsessString(data, cond1 string) string {
@@ -104,5 +98,28 @@ func UpdateJsonData() {
 	err = os.WriteFile("config.json", data, 0644)
 	if err != nil {
 		log.Error("Error writing to the config.json file.", 15)
+	}
+}
+
+func (sh Sh) Cmd(input string) error {
+	cmd := exec.Command("sh", "-c", input)
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+}
+func (sh Sh) Out(input string) (string, error) {
+	cmd := exec.Command("sh", "-c", input)
+	out, _ := cmd.Output()
+	err := cmd.Run()
+	if err != nil {
+		return string(out), err
+	} else {
+		return string(out), nil
 	}
 }

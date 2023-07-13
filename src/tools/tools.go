@@ -11,17 +11,7 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
 
-func Cmd(input string) int {
-	cmd := exec.Command("sh", "-c", input)
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	err := cmd.Run()
-	if err != nil {
-		return 1
-	}
-	return 0
-}
+var sh = getdata.Sh{}
 
 func Makeconf() {
 	os.Chdir(getdata.Root)
@@ -38,7 +28,7 @@ func Makeconf() {
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
 	if !checks.CheckRclone() {
 		log.Warning("rclone not installed... Using local version")
-		Cmd("./backup download-rclone")
+		sh.Cmd("./backup download-rclone")
 	}
 }
 func Rclone(parameter string) {
@@ -68,7 +58,7 @@ func Rclone(parameter string) {
 		if !checks.CheckDir("src/bin/rclone") {
 			log.Warning("rclone binary not found!!!")
 			os.Chdir(getdata.Root)
-			Cmd("./backup download-rclone")
+			sh.Cmd("./backup download-rclone")
 			Rclone(parameter)
 			return
 		}

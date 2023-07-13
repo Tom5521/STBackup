@@ -8,6 +8,8 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
 
+var sh = getdata.Sh{}
+
 func CheckDir(dir string) bool {
 	_, err := os.Stat(dir)
 	if os.IsNotExist(err) {
@@ -18,15 +20,15 @@ func CheckDir(dir string) bool {
 }
 
 func CheckRclone() bool {
-	_, rclonestat := getdata.ReadCommand("rclone version")
-	if rclonestat == 1 {
+	_, rclonestat := sh.Out("rclone version")
+	if rclonestat != nil {
 		return false
 	} else {
 		return true
 	}
 }
 func CheckBranch() bool {
-	data1, _ := getdata.ReadCommand("git status")
+	data1, _ := sh.Out("git status")
 	if strings.Contains(data1, "origin/dev") {
 		return false
 	} else {
@@ -35,8 +37,8 @@ func CheckBranch() bool {
 
 }
 func CheckRsync() {
-	_, rsyncstat := getdata.ReadCommand("rsync --version")
-	if rsyncstat == 1 {
+	_, rsyncstat := sh.Out("rsync --version")
+	if rsyncstat != nil {
 		log.Error("Rsync not found.", 11)
 		return
 	}
