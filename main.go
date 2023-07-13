@@ -119,7 +119,7 @@ func main() {
 				if err2 == 1 {
 					log.Warning("No go compiler found. Downloading binaries")
 				}
-				if getdata.Architecture == "arm64" {
+				if getdata.Architecture == "amd64" {
 					log.Info("Downloading x86-64 binary")
 					update.DownloadLatestBinary("backup-x86-64")
 				}
@@ -192,6 +192,7 @@ func main() {
 	case "download-rclone":
 		log.Info("rclone download")
 		fmt.Println("Downloading and unzipping rclone...")
+		getdata.Local_rclone = true
 		depends.DownloadRclone()
 		log.Info("Rclone donwloaded")
 		os.Exit(0)
@@ -217,6 +218,7 @@ func main() {
 		fmt.Println("N.V.:", getdata.Version)
 		fmt.Println("Arch:", getdata.Architecture)
 		fmt.Println("Dirs:", tools.Cmd("exa -a"))
+		//update.DownloadLatestBinary("backup-x86-64")
 	default:
 		log.Error("No option selected.", 1)
 	}

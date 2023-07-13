@@ -22,7 +22,8 @@ func Error(text string, errcode int) {
 func Warning(text string) {
 	_, fPath, _, _ := runtime.Caller(1)
 	filePath := filepath.Base(fPath)
-	logger.Printf("WARNING: %s | file: %v\b", text, filePath)
+	fmt.Printf("WARNING: %s | file: %v\n", text, filePath)
+	logger.Printf("WARNING: %s | file: %v\n", text, filePath)
 }
 func Info(text string) {
 	logger.Println("PROGRAM: " + text)

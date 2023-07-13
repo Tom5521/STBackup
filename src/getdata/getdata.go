@@ -12,9 +12,9 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.3.2"
+const Version string = "2.3.3"
 
-var Remote string = DATA.Remote
+var Remote string = remote()
 
 var Include_Folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups " + Include_Folders_extra
 
@@ -23,21 +23,21 @@ var Exclude_Folders string = "--exclude webfonts --exclude scripts --exclude ind
 var Architecture string = runtime.GOARCH
 var Local_rclone_route string = "src/bin/"
 var Root string = root()
-var Local_rclone bool = DATA.Local_rclone
-var Include_Folders_extra string = ProsessString(DATA.Include_Folders, "--include ")
-var Exclude_Folders_extra string = ProsessString(DATA.Exclude_Folders, "--exclude ")
+var Local_rclone bool = Configs.Local_rclone
+var Include_Folders_extra string = ProsessString(Configs.Include_Folders, "--include ")
+var Exclude_Folders_extra string = ProsessString(Configs.Exclude_Folders, "--exclude ")
 
-var DATA = GetJsonData()
+var Configs = GetJsonData()
 
-type Config struct {
+type config struct {
 	Include_Folders string `json:"include-folders"`
 	Exclude_Folders string `json:"exclude-folders"`
 	Remote          string `json:"remote"`
 	Local_rclone    bool   `json:"local-rclone"`
 }
 
-func GetJsonData() Config {
-	Conf := Config{}
+func GetJsonData() config {
+	Conf := config{}
 	os.Chdir(Root)
 	ls, _ := ReadCommand("ls")
 	if !strings.Contains(ls, "config.json") {
@@ -54,7 +54,7 @@ func GetJsonData() Config {
 
 func NewConFile() {
 	os.Chdir(Root)
-	newdata := Config{}
+	newdata := config{}
 	file, _ := os.Create("config.json")
 	data, _ := json.Marshal(newdata)
 	file.WriteString(string(data))
@@ -76,10 +76,10 @@ func ProsessString(data, cond1 string) string {
 		edited := strings.Join(words, sep+cond1+sep)
 		return edited
 	}
-	if DATA.Exclude_Folders == "" && cond1 == "--exclude " {
+	if Configs.Exclude_Folders == "" && cond1 == "--exclude " {
 		cond1 = ""
 	}
-	if DATA.Include_Folders == "" && cond1 == "--include " {
+	if Configs.Include_Folders == "" && cond1 == "--include " {
 		cond1 = ""
 	}
 	return cond1 + edit(data, " ")
@@ -89,9 +89,15 @@ func root() string {
 	binpath, _ := filepath.Abs(os.Args[0])
 	return filepath.Dir(binpath)
 }
-
+func remote() string {
+	if Configs.Remote != "" {
+		return strings.TrimRight(Configs.Remote, "/")
+	} else {
+		return ""
+	}
+}
 func UpdateJsonData() {
-	data, err := json.MarshalIndent(DATA, "", "  ")
+	data, err := json.MarshalIndent(Configs, "", "  ")
 	if err != nil {
 		log.Error("error when serializing the structure", 22)
 	}
