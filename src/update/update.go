@@ -25,7 +25,7 @@ func DownloadLatestBinary(binName string) int {
 		"https://github.com/Tom5521/SillyTavernBackup/releases/latest/download/" + binName,
 	)
 	if err != nil {
-		log.Error("Erro performing request", 17)
+		log.Error("Error performing request", 17)
 		return 1
 	}
 	defer response.Body.Close()

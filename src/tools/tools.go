@@ -32,7 +32,7 @@ func Makeconf() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
-	getdata.DATA.Remote = input
+	getdata.Configs.Remote = input
 	getdata.UpdateJsonData()
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
@@ -42,8 +42,9 @@ func Makeconf() {
 	}
 }
 func Rclone(parameter string) {
+	os.Chdir(getdata.Root)
 	if getdata.Remote == "" {
-		log.Error("Remote dir is null.", 9)
+		log.Error("Remote dir is null", 9)
 	}
 	if !checks.CheckRclone() {
 		log.Error(
@@ -55,12 +56,26 @@ func Rclone(parameter string) {
 	if !checks.CheckDir("config.json") {
 		Makeconf()
 	}
-	var com = exec.Command("")
-	var Remote, Folder string = getdata.Remote, getdata.Folder
 	var loc string
 	if getdata.Local_rclone {
 		loc = getdata.Local_rclone_route
+		if !checks.CheckDir("src") {
+			os.Mkdir("src", 0700)
+		}
+		if !checks.CheckDir("src/bin") {
+			os.Mkdir("bin", 0700)
+		}
+		if !checks.CheckDir("src/bin/rclone") {
+			log.Warning("rclone binary not found!!!")
+			os.Chdir(getdata.Root)
+			Cmd("./backup download-rclone")
+			Rclone(parameter)
+			return
+		}
 	}
+	var com = exec.Command("")
+	var Remote, Folder string = getdata.Remote, getdata.Folder
+	os.Chdir(getdata.Root)
 	switch parameter {
 	case "uptar":
 		log.Func("upload tar")

@@ -33,17 +33,19 @@ func DownloadRclone() {
 		link = link_universal_linux_arm
 		arch = "arm"
 	}
-	if checks.CheckRclone() && getdata.Local_rclone {
+	if checks.CheckRclone() && !getdata.Local_rclone {
 		return
 	}
 	os.Chdir(getdata.Root)
+	if !checks.CheckDir("src") {
+		os.Mkdir("src", 0700)
+	}
 	os.Chdir("src/")
 	if !checks.CheckDir("bin") {
 		os.Mkdir("bin", 0700)
 	}
-	os.Chdir("bin")
+	os.Chdir("bin/")
 	if checks.CheckDir("rclone") || checks.CheckDir("rclone.zip") {
-		fmt.Println("rclone already downloaded.")
 		log.Warning("rclone already downloaded.")
 		return
 	}
@@ -52,7 +54,7 @@ func DownloadRclone() {
 	tools.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
 	tools.Cmd("rm -rf rclone-zip rclone.zip")
 	os.Chdir(getdata.Root)
-	getdata.Local_rclone = true
+	getdata.Configs.Local_rclone = true
 	getdata.UpdateJsonData()
 }
 

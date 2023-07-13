@@ -7,3 +7,4 @@ config.json
 main
 src/bin/*
 errors.log
+test
