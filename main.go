@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/depends"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
@@ -21,7 +20,7 @@ func main() {
 	defer log.Info("---------End---------")
 	os.Chdir(getdata.Root)
 	update.RebuildCheck()
-	if !checks.CheckBranch() {
+	if !tools.CheckMainBranch() {
 		log.Warning("You are in the dev branch!")
 		fmt.Println(
 			"Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.",
@@ -68,7 +67,7 @@ func main() {
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
 				log.Func("restore from tarball")
-				if checks.CheckDir("Backup") {
+				if tools.CheckDir("Backup") {
 					log.Warning("Removing Backup/ folder")
 					sh.Cmd("rm -rf Backup/")
 				}
@@ -117,7 +116,7 @@ func main() {
 		if os.Args[2] == "me" {
 			_, err1 := sh.Out("git status")
 			_, err2 := sh.Out("go version")
-			if !(checks.CheckDir("main.go") || err2 == nil || err1 == nil) {
+			if !(tools.CheckDir("main.go") || err2 == nil || err1 == nil) {
 				if err2 != nil {
 					log.Warning("No go compiler found. Downloading binaries")
 				}
@@ -203,7 +202,7 @@ func main() {
 			"Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README",
 		)
 	case "test":
-		if checks.CheckBranch() {
+		if tools.CheckMainBranch() {
 			return
 		}
 		fmt.Println(os.Args)

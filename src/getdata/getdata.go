@@ -115,8 +115,7 @@ func (sh Sh) Cmd(input string) error {
 }
 func (sh Sh) Out(input string) (string, error) {
 	cmd := exec.Command("sh", "-c", input)
-	out, _ := cmd.Output()
-	err := cmd.Run()
+	out, err := cmd.Output()
 	if err != nil {
 		return string(out), err
 	} else {

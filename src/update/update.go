@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
+	"github.com/Tom5521/SillyTavernBackup/src/tools"
 )
 
 var sh getdata.Sh
@@ -41,14 +41,14 @@ func DownloadLatestBinary(binName string) int {
 
 func Rebuild() {
 	os.Chdir(getdata.Root)
-	if !checks.CheckBranch() {
+	if !tools.CheckMainBranch() {
 		sh.Cmd("bash build.sh d")
 		os.Exit(0)
 		return
 	}
 	log.Func("Rebuild")
 	_, errcode := sh.Out("go version")
-	if !checks.CheckDir("main.go") {
+	if !tools.CheckDir("main.go") {
 		log.Error("Source code not found", 19)
 	}
 	if errcode != nil {
