@@ -20,15 +20,16 @@ func Error(text string, errcode int, incheck ...string) {
 			check = "| CHECK: " + incheck[1]
 		}
 	}
-	pc, _, _, _ := runtime.Caller(1)
+	pc, _, line, _ := runtime.Caller(1)
 	prefuncname := runtime.FuncForPC(pc).Name()
 	parts := strings.Split(prefuncname, "/")
 	funcname := parts[len(parts)-1]
 	errdata := fmt.Sprintf(
-		"ERROR: %s | code: %d | file: %v "+check,
+		"ERROR: %s | code: %d | file: %v | line: %v "+check,
 		text,
 		errcode,
 		funcname,
+		line,
 	)
 	fmt.Println(errdata)
 	logger.Println(errdata)
