@@ -114,10 +114,9 @@ func main() {
 			log.Info("SillyTavern Updated")
 		}
 		if os.Args[2] == "me" {
-			_, err1 := sh.Out("git status")
-			_, err2 := sh.Out("go version")
-			if !(tools.CheckDir("main.go") || err2 == nil || err1 == nil) {
-				if err2 != nil {
+			if _, err := sh.Out("go version"); !tools.CheckDir("main.go") || err != nil ||
+				!tools.CheckGit() {
+				if err != nil {
 					log.Warning("No go compiler found. Downloading binaries")
 				}
 				if getdata.Architecture == "amd64" {
@@ -202,24 +201,32 @@ func main() {
 			"Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README",
 		)
 	case "test":
-		if tools.CheckMainBranch() {
+		/*if tools.CheckMainBranch() {
 			return
-		}
+		}*/
 		fmt.Println(os.Args)
 		fmt.Println("Testing...")
 		fmt.Print("F.D.:")
 		filedata, _ := sh.Out("file backup")
 		fmt.Println(filedata)
-		fmt.Println("V.:", getdata.Version)
-		fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
-		fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
-		fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
-		fmt.Println("Include folders def:", "||-"+getdata.Include_Folders+"-||")
+		//fmt.Println("V.:", getdata.Version)
+		//fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
+		//fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
+		//fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
+		//fmt.Println("Include folders def:", "||-"+getdata.Include_Folders+"-||")
 		fmt.Println("Remote:", getdata.Remote)
 		fmt.Println("Root Directory:", getdata.Root)
 		fmt.Println("N.V.:", getdata.Version)
 		fmt.Println("Arch:", getdata.Architecture)
-		fmt.Println("Dirs:", sh.Cmd("exa -a"))
+		fmt.Println(
+			"Check def git:",
+			tools.CheckGit(),
+			"| Check Main Branch:",
+			tools.CheckMainBranch(),
+			"| Check git directory:",
+			tools.CheckDir(".git"),
+		)
+		//fmt.Println("Dirs:", sh.Cmd("exa -a"))
 		//update.DownloadLatestBinary("backup-x86-64")
 	default:
 		log.Error("No option selected.", 1)
