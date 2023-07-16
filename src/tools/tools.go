@@ -130,6 +130,9 @@ func CheckRclone() bool {
 	}
 }
 func CheckMainBranch() bool {
+	if !CheckGit() {
+		return true
+	}
 	if data1, _ := sh.Out("git status"); strings.Contains(data1, "origin/dev") {
 		return false
 	} else {
@@ -141,5 +144,14 @@ func CheckRsync() {
 	if _, rsyncstat := sh.Out("rsync --version"); rsyncstat != nil {
 		log.Error("Rsync not found.", 11)
 		return
+	}
+}
+
+func CheckGit() bool {
+	os.Chdir(getdata.Root)
+	if git := CheckDir(".git"); git {
+		return true
+	} else {
+		return false
 	}
 }
