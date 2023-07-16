@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
@@ -14,6 +13,7 @@ import (
 var sh = getdata.Sh{}
 
 func Makeconf() {
+	log.Function()
 	os.Chdir(getdata.Root)
 	if !CheckDir("config.json") {
 		getdata.NewConFile()
@@ -32,6 +32,7 @@ func Makeconf() {
 	}
 }
 func Rclone(parameter string) {
+	log.Function()
 	os.Chdir(getdata.Root)
 	if getdata.Remote == "" {
 		log.Error("Remote dir is null", 9)
@@ -57,40 +58,39 @@ func Rclone(parameter string) {
 			return
 		}
 	}
-	var com = exec.Command("")
+	var com string
 	var Remote, Folder string = getdata.Remote, getdata.Folder
 	os.Chdir(getdata.Root)
 	switch parameter {
 	case "uptar":
 		log.Func("upload tar")
-		com = exec.Command(loc+"rclone", "copy", "Backup.tar", Remote)
+		com = fmt.Sprintf("%vrclone copy Backup.tar %v", loc, Remote)
 		defer log.Info("tar uploaded")
 	case "downtar":
 		log.Func("download tar")
-		com = exec.Command(loc+"rclone", "copy", Remote+"/Backup.tar", "..")
+		com = fmt.Sprintf("%vrclone copy %v/backup.tar ..", loc, Remote)
 		defer log.Info("tar downloaded")
 	case "up":
 		log.Func("upload")
-		com = exec.Command(loc+"rclone", "sync", Folder, Remote, "-L", "-P")
+		com = fmt.Sprintf("%vrclone sync %v %v -L -P", loc, Folder, Remote)
 		defer log.Info("Files uploaded")
 	case "down":
 		log.Func("download")
-		com = exec.Command(loc+"rclone", "sync", Remote, Folder, "-L", "-P")
+		com = fmt.Sprintf("%vrclone sync %v %v -L -P", loc, Remote, Folder)
 		defer log.Info("Files downloaded")
 	case "ls":
 		log.Func("ls")
-		com = exec.Command(loc+"rclone", "ls", Remote)
+		com = fmt.Sprintf("%vrclone ls %v", loc, Remote)
 	}
-	com.Stderr = os.Stderr
-	com.Stdin = os.Stdin
-	com.Stdout = os.Stdout
 	if getdata.Local_rclone {
 		fmt.Println("Using local rclone...")
 	}
-	com.Run()
+	sh.Cmd(com)
 }
 
 func WriteFile(name, text string) {
+	log.Function()
+	log.Info("Writing %v in %v file...")
 	file, err := os.Create(name)
 	if err != nil {
 		log.Error("Error creating file in WriteFile func", 24)
@@ -103,6 +103,8 @@ func WriteFile(name, text string) {
 	file.Close()
 }
 func ReadFileCont(filename string) (string, error) {
+	log.Function()
+	log.Info(fmt.Sprintf("Reading %v file content", filename))
 	if !CheckDir(filename) {
 		log.Warning("File not found in ReadFileCont func")
 	}
@@ -115,43 +117,61 @@ func ReadFileCont(filename string) (string, error) {
 }
 
 func CheckDir(dir string) bool {
+	log.Function()
+	log.Info(fmt.Sprintf("Checking %v dir", dir))
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		log.Check("false")
 		return false
 	} else {
+		log.Check("true")
 		return true
 	}
 }
 
 func CheckRclone() bool {
+	log.Function()
+	log.Info("Checking rclone")
 	if _, rclonestat := sh.Out("rclone version"); rclonestat != nil {
+		log.Check("false")
 		return false
 	} else {
+		log.Check("true")
 		return true
 	}
 }
 func CheckMainBranch() bool {
+	log.Function()
 	if !CheckGit() {
 		return true
 	}
+	log.Info("Checking branch")
 	if data1, _ := sh.Out("git status"); strings.Contains(data1, "origin/dev") {
+		log.Check("false")
 		return false
 	} else {
+		log.Check("true")
 		return true
 	}
 
 }
 func CheckRsync() {
+	log.Function()
+	log.Info("Checking rsync")
 	if _, rsyncstat := sh.Out("rsync --version"); rsyncstat != nil {
-		log.Error("Rsync not found.", 11)
+		log.Error("Rsync not found.", 11, "check", string(rsyncstat.Error()))
 		return
 	}
 }
 
 func CheckGit() bool {
 	os.Chdir(getdata.Root)
+	log.Function()
+	log.Info("Checking git")
 	if git := CheckDir(".git"); git {
+		log.Check("true")
 		return true
 	} else {
+		log.Check("false")
 		return false
 	}
 }

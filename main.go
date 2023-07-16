@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/Tom5521/SillyTavernBackup/src/depends"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
@@ -20,6 +22,8 @@ func main() {
 	defer log.Info("---------End---------")
 	os.Chdir(getdata.Root)
 	update.RebuildCheck()
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	if !tools.CheckMainBranch() {
 		log.Warning("You are in the dev branch!")
 		fmt.Println(
@@ -41,6 +45,7 @@ func main() {
 		os.MkdirAll("Backup/public", os.ModePerm)
 	case "save":
 		log.Func("save")
+		tools.CheckRsync()
 		os.Chdir("..")
 		sh.Cmd(
 			fmt.Sprintf(
@@ -64,6 +69,7 @@ func main() {
 	case "restore":
 		log.Func("restore")
 		os.Chdir("..")
+		tools.CheckRsync()
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
 				log.Func("restore from tarball")
@@ -101,6 +107,7 @@ func main() {
 		}
 	case "start":
 		log.Func("start")
+		os.Chdir("..")
 		sh.Cmd("node ../server.js")
 	case "update":
 		if len(os.Args) < 2 {
@@ -153,8 +160,8 @@ func main() {
 		}
 	case "init":
 		log.Func("init")
+		os.Chdir("..")
 		sh.Cmd("bash ../start.sh")
-		log.Func("start")
 	case "link":
 		log.Func("link")
 		os.Chdir("..")
@@ -230,6 +237,15 @@ func main() {
 		//update.DownloadLatestBinary("backup-x86-64")
 	default:
 		log.Error("No option selected.", 1)
+	}
+	sig := <-sigChan
+	switch sig {
+	case syscall.SIGINT:
+		fmt.Println("SIGINT (Ctrl+C) was received. The program will close.")
+		log.Info("SIGINT")
+	case syscall.SIGTERM:
+		fmt.Println("SIGTERM was received. The program will be closed.")
+		log.Info("SIGTERM")
 	}
 
 }

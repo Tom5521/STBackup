@@ -15,6 +15,7 @@ import (
 var sh = getdata.Sh{}
 
 func DownloadRclone() {
+	log.Function()
 	var arch string = getdata.Architecture
 	var link_linux_amd64 string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-amd64.zip"
 	var link_linux_386 string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-386.zip"
@@ -59,6 +60,7 @@ func DownloadRclone() {
 }
 
 func DownloadBinaries(filepath, url string) int {
+	log.Function()
 	file, err := os.Create(filepath)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error creating the %s file", filepath), 4)
