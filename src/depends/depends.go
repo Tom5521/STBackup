@@ -7,11 +7,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 	"github.com/Tom5521/SillyTavernBackup/src/tools"
 )
+
+var sh = getdata.Sh{}
 
 func DownloadRclone() {
 	var arch string = getdata.Architecture
@@ -33,26 +34,25 @@ func DownloadRclone() {
 		link = link_universal_linux_arm
 		arch = "arm"
 	}
-	if checks.CheckRclone() && !getdata.Local_rclone {
+	if tools.CheckRclone() && !getdata.Local_rclone {
 		return
 	}
 	os.Chdir(getdata.Root)
-	if !checks.CheckDir("src") {
+	if !tools.CheckDir("src") {
 		os.Mkdir("src", 0700)
 	}
-	os.Chdir("src/")
-	if !checks.CheckDir("bin") {
-		os.Mkdir("bin", 0700)
+	if !tools.CheckDir("src/bin") {
+		os.Mkdir("src/bin", 0700)
 	}
-	os.Chdir("bin/")
-	if checks.CheckDir("rclone") || checks.CheckDir("rclone.zip") {
+	os.Chdir("src/bin/")
+	if tools.CheckDir("rclone") || tools.CheckDir("rclone.zip") {
 		log.Warning("rclone already downloaded.")
 		return
 	}
 	DownloadBinaries("rclone.zip", link)
-	tools.Cmd("unzip rclone.zip -d rclone-zip")
-	tools.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
-	tools.Cmd("rm -rf rclone-zip rclone.zip")
+	sh.Cmd("unzip rclone.zip -d rclone-zip")
+	sh.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
+	sh.Cmd("rm -rf rclone-zip rclone.zip")
 	os.Chdir(getdata.Root)
 	getdata.Configs.Local_rclone = true
 	getdata.UpdateJsonData()

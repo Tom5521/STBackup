@@ -5,27 +5,17 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
-	"github.com/Tom5521/SillyTavernBackup/src/checks"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
 
-func Cmd(input string) int {
-	cmd := exec.Command("sh", "-c", input)
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	err := cmd.Run()
-	if err != nil {
-		return 1
-	}
-	return 0
-}
+var sh = getdata.Sh{}
 
 func Makeconf() {
 	os.Chdir(getdata.Root)
-	if !checks.CheckDir("config.json") {
+	if !CheckDir("config.json") {
 		getdata.NewConFile()
 	}
 	fmt.Print("Enter the rclone Remote server:")
@@ -36,9 +26,9 @@ func Makeconf() {
 	getdata.UpdateJsonData()
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
-	if !checks.CheckRclone() {
+	if !CheckRclone() {
 		log.Warning("rclone not installed... Using local version")
-		Cmd("./backup download-rclone")
+		sh.Cmd("./backup download-rclone")
 	}
 }
 func Rclone(parameter string) {
@@ -46,29 +36,23 @@ func Rclone(parameter string) {
 	if getdata.Remote == "" {
 		log.Error("Remote dir is null", 9)
 	}
-	if !checks.CheckRclone() {
+	if !CheckRclone() {
 		log.Error(
 			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
 			10,
 		)
 		return
 	}
-	if !checks.CheckDir("config.json") {
+	if !CheckDir("config.json") {
 		Makeconf()
 	}
 	var loc string
 	if getdata.Local_rclone {
 		loc = getdata.Local_rclone_route
-		if !checks.CheckDir("src") {
-			os.Mkdir("src", 0700)
-		}
-		if !checks.CheckDir("src/bin") {
-			os.Mkdir("bin", 0700)
-		}
-		if !checks.CheckDir("src/bin/rclone") {
-			log.Warning("rclone binary not found!!!")
+		if !CheckDir("src/bin/rclone") {
+			log.Warning("rclone binary or folders not found!!!")
 			os.Chdir(getdata.Root)
-			Cmd("./backup download-rclone")
+			sh.Cmd("./backup download-rclone")
 			Rclone(parameter)
 			return
 		}
@@ -119,7 +103,7 @@ func WriteFile(name, text string) {
 	file.Close()
 }
 func ReadFileCont(filename string) (string, error) {
-	if !checks.CheckDir(filename) {
+	if !CheckDir(filename) {
 		log.Warning("File not found in ReadFileCont func")
 	}
 	cont, err := os.ReadFile(filename)
@@ -128,4 +112,34 @@ func ReadFileCont(filename string) (string, error) {
 		return "", err
 	}
 	return string(cont), nil
+}
+
+func CheckDir(dir string) bool {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		return false
+	} else {
+		return true
+	}
+}
+
+func CheckRclone() bool {
+	if _, rclonestat := sh.Out("rclone version"); rclonestat != nil {
+		return false
+	} else {
+		return true
+	}
+}
+func CheckMainBranch() bool {
+	if data1, _ := sh.Out("git status"); strings.Contains(data1, "origin/dev") {
+		return false
+	} else {
+		return true
+	}
+
+}
+func CheckRsync() {
+	if _, rsyncstat := sh.Out("rsync --version"); rsyncstat != nil {
+		log.Error("Rsync not found.", 11)
+		return
+	}
 }
