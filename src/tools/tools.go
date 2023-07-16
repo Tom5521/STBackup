@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
 	"github.com/Tom5521/SillyTavernBackup/src/log"
@@ -173,5 +175,31 @@ func CheckGit() bool {
 	} else {
 		log.Check("false")
 		return false
+	}
+}
+
+func SillyTavern(input string) {
+	var par, command string
+	if input == "start" {
+		par = "start"
+		command = "node server.js"
+	}
+	if input == "init" {
+		par = "init"
+		command = "bash start.sh"
+	}
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	os.Chdir("..")
+	log.Func(par)
+	sh.Cmd(command)
+	sig := <-sigChan
+	switch sig {
+	case syscall.SIGINT:
+		fmt.Println("SIGINT (Ctrl+C) was received. The program will close.")
+		log.Info("SIGINT")
+	case syscall.SIGTERM:
+		fmt.Println("SIGTERM was received. The program will be closed.")
+		log.Info("SIGTERM")
 	}
 }

@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/signal"
 	"strings"
-	"syscall"
 
 	"github.com/Tom5521/SillyTavernBackup/src/depends"
 	"github.com/Tom5521/SillyTavernBackup/src/getdata"
@@ -22,8 +20,6 @@ func main() {
 	defer log.Info("---------End---------")
 	os.Chdir(getdata.Root)
 	update.RebuildCheck()
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	if !tools.CheckMainBranch() {
 		log.Warning("You are in the dev branch!")
 		fmt.Println(
@@ -106,9 +102,7 @@ func main() {
 			log.Info("Tar file moved to " + os.Args[2])
 		}
 	case "start":
-		log.Func("start")
-		os.Chdir("..")
-		sh.Cmd("node ../server.js")
+		tools.SillyTavern("start")
 	case "update":
 		if len(os.Args) < 2 {
 			log.Error("Nothing selected in update func", 3)
@@ -159,9 +153,7 @@ func main() {
 			}
 		}
 	case "init":
-		log.Func("init")
-		os.Chdir("..")
-		sh.Cmd("bash ../start.sh")
+		tools.SillyTavern("init")
 	case "link":
 		log.Func("link")
 		os.Chdir("..")
@@ -237,15 +229,6 @@ func main() {
 		//update.DownloadLatestBinary("backup-x86-64")
 	default:
 		log.Error("No option selected.", 1)
-	}
-	sig := <-sigChan
-	switch sig {
-	case syscall.SIGINT:
-		fmt.Println("SIGINT (Ctrl+C) was received. The program will close.")
-		log.Info("SIGINT")
-	case syscall.SIGTERM:
-		fmt.Println("SIGTERM was received. The program will be closed.")
-		log.Info("SIGTERM")
 	}
 
 }

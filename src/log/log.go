@@ -37,9 +37,11 @@ func Error(text string, errcode int, incheck ...string) {
 	os.Exit(errcode)
 }
 func Warning(text string) {
-	_, fPath, _, _ := runtime.Caller(1)
-	filePath := filepath.Base(fPath)
-	warndata := fmt.Sprintf("WARNING: %s | file: %v", text, filePath)
+	pc, _, _, _ := runtime.Caller(1)
+	prefuncname := runtime.FuncForPC(pc).Name()
+	parts := strings.Split(prefuncname, "/")
+	funcname := parts[len(parts)-1]
+	warndata := fmt.Sprintf("WARNING: %s | file: %v", text, funcname)
 	fmt.Println(warndata)
 	logger.Println(warndata)
 }
