@@ -41,6 +41,7 @@ func main() {
 		os.MkdirAll("Backup/public", os.ModePerm)
 	case "save":
 		log.Func("save")
+		tools.CheckRsync()
 		os.Chdir("..")
 		sh.Cmd(
 			fmt.Sprintf(
@@ -64,6 +65,7 @@ func main() {
 	case "restore":
 		log.Func("restore")
 		os.Chdir("..")
+		tools.CheckRsync()
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
 				log.Func("restore from tarball")
@@ -100,8 +102,7 @@ func main() {
 			log.Info("Tar file moved to " + os.Args[2])
 		}
 	case "start":
-		log.Func("start")
-		sh.Cmd("node ../server.js")
+		tools.SillyTavern("start")
 	case "update":
 		if len(os.Args) < 2 {
 			log.Error("Nothing selected in update func", 3)
@@ -152,9 +153,7 @@ func main() {
 			}
 		}
 	case "init":
-		log.Func("init")
-		sh.Cmd("bash ../start.sh")
-		log.Func("start")
+		tools.SillyTavern("init")
 	case "link":
 		log.Func("link")
 		os.Chdir("..")

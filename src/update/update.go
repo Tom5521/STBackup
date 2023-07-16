@@ -14,6 +14,7 @@ import (
 var sh getdata.Sh
 
 func DownloadLatestBinary(binName string) int {
+	log.Function()
 	os.Chdir(getdata.Root)
 	file, err := os.Create(binName)
 	if err != nil {
@@ -46,7 +47,7 @@ func Rebuild() {
 		os.Exit(0)
 		return
 	}
-	log.Func("Rebuild")
+	log.Function()
 	_, errcode := sh.Out("go version")
 	if !tools.CheckDir("main.go") {
 		log.Error("Source code not found", 19)

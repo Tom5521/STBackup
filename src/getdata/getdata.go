@@ -12,7 +12,7 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.3.5"
+const Version string = "2.4"
 
 var Remote string = remote()
 
@@ -56,6 +56,7 @@ func GetJsonData() config {
 }
 
 func NewConFile() {
+	log.Function()
 	os.Chdir(Root)
 	newdata := config{}
 	file, _ := os.Create("config.json")
