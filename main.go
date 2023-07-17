@@ -196,7 +196,7 @@ func main() {
 		os.Exit(0)
 	case "setloglevel":
 	case "help": // Print a help message
-		fmt.Println(getdata.Help)
+		fmt.Print(getdata.Help)
 	case "test": // Test the program. Only works in the dev branch | The comments below are not relevant because they are only for testing purposes.
 		if tools.CheckMainBranch() {
 			log.Error("This func only works in the dev branch", 26)
