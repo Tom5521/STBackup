@@ -123,7 +123,7 @@ func (sh Sh) Out(input string) (string, error) {
 	}
 }
 
-var Help string = `
+const Help string = `
 # Silly Tavern Backup and Cloud Upload
 
 This is a source code file written in the Go programming language, which provides a backup and restore tool for SillyTavern. The program uses the rsync command to synchronize the application files between the local server and the remote server. It also uses the rclone tool to synchronize SillyTavern files with a cloud storage service.
