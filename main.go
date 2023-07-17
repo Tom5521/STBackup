@@ -12,34 +12,30 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/update"
 )
 
+// Init shell function
 var sh = getdata.Sh{}
 
-// MAIN
 func main() {
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
-	os.Chdir(getdata.Root)
-	update.RebuildCheck()
-	if !tools.CheckMainBranch() {
+	os.Chdir(getdata.Root)        // Change to the root directory
+	update.RebuildCheck()         // Check if the rebuild arg is on
+	if !tools.CheckMainBranch() { // Check the git branch to display a warning
 		log.Warning("You are in the dev branch!")
 		fmt.Println(
 			"Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.",
 		)
 	}
-	if len(os.Args) < 2 {
+	if len(os.Args) < 2 { // Check if it has the required number of arguments.
 		log.Error("Option not specified.", 1)
 		return
 	}
-	if os.Args[1] == "rebuild" {
-		update.Rebuild()
-		os.Exit(0)
-	}
 	switch os.Args[1] {
-	case "make":
+	case "make": // Make the folder structures
 		log.Func("Make")
 		os.Chdir("..")
 		os.MkdirAll("Backup/public", os.ModePerm)
-	case "save":
+	case "save": // Copy the local files to backup
 		log.Func("save")
 		tools.CheckRsync()
 		os.Chdir("..")
@@ -52,7 +48,7 @@ func main() {
 		)
 		os.Chdir(getdata.Root)
 		log.Info("Files Saved")
-		if len(os.Args) == 3 {
+		if len(os.Args) == 3 { // Check if tar arg is on
 			if os.Args[2] == "tar" {
 				log.Func("save tarball")
 				os.Chdir("..")
@@ -62,7 +58,7 @@ func main() {
 				}
 			}
 		}
-	case "restore":
+	case "restore": // Copy the files from backup folder to the local folder
 		log.Func("restore")
 		os.Chdir("..")
 		tools.CheckRsync()
@@ -101,20 +97,20 @@ func main() {
 			sh.Cmd(fmt.Sprintf("mv Backup.tar %v -f", os.Args[2]))
 			log.Info("Tar file moved to " + os.Args[2])
 		}
-	case "start":
+	case "start": // Start SillyTavern with node js and server.js
 		tools.SillyTavern("start")
 	case "update":
 		if len(os.Args) < 2 {
 			log.Error("Nothing selected in update func", 3)
 			return
 		}
-		if os.Args[2] == "ST" {
+		if os.Args[2] == "ST" { // Update SillyTavern
 			os.Chdir("..")
 			sh.Cmd("git pull")
 			os.Chdir(getdata.Root)
 			log.Info("SillyTavern Updated")
 		}
-		if os.Args[2] == "me" {
+		if os.Args[2] == "me" { // Update this program
 			if _, err := sh.Out("go version"); !tools.CheckDir("main.go") || err != nil ||
 				!tools.CheckGit() {
 				if err != nil {
@@ -136,50 +132,53 @@ func main() {
 			sh.Cmd("./backup link")
 			sh.Cmd("rm config.json")
 		}
-	case "ls":
+	case "ls": // List the files and dirs in the remote
 		tools.Rclone("ls")
-	case "upload":
+	case "upload": // Synchronizes the remote folder with the local folder
 		tools.Rclone("up")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
 				tools.Rclone("uptar")
 			}
 		}
-	case "download":
+	case "download": // Synchronizes local folder with remote folder
 		tools.Rclone("down")
 		if len(os.Args) > 3 {
 			if os.Args[2] == "tar" {
 				tools.Rclone("downtar")
 			}
 		}
-	case "init":
+	case "init": // Execute start.sh for first run
 		tools.SillyTavern("init")
-	case "link":
+	case "link": // Create a direct access bash file in the upper folder
 		log.Func("link")
 		os.Chdir("..")
-		tools.WriteFile("backup", "#!/bin/bash\ncd SillyTavernBackup/\n./backup $1 $2 $3 $4\n")
-		os.Chmod("backup", 0700)
+		tools.WriteFile("stbackup", "#!/bin/bash\ncd SillyTavernBackup/\n./backup $1 $2 $3 $4\n")
+		os.Chmod("stbackup", 0700)
 		log.Info("linked")
-	case "version":
+	case "version": // Print the current version,the author, and the licence
 		fmt.Println(
 			"SillyTavernBackup version",
 			getdata.Version,
 			"\nUnder the MIT licence\nCreated by Tom5521",
 		)
 		return
-	case "remote":
+	case "remote": // Interactive config for the remote dir
 		log.Func("remote")
 		tools.Makeconf()
-	case "cleanlog":
+	case "cleanlog": // Clean the log file
 		tools.WriteFile("app.log", "")
 		os.Exit(0)
-	case "log":
+	case "log": // Print the log file
 		filecont, _ := tools.ReadFileCont("app.log")
 		fmt.Println(filecont)
-	case "printconf":
-		filecont, _ := tools.ReadFileCont("config.json")
-		fmt.Println(filecont)
-	case "resetconf":
+	case "printconf": // Print the config values
+		fmt.Println("Remote:", getdata.Configs.Local_rclone)
+		fmt.Println("Local Rclone:", getdata.Configs.Local_rclone)
+		fmt.Println("Extra Include Folders:", getdata.Configs.Include_Folders)
+		fmt.Println("Extra Exclude Folders:", getdata.Configs.Exclude_Folders)
+		fmt.Println("")
+	case "resetconf": // Delete config.json and create a new one
 		var test string
 		fmt.Println("Are you sure to reset the configuration (backups will not be deleted)? y/n")
 		fmt.Scanln(&test)
@@ -188,21 +187,21 @@ func main() {
 		} else {
 			log.Error("No option selected.", 1)
 		}
-	case "download-rclone":
+	case "download-rclone": // Download rclone local binary
 		log.Info("rclone download")
 		fmt.Println("Downloading and unzipping rclone...")
 		getdata.Local_rclone = true
 		depends.DownloadRclone()
 		log.Info("Rclone donwloaded")
 		os.Exit(0)
-	case "help":
-		fmt.Println(
-			"Please read the documentation in https://github.com/Tom5521/SillyTavernBackup\nAll it's in the README",
-		)
-	case "test":
-		/*if tools.CheckMainBranch() {
+	case "setloglevel":
+	case "help": // Print a help message
+		fmt.Println(getdata.Help)
+	case "test": // Test the program. Only works in the dev branch | The comments below are not relevant because they are only for testing purposes.
+		if tools.CheckMainBranch() {
+			log.Error("This func only works in the dev branch", 26)
 			return
-		}*/
+		}
 		fmt.Println(os.Args)
 		fmt.Println("Testing...")
 		fmt.Print("F.D.:")
