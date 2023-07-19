@@ -14,31 +14,32 @@ import (
 
 var sh = getdata.Sh{}
 
+// Config the remote rclone dir
 func Makeconf() {
 	log.Function()
 	os.Chdir(getdata.Root)
-	if !CheckDir("config.json") {
-		getdata.NewConFile()
-	}
+	// Scan in the terminal the new remote dir value
 	fmt.Print("Enter the rclone Remote server:")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
-	getdata.Configs.Remote = input
-	getdata.UpdateJsonData()
+	getdata.Configs.Remote = input // Set the inputed text equal to the local var
+	getdata.UpdateJsonData()       // Update the config.json data
+	// Print in the terminal and write the data in the log
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
-	if !CheckRclone() {
-		log.Warning("rclone not installed... Using local version")
-		sh.Cmd("./backup download-rclone")
-	}
 }
+
+// Rclone functions func
 func Rclone(parameter string) {
 	log.Function()
 	os.Chdir(getdata.Root)
+	// Check the remote dir
 	if getdata.Remote == "" {
-		log.Error("Remote dir is null", 9)
+		log.Warning("Remote dir is null, set the remote rclone dir value")
+		Makeconf()
 	}
+	// Check if rclone is installed
 	if !CheckRclone() {
 		log.Error(
 			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
@@ -46,12 +47,11 @@ func Rclone(parameter string) {
 		)
 		return
 	}
-	if !CheckDir("config.json") {
-		Makeconf()
-	}
+	// Check if the local binary or the installed binary will be used
 	var loc string
 	if getdata.Local_rclone {
 		loc = getdata.Local_rclone_route
+		// Check if exist the rclone binary
 		if !CheckDir("src/bin/rclone") {
 			log.Warning("rclone binary or folders not found!!!")
 			os.Chdir(getdata.Root)
@@ -63,6 +63,7 @@ func Rclone(parameter string) {
 	var com string
 	var Remote, Folder string = getdata.Remote, getdata.Folder
 	os.Chdir(getdata.Root)
+	// Check the func will be used for rclone
 	switch parameter {
 	case "uptar":
 		log.Func("upload tar")
@@ -87,16 +88,16 @@ func Rclone(parameter string) {
 	if getdata.Local_rclone {
 		fmt.Println("Using local rclone...")
 	}
-	sh.Cmd(com)
+	sh.Cmd(com) // Exec the corresponding command
 }
 
+// Very descriptive name
 func WriteFile(name, text string) {
 	log.Function()
 	log.Info("Writing %v in %v file...")
 	file, err := os.Create(name)
 	if err != nil {
 		log.Error("Error creating file in WriteFile func", 24)
-		return
 	}
 	_, err = file.WriteString(text)
 	if err != nil {
@@ -104,9 +105,12 @@ func WriteFile(name, text string) {
 	}
 	file.Close()
 }
+
+// Very descriptive name
 func ReadFileCont(filename string) (string, error) {
 	log.Function()
 	log.Info(fmt.Sprintf("Reading %v file content", filename))
+	// Check if the file exists
 	if !CheckDir(filename) {
 		log.Warning("File not found in ReadFileCont func")
 	}
@@ -118,6 +122,7 @@ func ReadFileCont(filename string) (string, error) {
 	return string(cont), nil
 }
 
+// Very descriptive name
 func CheckDir(dir string) bool {
 	log.Function()
 	log.Info(fmt.Sprintf("Checking %v dir", dir))
@@ -130,6 +135,7 @@ func CheckDir(dir string) bool {
 	}
 }
 
+// Check if rclone is installed
 func CheckRclone() bool {
 	log.Function()
 	log.Info("Checking rclone")
@@ -141,8 +147,11 @@ func CheckRclone() bool {
 		return true
 	}
 }
+
+// Check if the program is in the main branch
 func CheckMainBranch() bool {
 	log.Function()
+	// Check if git is installed
 	if !CheckGit() {
 		return true
 	}
@@ -156,6 +165,8 @@ func CheckMainBranch() bool {
 	}
 
 }
+
+// Check if rsync is installed
 func CheckRsync() {
 	log.Function()
 	log.Info("Checking rsync")
@@ -165,20 +176,26 @@ func CheckRsync() {
 	}
 }
 
+// Check if git is installed checking the .git dir and if git is installed
 func CheckGit() bool {
+	var check1, check2 bool
 	os.Chdir(getdata.Root)
 	log.Function()
 	log.Info("Checking git")
 	if git := CheckDir(".git"); git {
-		log.Check("true")
-		return true
-	} else {
-		log.Check("false")
-		return false
+		log.Check(".git dir:true")
+		check1 = true
 	}
+	if _, err := sh.Out("git status"); err == nil {
+		log.Check("git installed:true")
+		check2 = true
+	}
+	return check1 && check2
 }
 
+// Start sillytavern
 func SillyTavern(input string) {
+	// Set the executable to execute
 	var par, command string
 	if input == "start" {
 		par = "start"
@@ -188,11 +205,12 @@ func SillyTavern(input string) {
 		par = "init"
 		command = "bash start.sh"
 	}
+	// Make a new channel to detect sigint and sigterm
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	os.Chdir("..")
 	log.Func(par)
-	sh.Cmd(command)
+	sh.Cmd(command) // Exec the current file
 	sig := <-sigChan
 	switch sig {
 	case syscall.SIGINT:

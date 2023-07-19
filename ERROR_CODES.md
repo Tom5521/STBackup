@@ -26,3 +26,4 @@
 - **23:** Error oppening the json file
 - **24:** Error creating file in `WriteFile` function 
 - **25:** Error writing in new file in WriteFile func
+- **26:** You tried to use the test function in the main branch, switch to the dev branch to run it. 

@@ -12,6 +12,7 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/tools"
 )
 
+// Declare private shell functions
 var sh = getdata.Sh{}
 
 func DownloadRclone() {
@@ -20,7 +21,7 @@ func DownloadRclone() {
 	var link_linux_amd64 string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-amd64.zip"
 	var link_linux_386 string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-386.zip"
 	var link_universal_linux_arm string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-arm.zip"
-
+	// Set link to download
 	var link string
 	if getdata.Architecture == "amd64" {
 		link = link_linux_amd64
@@ -35,9 +36,11 @@ func DownloadRclone() {
 		link = link_universal_linux_arm
 		arch = "arm"
 	}
-	if tools.CheckRclone() && !getdata.Local_rclone {
+	if tools.CheckRclone() &&
+		!getdata.Local_rclone { //Check if rclone is installed and if local-rclone var is true for automatic download binary
 		return
 	}
+	//Check if the necessary folders exist.
 	os.Chdir(getdata.Root)
 	if !tools.CheckDir("src") {
 		os.Mkdir("src", 0700)
@@ -50,29 +53,37 @@ func DownloadRclone() {
 		log.Warning("rclone already downloaded.")
 		return
 	}
+	// Download the corresponding zip files with the binaries
 	DownloadBinaries("rclone.zip", link)
+	// Unzip the .zip file previously downloaded
 	sh.Cmd("unzip rclone.zip -d rclone-zip")
+	// Copy the binary to bin folder
 	sh.Cmd(fmt.Sprintf("cp rclone-zip/rclone-v1.63.0-linux-%s/rclone .", arch))
+	// Remove the uninteresting zip file
 	sh.Cmd("rm -rf rclone-zip rclone.zip")
 	os.Chdir(getdata.Root)
+	// Set local-rclone var with true
 	getdata.Configs.Local_rclone = true
 	getdata.UpdateJsonData()
 }
 
 func DownloadBinaries(filepath, url string) int {
 	log.Function()
+	// Create the correspondig zip file
 	file, err := os.Create(filepath)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error creating the %s file", filepath), 4)
 		return 1
 	}
 	defer file.Close()
+	// Get the data
 	response, err := http.Get(url)
 	if err != nil {
 		log.Error("Error performing request", 5)
 		return 1
 	}
 	defer response.Body.Close()
+	// Copy the data to the .zip file
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
 		log.Error("Error copyng the content", 6)
