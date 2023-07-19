@@ -12,15 +12,19 @@ import (
 )
 
 const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.5"
+const Version string = "2.6"
 
 var Remote string = remote()
 
 // Declare the default folders of sillytavern to make backup + the extra include folders in config.json
-var Include_Folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups " + Include_Folders_extra
+const Def_include_folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups "
+
+var Include_Folders string = Def_include_folders + Include_Folders_extra
 
 // Declare the default folders of sillytavern to exclude + the extra exclude folders in config.json
-var Exclude_Folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log --exclude i18n.json " + Exclude_Folders_extra
+const Def_exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log --exclude i18n.json "
+
+var Exclude_Folders string = Def_exclude_folders + Exclude_Folders_extra
 
 // Get the architecture
 const Architecture string = runtime.GOARCH
@@ -35,8 +39,8 @@ var Root string = root()
 var Local_rclone bool = Configs.Local_rclone
 
 // Prosess the strings of config.json to adapt then to the rsync syntax
-var Include_Folders_extra string = ProsessString(Configs.Include_Folders, "--include ")
-var Exclude_Folders_extra string = ProsessString(Configs.Exclude_Folders, "--exclude ")
+var Include_Folders_extra string = prosessString(Configs.Include_Folders, "--include ")
+var Exclude_Folders_extra string = prosessString(Configs.Exclude_Folders, "--exclude ")
 
 // Get the config.json data
 var Configs = GetJsonData()
@@ -50,6 +54,7 @@ type config struct {
 	Exclude_Folders string `json:"exclude-folders"`
 	Remote          string `json:"remote"`
 	Local_rclone    bool   `json:"local-rclone"`
+	Loglevel        int    `json:"log-level"`
 }
 
 // Declare the struct of shell functions
@@ -87,7 +92,7 @@ func NewConFile() {
 }
 
 // Name very descriptive,prossess the strings in config.json for use in the Include_Folders and Exclude_Folders vars
-func ProsessString(data, cond1 string) string {
+func prosessString(data, cond1 string) string {
 	edit := func(org, sep string) string {
 		words := strings.Split(org, " ")
 		edited := strings.Join(words, sep+cond1+sep)
@@ -118,7 +123,7 @@ func remote() string {
 }
 
 // Update the config.json data with the changes made for the program in its values
-func UpdateJsonData() {
+func WriteJsonData() {
 	data, err := json.MarshalIndent(Configs, "", "  ")
 	if err != nil {
 		log.Error("error when serializing the structure", 22)
@@ -152,6 +157,10 @@ func (sh Sh) Out(input string) (string, error) {
 	} else {
 		return string(out), nil
 	}
+}
+
+func SendLogLv() {
+	log.TempChan1 <- Configs.Loglevel
 }
 
 // Help string = README.md

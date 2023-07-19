@@ -1,10 +1,9 @@
 backup
 builds
 SillyTavernBackup
-remote.txt
 app.log
 config.json
 main
 src/bin/*
-errors.log
 test
+notes.md

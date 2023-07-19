@@ -24,7 +24,7 @@ func Makeconf() {
 	scanner.Scan()
 	input := scanner.Text()
 	getdata.Configs.Remote = input // Set the inputed text equal to the local var
-	getdata.UpdateJsonData()       // Update the config.json data
+	getdata.WriteJsonData()        // Update the config.json data
 	// Print in the terminal and write the data in the log
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
@@ -40,7 +40,7 @@ func Rclone(parameter string) {
 		Makeconf()
 	}
 	// Check if rclone is installed
-	if !CheckRclone() {
+	if !CheckRclone() && !getdata.Local_rclone {
 		log.Error(
 			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
 			10,

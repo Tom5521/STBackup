@@ -18,6 +18,9 @@ var sh = getdata.Sh{}
 func main() {
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
+	go log.FetchLv()
+	getdata.SendLogLv()
+	close(log.TempChan1)
 	os.Chdir(getdata.Root)        // Change to the root directory
 	update.RebuildCheck()         // Check if the rebuild arg is on
 	if !tools.CheckMainBranch() { // Check the git branch to display a warning
@@ -175,16 +178,15 @@ func main() {
 		filecont, _ := tools.ReadFileCont("app.log")
 		fmt.Println(filecont)
 	case "printconf": // Print the config values
-		fmt.Println("Remote:", getdata.Configs.Local_rclone)
+		fmt.Println("Remote:", getdata.Configs.Remote)
 		fmt.Println("Local Rclone:", getdata.Configs.Local_rclone)
 		fmt.Println("Extra Include Folders:", getdata.Configs.Include_Folders)
 		fmt.Println("Extra Exclude Folders:", getdata.Configs.Exclude_Folders)
-		fmt.Println("")
 	case "resetconf": // Delete config.json and create a new one
-		var test string
+		var input string
 		fmt.Println("Are you sure to reset the configuration (backups will not be deleted)? y/n")
-		fmt.Scanln(&test)
-		if test == "y" {
+		fmt.Scanln(&input)
+		if input == "y" {
 			sh.Cmd("rm config.json app.log")
 		} else {
 			log.Error("No option selected.", 1)
@@ -195,6 +197,7 @@ func main() {
 		getdata.Local_rclone = true
 		depends.DownloadRclone()
 		log.Info("Rclone donwloaded")
+		log.Info("---------End---------")
 		os.Exit(0)
 	case "setloglevel":
 	case "help": // Print a help message
@@ -204,30 +207,23 @@ func main() {
 			log.Error("This func only works in the dev branch", 26)
 			return
 		}
-		fmt.Println(os.Args)
-		fmt.Println("Testing...")
-		fmt.Print("F.D.:")
-		filedata, _ := sh.Out("file backup")
-		fmt.Println(filedata)
-		//fmt.Println("V.:", getdata.Version)
-		//fmt.Println("Exclude folders extra:", getdata.Exclude_Folders_extra)
-		//fmt.Println("Exclude folders def:", "||-"+getdata.Exclude_Folders+"-||")
-		//fmt.Println("Include folders extra:", getdata.Include_Folders_extra)
-		//fmt.Println("Include folders def:", "||-"+getdata.Include_Folders+"-||")
-		fmt.Println("Remote:", getdata.Remote)
-		fmt.Println("Root Directory:", getdata.Root)
-		fmt.Println("N.V.:", getdata.Version)
-		fmt.Println("Arch:", getdata.Architecture)
-		fmt.Println(
-			"Check def git:",
-			tools.CheckGit(),
-			"| Check Main Branch:",
-			tools.CheckMainBranch(),
-			"| Check git directory:",
-			tools.CheckDir(".git"),
-		)
-		//fmt.Println("Dirs:", sh.Cmd("exa -a"))
-		//update.DownloadLatestBinary("backup-x86-64")
+		fmt.Println("//DATA TEST//")
+		fmt.Println("Config-Pars:")
+		fmt.Println("	Remote:", getdata.Configs.Remote)
+		fmt.Println("	Local_rclone:", getdata.Configs.Local_rclone)
+		fmt.Println("	Extra include folders:", getdata.Configs.Include_Folders)
+		fmt.Println("	Extra exclude folders:", getdata.Configs.Exclude_Folders)
+		fmt.Println("Internal pars:")
+		binstat, _ := sh.Out("file backup")
+		fmt.Println("	Binary Stat:", binstat)
+		fmt.Println("	Version:", getdata.Version)
+		fmt.Println("//END OF DATA TEST//")
+		fmt.Println("//FUNC TEST//")
+		log.Warning("Test")
+		log.Check("Test")
+		log.Function()
+		log.Func("test")
+		log.Error("Test", 999999999999999999)
 	default:
 		log.Error("No option selected.", 1)
 	}
