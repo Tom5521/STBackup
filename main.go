@@ -152,9 +152,11 @@ func main() {
 		tools.SillyTavern("init")
 	case "link": // Create a direct access bash file in the upper folder
 		log.Func("link")
-		os.Chdir("..")
-		tools.WriteFile("stbackup", "#!/bin/bash\ncd SillyTavernBackup/\n./backup $1 $2 $3 $4\n")
-		os.Chmod("stbackup", 0700)
+		fmt.Println("writing in stbackup file...")
+		tools.WriteFile("../stbackup", "#!/bin/bash\ncd SillyTavernBackup/\n./backup $1 $2 $3 $4\n")
+		fmt.Println("Giving exec permissions to stbackup file...")
+		os.Chmod("../stbackup", 0700)
+		fmt.Println("link completed.")
 		log.Info("linked")
 	case "version": // Print the current version,the author, and the licence
 		fmt.Println(

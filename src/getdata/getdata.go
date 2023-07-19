@@ -16,19 +16,35 @@ const Version string = "2.4.1"
 
 var Remote string = remote()
 
+// Declare the default folders of sillytavern to make backup + the extra include folders in config.json
 var Include_Folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups " + Include_Folders_extra
 
+// Declare the default folders of sillytavern to exclude + the extra exclude folders in config.json
 var Exclude_Folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log --exclude i18n.json " + Exclude_Folders_extra
-var Architecture string = runtime.GOARCH
-var Local_rclone_route string = "src/bin/"
+
+// Get the architecture
+const Architecture string = runtime.GOARCH
+
+// Set the rclone binary route
+const Local_rclone_route string = "src/bin/"
+
+// Set the root local dir
 var Root string = root()
+
+// get local rclone value true/false
 var Local_rclone bool = Configs.Local_rclone
+
+// Prosess the strings of config.json to adapt then to the rsync syntax
 var Include_Folders_extra string = ProsessString(Configs.Include_Folders, "--include ")
 var Exclude_Folders_extra string = ProsessString(Configs.Exclude_Folders, "--exclude ")
 
+// Get the config.json data
 var Configs = GetJsonData()
+
+// Initialize the shell functions
 var sh = Sh{}
 
+// Declare the struct of json file
 type config struct {
 	Include_Folders string `json:"include-folders"`
 	Exclude_Folders string `json:"exclude-folders"`
@@ -36,34 +52,41 @@ type config struct {
 	Local_rclone    bool   `json:"local-rclone"`
 }
 
+// Declare the struct of shell functions
 type Sh struct{}
 
+// Get json data function,name very descriptive
 func GetJsonData() config {
 	Conf := config{}
 	os.Chdir(Root)
 	ls, _ := sh.Out("ls")
+	// Check if config.json exist
 	if !strings.Contains(ls, "config.json") {
 		log.Warning("config.json does not exist... Creating a new one...")
-		NewConFile()
+		NewConFile() // Create new config file
 	}
+	// Read config file
 	readfile, err := os.ReadFile("config.json")
 	if err != nil {
 		log.Error("Error oppening the config file", 23)
 	}
+	// Prosess the data of the config file and retuns it
 	json.Unmarshal(readfile, &Conf)
 	return Conf
 }
 
+// Very descriptive name
 func NewConFile() {
 	log.Function()
 	os.Chdir(Root)
-	newdata := config{}
-	file, _ := os.Create("config.json")
-	defer file.Close()
-	data, _ := json.Marshal(newdata)
-	file.WriteString(string(data))
+	newdata := config{}                 // Initialize the config struct
+	file, _ := os.Create("config.json") // Create config.json file
+	defer file.Close()                  // Close the file in the end
+	data, _ := json.Marshal(newdata)    // Marshall the data
+	file.WriteString(string(data))      // Write the data in config.json file
 }
 
+// Name very descriptive,prossess the strings in config.json for use in the Include_Folders and Exclude_Folders vars
 func ProsessString(data, cond1 string) string {
 	edit := func(org, sep string) string {
 		words := strings.Split(org, " ")
@@ -79,10 +102,13 @@ func ProsessString(data, cond1 string) string {
 	return cond1 + edit(data, " ")
 }
 
+// Get the root directory
 func root() string {
 	binpath, _ := filepath.Abs(os.Args[0])
 	return filepath.Dir(binpath)
 }
+
+// Remote the final "/" in remote dir if it exist
 func remote() string {
 	if Configs.Remote != "" {
 		return strings.TrimRight(Configs.Remote, "/")
@@ -90,6 +116,8 @@ func remote() string {
 		return ""
 	}
 }
+
+// Update the config.json data with the changes made for the program in its values
 func UpdateJsonData() {
 	data, err := json.MarshalIndent(Configs, "", "  ")
 	if err != nil {
@@ -101,6 +129,7 @@ func UpdateJsonData() {
 	}
 }
 
+// Exec shell command func
 func (sh Sh) Cmd(input string) error {
 	cmd := exec.Command("sh", "-c", input)
 	cmd.Stderr = os.Stderr
@@ -113,6 +142,8 @@ func (sh Sh) Cmd(input string) error {
 		return nil
 	}
 }
+
+// Get the output and the error executing a shell command
 func (sh Sh) Out(input string) (string, error) {
 	cmd := exec.Command("sh", "-c", input)
 	out, err := cmd.Output()
@@ -123,6 +154,7 @@ func (sh Sh) Out(input string) (string, error) {
 	}
 }
 
+// Help string = README.md
 const Help string = `
 # Silly Tavern Backup and Cloud Upload
 
