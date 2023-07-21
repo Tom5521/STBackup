@@ -34,8 +34,10 @@ The program is run from the command line and accepts various commands and option
 
 - `make`: Creates necessary folders for backup.
 - `save`: Saves files to the backup destination.
+- `secure-save`: save without delete any file of Backup folder
 - `save tar`: Saves files to a tarball in the backup destination.
 - `restore`: Restores files from the backup destination.
+- `secure-restore`: Restore without delete any file (Use it in case you have updated sillytavern and want to restore the data without breaking the repo and having to clone it again.)
 - `restore tar`: Restores files from a tarball in the backup destination.
 - `route <destination>`: Moves the backup folder to a new destination.
 - `start`: Starts the SillyTavern application.
@@ -58,6 +60,7 @@ The program is run from the command line and accepts various commands and option
 - `test`: Only works in the dev branch. I use it to debug the code
 - `resetconf`: It is used to delete all program settings. Does not delete backups
 - `download-rclone`: Download and extract the rclone binary, it is useful if the rclone installed in your distro does not work correctly or if you do not want to install it.
+- `Setloglevel`: is used to set the log level in app.log interactively.
 ### Configuration
 The configuration is located in the config.json file.
 its parameters are:
@@ -65,6 +68,7 @@ its parameters are:
 2. `include-folders`: This parameter adds folders to be included in the backup.
 3. `exclude-folders`: This parameter adds folders to exclude in the backup (you are free to use it if it takes me too long to update SillyTavern)
 4. `local-rclone`: Is used to determine whether to use a local rclone binary or the one that comes installed with the system, its possible values are yes and no.
+5. `log-level`: Determines the log level to be printed in app.log, there are 3 levels, minimum, medium and high which are 0,1,2 respectively.
 
 ### Log
 
