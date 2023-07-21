@@ -48,7 +48,7 @@ func DownloadRclone() {
 	if !tools.CheckDir("src/bin") {
 		os.Mkdir("src/bin", 0700)
 	}
-	os.Chdir("src/bin/")
+	os.Chdir(getdata.Local_rclone_route)
 	if tools.CheckDir("rclone") || tools.CheckDir("rclone.zip") {
 		log.Warning("rclone already downloaded.")
 		return
@@ -64,7 +64,7 @@ func DownloadRclone() {
 	os.Chdir(getdata.Root)
 	// Set local-rclone var with true
 	getdata.Configs.Local_rclone = true
-	getdata.UpdateJsonData()
+	getdata.WriteJsonData()
 }
 
 func DownloadBinaries(filepath, url string) int {

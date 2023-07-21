@@ -10,10 +10,13 @@ import (
 )
 
 // Get the root directory
-var binpath, _ = filepath.Abs(os.Args[0])
-var root string = filepath.Dir(binpath)
-
+var root string = func() string {
+	binpath, _ := filepath.Abs(os.Args[0])
+	return filepath.Dir(binpath)
+}()
+var TempChan1 = make(chan int)              // Init the channel for LogLevel
 var logger = SetupLogger(root + "/app.log") // Initialize the logger func
+var Loglevel int                            // Init the loglevel var
 
 func Error(text string, errcode int, incheck ...string) {
 	var check string
@@ -43,6 +46,9 @@ func Error(text string, errcode int, incheck ...string) {
 	os.Exit(errcode)
 }
 func Warning(text string) {
+	if Loglevel < 1 {
+		return
+	}
 	// Get the function name in which this function was invoked
 	pc, _, _, _ := runtime.Caller(1)
 	prefuncname := runtime.FuncForPC(pc).Name()
@@ -69,6 +75,9 @@ func Func(text string) {
 
 // Write in the log the invoked program functions
 func Function() {
+	if Loglevel > 2 {
+		return
+	}
 	pc, _, _, _ := runtime.Caller(1)
 	prefuncname := runtime.FuncForPC(pc).Name()
 	parts := strings.Split(prefuncname, "/")
@@ -78,6 +87,9 @@ func Function() {
 
 // Write in the log the results of the corresponding checks
 func Check(input string) {
+	if Loglevel < 2 {
+		return
+	}
 	pc, _, _, _ := runtime.Caller(1)
 	prefuncname := runtime.FuncForPC(pc).Name()
 	parts := strings.Split(prefuncname, "/")
@@ -93,4 +105,8 @@ func SetupLogger(logFilePath string) *log.Logger {
 	}
 	logger := log.New(file, "", log.Ldate|log.Ltime)
 	return logger
+}
+
+func FetchLv() {
+	Loglevel = <-TempChan1
 }

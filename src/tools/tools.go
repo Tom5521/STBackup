@@ -23,8 +23,9 @@ func Makeconf() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
+	getdata.Remote = input
 	getdata.Configs.Remote = input // Set the inputed text equal to the local var
-	getdata.UpdateJsonData()       // Update the config.json data
+	getdata.WriteJsonData()        // Update the config.json data
 	// Print in the terminal and write the data in the log
 	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
@@ -38,9 +39,11 @@ func Rclone(parameter string) {
 	if getdata.Remote == "" {
 		log.Warning("Remote dir is null, set the remote rclone dir value")
 		Makeconf()
+		Rclone(parameter)
+		return
 	}
 	// Check if rclone is installed
-	if !CheckRclone() {
+	if !CheckRclone() && !getdata.Local_rclone {
 		log.Error(
 			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
 			10,
@@ -65,26 +68,22 @@ func Rclone(parameter string) {
 	os.Chdir(getdata.Root)
 	// Check the func will be used for rclone
 	switch parameter {
-	case "uptar":
-		log.Func("upload tar")
+	case "upload tar":
 		com = fmt.Sprintf("%vrclone copy Backup.tar %v", loc, Remote)
 		defer log.Info("tar uploaded")
-	case "downtar":
-		log.Func("download tar")
+	case "download tar":
 		com = fmt.Sprintf("%vrclone copy %v/backup.tar ..", loc, Remote)
 		defer log.Info("tar downloaded")
-	case "up":
-		log.Func("upload")
+	case "upload":
 		com = fmt.Sprintf("%vrclone sync %v %v -L -P", loc, Folder, Remote)
 		defer log.Info("Files uploaded")
-	case "down":
-		log.Func("download")
+	case "download":
 		com = fmt.Sprintf("%vrclone sync %v %v -L -P", loc, Remote, Folder)
 		defer log.Info("Files downloaded")
 	case "ls":
-		log.Func("ls")
 		com = fmt.Sprintf("%vrclone ls %v", loc, Remote)
 	}
+	log.Func(parameter)
 	if getdata.Local_rclone {
 		fmt.Println("Using local rclone...")
 	}
@@ -220,4 +219,64 @@ func SillyTavern(input string) {
 		fmt.Println("SIGTERM was received. The program will be closed.")
 		log.Info("SIGTERM")
 	}
+}
+
+func Rsync(pars ...string) {
+	if len(pars) < 1 {
+		return
+	}
+	var par1, func1 string = "--delete", ""
+	if len(pars) == 2 {
+		if pars[1] == "secure" {
+			par1 = ""
+			func1 = " " + pars[1]
+		}
+	}
+	os.Chdir("..")
+	log.Func(func1 + pars[0])
+	if pars[0] == "save" {
+		CheckRsync()
+		sh.Cmd(
+			fmt.Sprintf(
+				"rsync -av --progress %s %s . %s",
+				par1,
+				getdata.Exclude_Folders,
+				getdata.Back,
+			),
+		)
+		log.Info("Files Saved")
+		if len(os.Args) == 3 { // Check if tar arg is on
+			if os.Args[2] == "tar" {
+				log.Func("save tarball")
+				tar := sh.Cmd("tar -cvf Backup.tar Backup/")
+				if tar == nil {
+					log.Info("Tarbal created.")
+				}
+			}
+		}
+		os.Chdir(getdata.Root)
+	}
+	log.Func("restore")
+	CheckRsync()
+	if len(os.Args) == 3 {
+		if os.Args[2] == "tar" {
+			log.Func("restore from tarball")
+			if CheckDir("Backup") {
+				log.Warning("Removing Backup/ folder")
+				sh.Cmd("rm -rf Backup/")
+			}
+			sh.Cmd("tar -xvf Backup.tar")
+		}
+	}
+	sh.Cmd(
+		fmt.Sprintf(
+			"rsync -av --progress %s %s %s %s .",
+			par1,
+			getdata.Exclude_Folders,
+			getdata.Include_Folders,
+			getdata.Back,
+		),
+	)
+	os.Chdir(getdata.Root)
+	log.Info("Files restored")
 }
