@@ -10,11 +10,13 @@ import (
 )
 
 // Get the root directory
-var binpath, _ = filepath.Abs(os.Args[0])
-var root string = filepath.Dir(binpath)
-var TempChan1 = make(chan int)
+var root string = func() string {
+	binpath, _ := filepath.Abs(os.Args[0])
+	return filepath.Dir(binpath)
+}()
+var TempChan1 = make(chan int)              // Init the channel for LogLevel
 var logger = SetupLogger(root + "/app.log") // Initialize the logger func
-var Loglevel int
+var Loglevel int                            // Init the loglevel var
 
 func Error(text string, errcode int, incheck ...string) {
 	var check string

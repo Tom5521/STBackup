@@ -18,9 +18,11 @@ var sh = getdata.Sh{}
 func main() {
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
-	go log.FetchLv()
-	getdata.SendLogLv()
-	close(log.TempChan1)
+	func() {
+		go log.FetchLv()     // Init the channel to fetch the loglv var
+		getdata.SendLogLv()  // Send the loglv var
+		close(log.TempChan1) // Close temporal channel
+	}()
 	os.Chdir(getdata.Root)        // Change to the root directory
 	update.RebuildCheck()         // Check if the rebuild arg is on
 	if !tools.CheckMainBranch() { // Check the git branch to display a warning
@@ -35,56 +37,17 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "make": // Make the folder structures
-		log.Func("Make")
+		log.Func("make")
 		os.Chdir("..")
 		os.MkdirAll("Backup/public", os.ModePerm)
 	case "save": // Copy the local files to backup
-		log.Func("save")
-		tools.CheckRsync()
-		os.Chdir("..")
-		sh.Cmd(
-			fmt.Sprintf(
-				"rsync -av --progress %v --delete . %v",
-				getdata.Exclude_Folders,
-				getdata.Back,
-			),
-		)
-		os.Chdir(getdata.Root)
-		log.Info("Files Saved")
-		if len(os.Args) == 3 { // Check if tar arg is on
-			if os.Args[2] == "tar" {
-				log.Func("save tarball")
-				os.Chdir("..")
-				tar := sh.Cmd("tar -cvf Backup.tar Backup/")
-				if tar == nil {
-					log.Info("Tarbal created.")
-				}
-			}
-		}
+		tools.Rsync("save")
+	case "secure-save":
+		tools.Rsync("save", "secure")
 	case "restore": // Copy the files from backup folder to the local folder
-		log.Func("restore")
-		os.Chdir("..")
-		tools.CheckRsync()
-		if len(os.Args) == 3 {
-			if os.Args[2] == "tar" {
-				log.Func("restore from tarball")
-				if tools.CheckDir("Backup") {
-					log.Warning("Removing Backup/ folder")
-					sh.Cmd("rm -rf Backup/")
-				}
-				sh.Cmd("tar -xvf Backup.tar")
-			}
-		}
-		sh.Cmd(
-			fmt.Sprintf(
-				"rsync -av --progress --delete %s%s%s .",
-				getdata.Exclude_Folders,
-				getdata.Include_Folders,
-				getdata.Back,
-			),
-		)
-		os.Chdir(getdata.Root)
-		log.Info("Files restored")
+		tools.Rsync("restore")
+	case "secure-restore":
+		tools.Rsync("restore", "secure")
 	case "route":
 		if len(os.Args) < 3 {
 			log.Error("Backup destination not specified", 2)
@@ -138,17 +101,17 @@ func main() {
 	case "ls": // List the files and dirs in the remote
 		tools.Rclone("ls")
 	case "upload": // Synchronizes the remote folder with the local folder
-		tools.Rclone("up")
+		tools.Rclone("upload")
 		if len(os.Args) == 3 {
 			if os.Args[2] == "tar" {
-				tools.Rclone("uptar")
+				tools.Rclone("upload tar")
 			}
 		}
 	case "download": // Synchronizes local folder with remote folder
-		tools.Rclone("down")
+		tools.Rclone("download")
 		if len(os.Args) > 3 {
 			if os.Args[2] == "tar" {
-				tools.Rclone("downtar")
+				tools.Rclone("download tar")
 			}
 		}
 	case "init": // Execute start.sh for first run
@@ -178,20 +141,24 @@ func main() {
 		filecont, _ := tools.ReadFileCont("app.log")
 		fmt.Println(filecont)
 	case "printconf": // Print the config values
+		log.Func("printconf")
 		fmt.Println("Remote:", getdata.Configs.Remote)
 		fmt.Println("Local Rclone:", getdata.Configs.Local_rclone)
 		fmt.Println("Extra Include Folders:", getdata.Configs.Include_Folders)
 		fmt.Println("Extra Exclude Folders:", getdata.Configs.Exclude_Folders)
 	case "resetconf": // Delete config.json and create a new one
+		log.Func("resetconf")
 		var input string
 		fmt.Println("Are you sure to reset the configuration (backups will not be deleted)? y/n")
 		fmt.Scanln(&input)
+		log.Check("resetconf:" + input)
 		if input == "y" {
 			sh.Cmd("rm config.json app.log")
 		} else {
 			log.Error("No option selected.", 1)
 		}
 	case "download-rclone": // Download rclone local binary
+		log.Func("download-rclone")
 		log.Info("rclone download")
 		fmt.Println("Downloading and unzipping rclone...")
 		getdata.Local_rclone = true
@@ -200,6 +167,13 @@ func main() {
 		log.Info("---------End---------")
 		os.Exit(0)
 	case "setloglevel":
+		log.Func("setloglevel")
+		var input int // Declare the var
+		fmt.Print("log level to set:")
+		fmt.Scan(&input)                           // Scan for the int value
+		getdata.Configs.Loglevel = input           // Set local var
+		getdata.WriteJsonData()                    // Sync local var to json
+		fmt.Println("Log level setted to:", input) // Print results
 	case "help": // Print a help message
 		fmt.Print(getdata.Help)
 	case "test": // Test the program. Only works in the dev branch | The comments below are not relevant because they are only for testing purposes.
@@ -214,16 +188,19 @@ func main() {
 		fmt.Println("	Extra include folders:", getdata.Configs.Include_Folders)
 		fmt.Println("	Extra exclude folders:", getdata.Configs.Exclude_Folders)
 		fmt.Println("Internal pars:")
+		fmt.Println("	Include Folders:", "|-"+getdata.Include_Folders+"-|")
+		fmt.Println("	Exclude Folders:", "|-"+getdata.Exclude_Folders+"-|")
 		binstat, _ := sh.Out("file backup")
 		fmt.Println("	Binary Stat:", binstat)
 		fmt.Println("	Version:", getdata.Version)
 		fmt.Println("//END OF DATA TEST//")
 		fmt.Println("//FUNC TEST//")
+		fmt.Println(log.Loglevel)
 		log.Warning("Test")
 		log.Check("Test")
 		log.Function()
 		log.Func("test")
-		log.Error("Test", 999999999999999999)
+		log.Error("Test", 0)
 	default:
 		log.Error("No option selected.", 1)
 	}

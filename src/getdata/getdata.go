@@ -14,17 +14,37 @@ import (
 const Folder, Back string = "../Backup/", "Backup/"
 const Version string = "2.6"
 
-var Remote string = remote()
+// Remote the final "/" in remote dir if it exist
+var Remote string = func() string {
+	if Configs.Remote != "" {
+		return strings.TrimRight(Configs.Remote, "/")
+	} else {
+		return ""
+	}
+}()
 
-// Declare the default folders of sillytavern to make backup + the extra include folders in config.json
-const Def_include_folders string = "--include backgrounds/ --include 'group chats' --include 'KoboldAI Settings' --include settings.json --include characters --include groups --include notes --include sounds --include worlds --include chats --include 'NovelAI Settings' --include img --include 'OpenAI Settings' --include 'TextGen Settings' --include themes --include 'User Avatars' --include secrets.json --include thumbnails --include config.conf --include poe_device.json --include public --include uploads --include backups "
+// Declare the default folders of sillytavern to make backup
+const Def_include_folders string = "backgrounds/ 'group chats' 'KoboldAI Settings' settings.json characters groups notes sounds worlds chats 'NovelAI Settings' img 'OpenAI Settings' 'TextGen Settings' themes 'User Avatars' secrets.json thumbnails config.conf public uploads backups "
 
-var Include_Folders string = Def_include_folders + Include_Folders_extra
+// Declare the default folders of sillytavern to exclude
+const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore backup .replit install.sh Backup.tar app.log i18n.json "
 
-// Declare the default folders of sillytavern to exclude + the extra exclude folders in config.json
-const Def_exclude_folders string = "--exclude webfonts --exclude scripts --exclude index.html --exclude css --exclude img --exclude favicon.ico --exclude script.js --exclude style.css --exclude Backup --exclude colab --exclude docker --exclude Dockerfile --exclude LICENSE --exclude node_modules --exclude package.json --exclude package-lock.json --exclude replit.nix --exclude server.js --exclude SillyTavernBackup --exclude src --exclude Start.bat --exclude start.sh --exclude UpdateAndStart.bat --exclude Update-Instructions.txt --exclude tools --exclude .dockerignore --exclude .editorconfig --exclude .git --exclude .github --exclude .gitignore --exclude .npmignore --exclude backup --exclude .replit --exclude install.sh --exclude Backup.tar --exclude app.log --exclude i18n.json "
+// Add exclude/include prefix to the rclone syntax + exclude/include in extra in config.json
+var Exclude_Folders string = AddPrefix(
+	Def_exclude_folders,
+	"--exclude ",
+) + AddPrefix(
+	Configs.Exclude_Folders,
+	"--exclude ",
+)
 
-var Exclude_Folders string = Def_exclude_folders + Exclude_Folders_extra
+var Include_Folders string = AddPrefix(
+	Def_include_folders,
+	"--include ",
+) + AddPrefix(
+	Configs.Include_Folders,
+	"--include ",
+)
 
 // Get the architecture
 const Architecture string = runtime.GOARCH
@@ -32,15 +52,14 @@ const Architecture string = runtime.GOARCH
 // Set the rclone binary route
 const Local_rclone_route string = "src/bin/"
 
-// Set the root local dir
-var Root string = root()
+// Set the root local dir and get the root directory
+var Root string = func() string {
+	binpath, _ := filepath.Abs(os.Args[0])
+	return filepath.Dir(binpath)
+}()
 
 // get local rclone value true/false
 var Local_rclone bool = Configs.Local_rclone
-
-// Prosess the strings of config.json to adapt then to the rsync syntax
-var Include_Folders_extra string = prosessString(Configs.Include_Folders, "--include ")
-var Exclude_Folders_extra string = prosessString(Configs.Exclude_Folders, "--exclude ")
 
 // Get the config.json data
 var Configs = GetJsonData()
@@ -92,34 +111,19 @@ func NewConFile() {
 }
 
 // Name very descriptive,prossess the strings in config.json for use in the Include_Folders and Exclude_Folders vars
-func prosessString(data, cond1 string) string {
-	edit := func(org, sep string) string {
-		words := strings.Split(org, " ")
-		edited := strings.Join(words, sep+cond1+sep)
-		return edited
-	}
-	if Configs.Exclude_Folders == "" && cond1 == "--exclude " {
-		cond1 = ""
-	}
-	if Configs.Include_Folders == "" && cond1 == "--include " {
-		cond1 = ""
-	}
-	return cond1 + edit(data, " ")
-}
-
-// Get the root directory
-func root() string {
-	binpath, _ := filepath.Abs(os.Args[0])
-	return filepath.Dir(binpath)
-}
-
-// Remote the final "/" in remote dir if it exist
-func remote() string {
-	if Configs.Remote != "" {
-		return strings.TrimRight(Configs.Remote, "/")
-	} else {
+func AddPrefix(input, prefix string) string {
+	if input == "" {
 		return ""
 	}
+	words := strings.Fields(input)
+	var result strings.Builder
+
+	for _, word := range words {
+		result.WriteString(prefix)
+		result.WriteString(word)
+		result.WriteString(" ")
+	}
+	return strings.TrimSpace(result.String())
 }
 
 // Update the config.json data with the changes made for the program in its values
