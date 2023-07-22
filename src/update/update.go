@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Tom5521/SillyTavernBackup/src/getdata"
-	"github.com/Tom5521/SillyTavernBackup/src/log"
-	"github.com/Tom5521/SillyTavernBackup/src/tools"
+	"github.com/Tom5521/STbackup/src/getdata"
+	"github.com/Tom5521/STbackup/src/log"
+	"github.com/Tom5521/STbackup/src/tools"
 )
 
 var sh getdata.Sh // Init the shell func
@@ -25,7 +25,7 @@ func DownloadLatestBinary(binName string) int {
 	defer file.Close()
 	// Set the current url to download the binary
 	response, err := http.Get(
-		"https://github.com/Tom5521/SillyTavernBackup/releases/latest/download/" + binName,
+		"https://github.com/Tom5521/STbackup/releases/latest/download/" + binName,
 	)
 	if err != nil {
 		log.Error("Error performing request", 17)
@@ -37,8 +37,11 @@ func DownloadLatestBinary(binName string) int {
 		log.Error("Error copyng the content", 18)
 	}
 	fmt.Printf("%s downloaded successfully\n", binName)
-	sh.Cmd("mv " + binName + " backup -f") // Rename the binary file
-	os.Chmod("backup", 0700)               // Give exec permissions to the downloaded file
+	sh.Cmd(fmt.Sprintf("mv %v %v -f", binName, getdata.BinName)) // Rename the binary file
+	os.Chmod(
+		getdata.BinName,
+		0700,
+	) // Give exec permissions to the downloaded file
 	return 0
 }
 
@@ -52,17 +55,17 @@ func Rebuild() {
 		return
 	}
 	log.Function()
-	_, errcode := sh.Out("go version") // Check if the go compiler is installed
+	_, err := sh.Out("go version") // Check if the go compiler is installed
 	if !tools.CheckDir("main.go") {
 		log.Error("Source code not found", 19)
 	}
-	if errcode != nil {
+	if err != nil {
 		log.Error("No go compiler found", 20)
 		return
 	}
 	fmt.Println("Rebuilding...")
 	log.Info("Rebuilding")
-	err := sh.Cmd("go build -o backup main.go") // Rebuilds the program
+	err = sh.Cmd(fmt.Sprintf("go build -o %v main.go", getdata.BinName)) // Rebuilds the program
 	if err == nil {
 		fmt.Println("Rebuild Complete.")
 		log.Func("Rebuild Complete.")
@@ -75,7 +78,7 @@ func Rebuild() {
 
 // Check if rebuild functions is called in the terminal (rebuild is a top level func)
 func RebuildCheck() {
-	if len(os.Args) > 2 {
+	if len(os.Args) >= 1 {
 		if os.Args[1] == "rebuild" {
 			Rebuild()
 		}

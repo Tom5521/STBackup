@@ -4,11 +4,11 @@ file="main.go"
 
 if [ "$1" == "d" ]; then
     echo Build for dev use...
-    go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup $file
+    go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o stbackup $file
     exit
 fi
 echo Build for distribution...
-go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o backup $file
+go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o stbackup $file
 
 if [ ! -d "builds" ]; then
     mkdir builds

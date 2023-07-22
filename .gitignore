@@ -1,9 +1,11 @@
 backup
 builds
 SillyTavernBackup
+STbackup
 app.log
 config.json
 main
 src/bin/*
 test
 notes.md
+stbackup

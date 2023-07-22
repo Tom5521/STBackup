@@ -9,12 +9,12 @@
 - **6:** Error copying download request data to the corresponding file.
 - **7:** The required JSON file was not found.
 - **8:** The required variable could not be found in the JSON file.
-- **9:** The value of the remote directory is "" or null (is solved by configuring it in config.json or by running `./backup remote`).
-- **10:** Rclone was not found installed. You can fix it by downloading the binary using `./backup download-rclone`.
+- **9:** The value of the remote directory is "" or null (is solved by configuring it in config.json or by running `./[binary]remote`).
+- **10:** Rclone was not found installed. You can fix it by downloading the binary using `./[binary] download-rclone`.
 - **11:** No rsync was found installed. There is no option to use the binary locally because... It's RSYNC!!! It's not even 7MB!!! It's in all the damn repositories everywhere!!!
 - **12:** There was an error reading the config.json file.
-- **13:** ~~Error decoding the config.json file.~~ (*deleted*)
-- **14:** ~~Error encoding the config.json file.~~ (*deleted*)
+- **13:** ~~Error decoding the config.json file.~~ (*solved in 2.3.2*)
+- **14:** ~~Error encoding the config.json file.~~ (*solved in 2.3.2*)
 - **15:** Error writing to the config.json file.
 - **16:** Error creating the binary file for download.
 - **17:** Error making the download request.
@@ -27,3 +27,6 @@
 - **24:** Error creating file in `WriteFile` function 
 - **25:** Error writing in new file in WriteFile func
 - **26:** You tried to use the test function in the main branch, switch to the dev branch to run it. 
+- **27:** package.json file no found, you clone/installed this program in sillytavern's repository?
+- **28:** Error reading package.json file
+- **29:** Your SillyTavern repo is under 1.9.1 and you need make backup and re-clone SillyTavern.

@@ -1,3 +1,3 @@
-module github.com/Tom5521/SillyTavernBackup
+module github.com/Tom5521/STbackup
 
 go 1.20

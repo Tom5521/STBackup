@@ -8,19 +8,17 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/Tom5521/SillyTavernBackup/src/log"
+	"github.com/Tom5521/STbackup/src/log"
 )
 
-var SillyTavernRoot string = func() string {
-	os.Chdir(Root)
-	os.Chdir("..")
-	updir, _ := os.Getwd()
-	return updir
+const Folder, Back string = "../Backup/", "Backup/"
+
+const Version string = "2.7"
+
+var BinName string = func() string {
+	biname := os.Args[0]
+	return filepath.Base(biname)
 }()
-
-var Folder string = SillyTavernRoot + "/Backup/"
-
-const Version string = "2.6.1"
 
 // Remote the final "/" in remote dir if it exist
 var Remote string = func() string {
@@ -35,7 +33,7 @@ var Remote string = func() string {
 const Def_include_folders string = "backgrounds 'group chats' 'KoboldAI Settings' settings.json characters groups notes sounds worlds chats 'NovelAI Settings' img 'OpenAI Settings' 'TextGen Settings' themes 'User Avatars' secrets.json thumbnails config.conf public uploads backups default "
 
 // Declare the default folders of sillytavern to exclude
-const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup "
+const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup "
 
 // Add exclude/include prefix to the rclone syntax + exclude/include in extra in config.json
 var Exclude_Folders string = AddPrefix(
@@ -58,7 +56,7 @@ var Include_Folders string = AddPrefix(
 const Architecture string = runtime.GOARCH
 
 // Set the rclone binary route
-var Local_rclone_route string = Root + "src/bin/"
+var Local_rclone_route string = Root + "/src/bin/"
 
 // Set the root local dir and get the root directory
 var Root string = func() string {
@@ -70,7 +68,7 @@ var Root string = func() string {
 var Local_rclone bool = Configs.Local_rclone
 
 // Get the config.json data
-var Configs = GetJsonData()
+var Configs = GetConfig()
 
 // Initialize the shell functions
 var sh = Sh{}
@@ -84,11 +82,30 @@ type config struct {
 	Loglevel        int    `json:"log-level"`
 }
 
+func GetSTversion() string {
+	type STinfo struct {
+		Version string `json:"version"`
+	}
+	info1 := STinfo{}
+	os.Chdir(Root)
+	os.Chdir("..")
+	ls, _ := sh.Out("ls")
+	if !strings.Contains(ls, "package.json") {
+		log.Error("package.json file not found!", 27)
+	}
+	readfile, err := os.ReadFile("package.json")
+	if err != nil {
+		log.Error("Error reading package.json file", 28)
+	}
+	json.Unmarshal(readfile, &info1)
+	return info1.Version
+}
+
 // Declare the struct of shell functions
 type Sh struct{}
 
 // Get json data function,name very descriptive
-func GetJsonData() config {
+func GetConfig() config {
 	Conf := config{}
 	os.Chdir(Root)
 	ls, _ := sh.Out("ls")
@@ -194,8 +211,8 @@ Commands
 - restore tar: Restores files from a tarball in the backup destination.
 - route <destination>: Moves the backup folder to a new destination.
 - start: Starts the SillyTavern application.
-- update ST: Updates the SillyTavernBackup application.
-- update me: Updates the SillyTavernBackup application and rebuilds if necessary.
+- update ST: Updates the STbackup application.
+- update me: Updates the STbackup application and rebuilds if necessary.
 - ls: Lists files in the remote backup destination.
 - upload: Uploads files to the remote backup destination.
 - upload tar: Uploads a tarball to the remote backup destination.
@@ -204,7 +221,7 @@ Commands
 - init: Initializes the SillyTavern application.
 - rebuild: This is a high priority command. It will rebuild the program (if you have the source code at hand) rather than run any other function than the logs and change to the root directory. As soon as it finishes executing the program it will terminate with error code 0.
 - link: Creates a link to the backup program in the SillyTavern root directory.
-- version: Displays the version of SillyTavernBackup.
+- version: Displays the version of STbackup.
 - remote: Configures the rclone remote server.
 - cleanlog: Clears the log file.
 - log: Displays the content of the log file.
