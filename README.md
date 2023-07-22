@@ -1,7 +1,7 @@
 # SillyTavernBackup
 
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/SillyTavernBackup/dev?logo=go&label=last%20dev%20commit)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/SillyTavernBackup/main?logo=go&label=last%20main%20commit)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/SillyTavernBackup/dev?&label=last%20dev%20commit)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/SillyTavernBackup/main?&label=last%20main%20commit)
 ![GitHub](https://img.shields.io/github/license/Tom5521/SillyTavernBackup)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Tom5521/SillyTavernBackup)
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/Tom5521/SillyTavernBackup?logo=go&label=lastest%20release)
