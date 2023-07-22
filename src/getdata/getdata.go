@@ -11,8 +11,16 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
 
-const Folder, Back string = "../Backup/", "Backup/"
-const Version string = "2.6"
+var SillyTavernRoot string = func() string {
+	os.Chdir(Root)
+	os.Chdir("..")
+	updir, _ := os.Getwd()
+	return updir
+}()
+
+var Folder string = SillyTavernRoot + "/Backup/"
+
+const Version string = "2.6.1"
 
 // Remote the final "/" in remote dir if it exist
 var Remote string = func() string {
@@ -24,10 +32,10 @@ var Remote string = func() string {
 }()
 
 // Declare the default folders of sillytavern to make backup
-const Def_include_folders string = "backgrounds/ 'group chats' 'KoboldAI Settings' settings.json characters groups notes sounds worlds chats 'NovelAI Settings' img 'OpenAI Settings' 'TextGen Settings' themes 'User Avatars' secrets.json thumbnails config.conf public uploads backups "
+const Def_include_folders string = "backgrounds 'group chats' 'KoboldAI Settings' settings.json characters groups notes sounds worlds chats 'NovelAI Settings' img 'OpenAI Settings' 'TextGen Settings' themes 'User Avatars' secrets.json thumbnails config.conf public uploads backups default "
 
 // Declare the default folders of sillytavern to exclude
-const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore backup .replit install.sh Backup.tar app.log i18n.json "
+const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup "
 
 // Add exclude/include prefix to the rclone syntax + exclude/include in extra in config.json
 var Exclude_Folders string = AddPrefix(
@@ -50,7 +58,7 @@ var Include_Folders string = AddPrefix(
 const Architecture string = runtime.GOARCH
 
 // Set the rclone binary route
-const Local_rclone_route string = "src/bin/"
+var Local_rclone_route string = Root + "src/bin/"
 
 // Set the root local dir and get the root directory
 var Root string = func() string {

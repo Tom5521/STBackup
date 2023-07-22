@@ -1,4 +1,13 @@
-# Silly Tavern Backup and Cloud Upload
+# SillyTavernBackup
+
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/SillyTavernBackup/dev?&label=last%20dev%20commit)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/SillyTavernBackup/main?&label=last%20main%20commit)
+![GitHub](https://img.shields.io/github/license/Tom5521/SillyTavernBackup)
+![GitHub repo size](https://img.shields.io/github/repo-size/Tom5521/SillyTavernBackup)
+![GitHub release (with filter)](https://img.shields.io/github/v/release/Tom5521/SillyTavernBackup?logo=go&label=lastest%20release)
+
+
+
 
 This is a source code file written in the Go programming language, which provides a backup and restore tool for SillyTavern. The program uses the `rsync` command to synchronize the application files between the local server and the remote server. It also uses the `rclone` tool to synchronize SillyTavern files with a cloud storage service.
 ## Requirements
