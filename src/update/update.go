@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Tom5521/STbackup/src/getdata"
-	"github.com/Tom5521/STbackup/src/log"
-	"github.com/Tom5521/STbackup/src/tools"
+	"github.com/Tom5521/STBackup/src/getdata"
+	"github.com/Tom5521/STBackup/src/log"
+	"github.com/Tom5521/STBackup/src/tools"
 )
 
 var sh getdata.Sh // Init the shell func

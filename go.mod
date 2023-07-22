@@ -1,3 +1,3 @@
-module github.com/Tom5521/STbackup
+module github.com/Tom5521/STBackup
 
 go 1.20

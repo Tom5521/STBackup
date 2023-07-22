@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tom5521/STbackup/src/depends"
-	"github.com/Tom5521/STbackup/src/getdata"
-	"github.com/Tom5521/STbackup/src/log"
-	"github.com/Tom5521/STbackup/src/tools"
-	"github.com/Tom5521/STbackup/src/update"
+	"github.com/Tom5521/STBackup/src/depends"
+	"github.com/Tom5521/STBackup/src/getdata"
+	"github.com/Tom5521/STBackup/src/log"
+	"github.com/Tom5521/STBackup/src/tools"
+	"github.com/Tom5521/STBackup/src/update"
 )
 
 // Init shell function

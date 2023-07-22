@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/Tom5521/STbackup/src/log"
+	"github.com/Tom5521/STBackup/src/log"
 )
 
 const Folder, Back string = "../Backup/", "Backup/"

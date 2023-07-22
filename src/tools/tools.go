@@ -9,8 +9,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Tom5521/STbackup/src/getdata"
-	"github.com/Tom5521/STbackup/src/log"
+	"github.com/Tom5521/STBackup/src/getdata"
+	"github.com/Tom5521/STBackup/src/log"
 )
 
 var sh = getdata.Sh{}
