@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tom5521/SillyTavernBackup/src/depends"
-	"github.com/Tom5521/SillyTavernBackup/src/getdata"
-	"github.com/Tom5521/SillyTavernBackup/src/log"
-	"github.com/Tom5521/SillyTavernBackup/src/tools"
-	"github.com/Tom5521/SillyTavernBackup/src/update"
+	"github.com/Tom5521/STBackup/src/depends"
+	"github.com/Tom5521/STBackup/src/getdata"
+	"github.com/Tom5521/STBackup/src/log"
+	"github.com/Tom5521/STBackup/src/tools"
+	"github.com/Tom5521/STBackup/src/update"
 )
 
 // Init shell function
@@ -18,13 +18,13 @@ var sh = getdata.Sh{}
 func main() {
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
+	update.RebuildCheck() // Check if rebuild arg is on
 	func() {
 		go log.FetchLv()     // Init the channel to fetch the loglv var
 		getdata.SendLogLv()  // Send the loglv var
 		close(log.TempChan1) // Close temporal channel
 	}()
 	os.Chdir(getdata.Root)        // Change to the root directory
-	update.RebuildCheck()         // Check if the rebuild arg is on
 	if !tools.CheckMainBranch() { // Check the git branch to display a warning
 		log.Warning("You are in the dev branch!")
 		fmt.Println(
@@ -72,6 +72,12 @@ func main() {
 		}
 		if os.Args[2] == "ST" { // Update SillyTavern
 			os.Chdir("..")
+			if tools.CompareVersions(getdata.GetSTversion(), "1.9.1") == "minor" {
+				log.Error(
+					"Your SillyTavern repo is under 1.9.1 and you need make backup and re-clone SillyTavern.",
+					29,
+				)
+			}
 			sh.Cmd("git pull")
 			os.Chdir(getdata.Root)
 			log.Info("SillyTavern Updated")
@@ -95,8 +101,9 @@ func main() {
 				log.Info("Updated with git")
 				update.Rebuild()
 			}
-			sh.Cmd("./backup link")
-			sh.Cmd("rm config.json")
+			if tools.CheckDir("../stbackup") {
+				sh.Cmd(fmt.Sprintf("./%v link", getdata.BinName))
+			}
 		}
 	case "ls": // List the files and dirs in the remote
 		tools.Rclone("ls")
@@ -119,14 +126,14 @@ func main() {
 	case "link": // Create a direct access bash file in the upper folder
 		log.Func("link")
 		fmt.Println("writing in stbackup file...")
-		tools.WriteFile("../stbackup", "#!/bin/bash\ncd SillyTavernBackup/\n./backup $1 $2 $3 $4\n")
+		tools.WriteFile("../stbackup", "#!/bin/bash\ncd STbackup/\n./stbackup $1 $2 $3 $4\n")
 		fmt.Println("Giving exec permissions to stbackup file...")
 		os.Chmod("../stbackup", 0700)
 		fmt.Println("link completed.")
 		log.Info("linked")
 	case "version": // Print the current version,the author, and the licence
 		fmt.Println(
-			"SillyTavernBackup version",
+			"STbackup version:",
 			getdata.Version,
 			"\nUnder the MIT licence\nCreated by Tom5521",
 		)
@@ -190,10 +197,12 @@ func main() {
 		fmt.Println("Internal pars:")
 		fmt.Println("	Include Folders:", "|-"+getdata.Include_Folders+"-|")
 		fmt.Println("	Exclude Folders:", "|-"+getdata.Exclude_Folders+"-|")
-		binstat, _ := sh.Out("file backup")
+		binstat, _ := sh.Out("file stbackup")
 		fmt.Println("	Binary Stat:", binstat)
 		fmt.Println("	Version:", getdata.Version)
 		fmt.Println("rootdir:" + getdata.Root)
+		fmt.Println("Binary Name:", "|-"+getdata.BinName+"-|")
+		fmt.Println("ST version:", getdata.GetSTversion())
 		fmt.Println("//END OF DATA TEST//")
 		fmt.Println("//FUNC TEST//")
 		log.Warning("Test")

@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Tom5521/SillyTavernBackup/src/getdata"
-	"github.com/Tom5521/SillyTavernBackup/src/log"
-	"github.com/Tom5521/SillyTavernBackup/src/tools"
+	"github.com/Tom5521/STBackup/src/getdata"
+	"github.com/Tom5521/STBackup/src/log"
+	"github.com/Tom5521/STBackup/src/tools"
 )
 
 // Declare private shell functions

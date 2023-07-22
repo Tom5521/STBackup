@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
-	"github.com/Tom5521/SillyTavernBackup/src/getdata"
-	"github.com/Tom5521/SillyTavernBackup/src/log"
+	"github.com/Tom5521/STBackup/src/getdata"
+	"github.com/Tom5521/STBackup/src/log"
 )
 
 var sh = getdata.Sh{}
@@ -27,7 +28,7 @@ func Makeconf() {
 	getdata.Configs.Remote = input // Set the inputed text equal to the local var
 	getdata.WriteJsonData()        // Update the config.json data
 	// Print in the terminal and write the data in the log
-	fmt.Printf("Remote Saved in %vYour Remote:%v\n", getdata.Root, input)
+	fmt.Printf("Remote Saved in %v\nYour Remote:%v\n", getdata.Root, input)
 	log.Info("Remote Saved\nRemote:'" + input + "'\nRoute:'" + getdata.Root + "'")
 }
 
@@ -45,7 +46,7 @@ func Rclone(parameter string) {
 	// Check if rclone is installed
 	if !CheckRclone() && !getdata.Local_rclone {
 		log.Error(
-			"Rclone not found. You can download it and use it locally without installing using ./backup download-rclone",
+			"Rclone not found. You can download it and use it locally without installing using ./"+getdata.BinName+" download-rclone",
 			10,
 		)
 		return
@@ -58,7 +59,7 @@ func Rclone(parameter string) {
 		if !CheckDir("src/bin/rclone") {
 			log.Warning("rclone binary or folders not found!!!")
 			os.Chdir(getdata.Root)
-			sh.Cmd("./backup download-rclone")
+			sh.Cmd(fmt.Sprintf("./%v download-rclone", getdata.BinName))
 			Rclone(parameter)
 			return
 		}
@@ -232,6 +233,7 @@ func Rsync(pars ...string) {
 			func1 = " " + pars[1]
 		}
 	}
+	os.Chdir("..")
 	CheckRsync()
 	log.Func(func1 + pars[0])
 	if pars[0] == "save" {
@@ -240,7 +242,7 @@ func Rsync(pars ...string) {
 				"rsync -av --progress %s %s . %s",
 				par1,
 				getdata.Exclude_Folders,
-				getdata.Folder,
+				getdata.Back,
 			),
 		)
 		log.Info("Files Saved")
@@ -272,10 +274,34 @@ func Rsync(pars ...string) {
 				par1,
 				getdata.Exclude_Folders,
 				getdata.Include_Folders,
-				getdata.Folder,
+				getdata.Back,
 			),
 		)
 		os.Chdir(getdata.Root)
 		log.Info("Files restored")
 	}
+}
+
+func CompareVersions(version1, version2 string) string {
+	segments1 := strings.Split(version1, ".")
+	segments2 := strings.Split(version2, ".")
+	maxSegments := len(segments1)
+	if len(segments2) > maxSegments {
+		maxSegments = len(segments2)
+	}
+	for i := 0; i < maxSegments; i++ {
+		var seg1, seg2 int
+		if i < len(segments1) {
+			seg1, _ = strconv.Atoi(segments1[i])
+		}
+		if i < len(segments2) {
+			seg2, _ = strconv.Atoi(segments2[i])
+		}
+		if seg1 < seg2 {
+			return "minor"
+		} else if seg1 > seg2 {
+			return "major"
+		}
+	}
+	return "equal"
 }

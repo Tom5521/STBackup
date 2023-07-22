@@ -1,0 +1,11 @@
+{
+    "editor.fontFamily": "Fira Code",
+	"emeraldwalk.runonsave": {
+		"commands": [
+			{
+			"match": "\\.go$",
+			"cmd": "bash build.sh d | golines -w ${file}"
+			}
+		]
+    },
+}
