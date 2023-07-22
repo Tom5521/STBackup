@@ -11,7 +11,15 @@ import (
 	"github.com/Tom5521/SillyTavernBackup/src/log"
 )
 
-const Folder, Back string = "../Backup/", "Backup/"
+var SillyTavernRoot string = func() string {
+	os.Chdir(Root)
+	os.Chdir("..")
+	updir, _ := os.Getwd()
+	return updir
+}()
+
+var Folder string = SillyTavernRoot + "/Backup/"
+
 const Version string = "2.6.1"
 
 // Remote the final "/" in remote dir if it exist
@@ -50,7 +58,7 @@ var Include_Folders string = AddPrefix(
 const Architecture string = runtime.GOARCH
 
 // Set the rclone binary route
-const Local_rclone_route string = "src/bin/"
+var Local_rclone_route string = Root + "src/bin/"
 
 // Set the root local dir and get the root directory
 var Root string = func() string {

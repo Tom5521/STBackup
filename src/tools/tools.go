@@ -232,16 +232,15 @@ func Rsync(pars ...string) {
 			func1 = " " + pars[1]
 		}
 	}
-	os.Chdir("..")
+	CheckRsync()
 	log.Func(func1 + pars[0])
 	if pars[0] == "save" {
-		CheckRsync()
 		sh.Cmd(
 			fmt.Sprintf(
 				"rsync -av --progress %s %s . %s",
 				par1,
 				getdata.Exclude_Folders,
-				getdata.Back,
+				getdata.Folder,
 			),
 		)
 		log.Info("Files Saved")
@@ -254,29 +253,29 @@ func Rsync(pars ...string) {
 				}
 			}
 		}
-		os.Chdir(getdata.Root)
 	}
-	log.Func("restore")
-	CheckRsync()
-	if len(os.Args) == 3 {
-		if os.Args[2] == "tar" {
-			log.Func("restore from tarball")
-			if CheckDir("Backup") {
-				log.Warning("Removing Backup/ folder")
-				sh.Cmd("rm -rf Backup/")
+	if pars[0] == "restore" {
+		log.Func("restore")
+		if len(os.Args) == 3 {
+			if os.Args[2] == "tar" {
+				log.Func("restore from tarball")
+				if CheckDir("Backup") {
+					log.Warning("Removing Backup/ folder")
+					sh.Cmd("rm -rf Backup/")
+				}
+				sh.Cmd("tar -xvf Backup.tar")
 			}
-			sh.Cmd("tar -xvf Backup.tar")
 		}
+		sh.Cmd(
+			fmt.Sprintf(
+				"rsync -av --progress %s %s %s %s .",
+				par1,
+				getdata.Exclude_Folders,
+				getdata.Include_Folders,
+				getdata.Folder,
+			),
+		)
+		os.Chdir(getdata.Root)
+		log.Info("Files restored")
 	}
-	sh.Cmd(
-		fmt.Sprintf(
-			"rsync -av --progress %s %s %s %s .",
-			par1,
-			getdata.Exclude_Folders,
-			getdata.Include_Folders,
-			getdata.Back,
-		),
-	)
-	os.Chdir(getdata.Root)
-	log.Info("Files restored")
 }
