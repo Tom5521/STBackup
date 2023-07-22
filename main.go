@@ -204,5 +204,4 @@ func main() {
 	default:
 		log.Error("No option selected.", 1)
 	}
-
 }
