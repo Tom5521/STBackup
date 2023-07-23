@@ -126,14 +126,17 @@ func main() {
 	case "link": // Create a direct access bash file in the upper folder
 		log.Func("link")
 		fmt.Println("writing in stbackup file...")
-		tools.WriteFile("../stbackup", "#!/bin/bash\ncd STbackup/\n./stbackup $1 $2 $3 $4\n")
+		tools.WriteFile(
+			"../stbackup",
+			fmt.Sprintf("#!/bin/bash\ncd %v/\n./%v $1 $2 $3 $4\n", getdata.Root, getdata.BinName),
+		)
 		fmt.Println("Giving exec permissions to stbackup file...")
 		os.Chmod("../stbackup", 0700)
 		fmt.Println("link completed.")
 		log.Info("linked")
 	case "version": // Print the current version,the author, and the licence
 		fmt.Println(
-			"STbackup version:",
+			"STBackup version:",
 			getdata.Version,
 			"\nUnder the MIT licence\nCreated by Tom5521",
 		)

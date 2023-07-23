@@ -1,10 +1,10 @@
-# STbackup
+# STBackup
 
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/STbackup/dev?&label=last%20dev%20commit)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/STbackup/main?&label=last%20main%20commit)
-![GitHub](https://img.shields.io/github/license/Tom5521/STbackup)
-![GitHub repo size](https://img.shields.io/github/repo-size/Tom5521/STbackup)
-![GitHub release (with filter)](https://img.shields.io/github/v/release/Tom5521/STbackup?logo=go&label=lastest%20release)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/STBackup/dev?&label=last%20dev%20commit)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tom5521/STBackup/main?&label=last%20main%20commit)
+![GitHub](https://img.shields.io/github/license/Tom5521/STBackup)
+![GitHub repo size](https://img.shields.io/github/repo-size/Tom5521/STBackup)
+![GitHub release (with filter)](https://img.shields.io/github/v/release/Tom5521/STBackup?logo=go&label=lastest%20release)
 
 
 
@@ -27,9 +27,9 @@ This is a source code file written in the Go programming language, which provide
 3. Run the following command to compile the program:
 
 ```bash
-go build -o stbackup main.go
+go build .
 ```
-1. Once compiled, you can use the program by running the `stbackup` binary file in the same folder as the source code file.
+1. Once compiled, you can use the program by running the `STBackup` binary file in the same folder as the source code file.
 2. (Optional) You can make a `./[binary] link` to be able to run the script from the root of SillyTavern and not need to enter the binary folder. This process is done automatically in the script
 ### Script Method
 Using the script. Below is how to use it
@@ -50,8 +50,8 @@ The program is run from the command line and accepts various commands and option
 - `restore tar`: Restores files from a tarball in the backup destination.
 - `route <destination>`: Moves the backup folder to a new destination.
 - `start`: Starts the SillyTavern application.
-- `update ST`: Updates the STbackup application. (not work in ST versions under 1.9.1,check error code 29)
-- `update me`: Updates the STbackup application and rebuilds if necessary.
+- `update ST`: Updates the STBackup application. (not work in ST versions under 1.9.1,check error code 29)
+- `update me`: Updates the STBackup application and rebuilds if necessary.
 - `ls`: Lists files in the remote backup destination.
 - `upload`: Uploads files to the remote backup destination.
 - `upload tar`: Uploads a tarball to the remote backup destination.
@@ -60,7 +60,7 @@ The program is run from the command line and accepts various commands and option
 - `init`: Initializes the SillyTavern application.
 - `rebuild`: This is a high priority command. It will rebuild the program (if you have the source code at hand) rather than run any other function than the logs and change to the root directory. As soon as it finishes executing the program it will terminate with error code 0.
 - `link`: Creates a link to the backup program in the SillyTavern root directory.
-- `version`: Displays the version of STbackup.
+- `version`: Displays the version of STBackup.
 - `remote`: Configures the rclone remote server.
 - `cleanlog`: Clears the log file.
 - `log`: Displays the content of the log file.
@@ -83,9 +83,9 @@ its parameters are:
 
 The program logs all the actions in the `app.log` file.
 
-# STbackup Installer
+# STBackup Installer
 
-This script is an installer for the STbackup program. This is a simple script for those who do not want to compile.
+This script is an installer for the STBackup program. This is a simple script for those who do not want to compile.
 ## Usage
 
 To use this script, follow these steps:
@@ -109,7 +109,7 @@ Where `<platform>` is the platform on which you want to install the program. You
 
 The script works as follows:
 
-- If a platform is specified as an argument and it is not `clone`, the script creates a folder called "STbackup" and downloads the latest version of the program corresponding to the specified platform using the GitHub API. Then, it renames the downloaded file to "backup" and executes it.
+- If a platform is specified as an argument and it is not `clone`, the script creates a folder called "STBackup" and downloads the latest version of the program corresponding to the specified platform using the GitHub API. Then, it renames the downloaded file to "backup" and executes it.
 - If "clone" is specified as an argument, the script clones the GitHub repository and compiles the program using the `go build` command.
 - If no arguments are specified, the script does nothing.
 
@@ -121,7 +121,7 @@ In any case, the program is  and the backup or restore process is started as app
 - To use this script on other platforms, it is necessary to modify the file to add support for the specific platform.
 - This is for termux and linux friends. If you use windows i recommend you to learn how to use [Rclone](https://rclone.org/) and [SillyTavernSimpleLauncher](https://github.com/BlueprintCoding/SillyTavernSimpleLauncher).
 - I don't plan to make a windows version... Unless I'm bored. We'll see what I feel like doing.
-- *DO NOT MOVE THE BINARY OUTSIDE THE "STbackup" FOLDER.*
+- *DO NOT MOVE THE BINARY OUTSIDE THE "STBackup" FOLDER.*
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
