@@ -128,7 +128,7 @@ func main() {
 		fmt.Println("writing in stbackup file...")
 		tools.WriteFile(
 			"../stbackup",
-			fmt.Sprintf("#!/bin/bash\ncd STbackup/\n./%v $1 $2 $3 $4\n", getdata.BinName),
+			fmt.Sprintf("#!/bin/bash\ncd %v/\n./%v $1 $2 $3 $4\n", getdata.Root, getdata.BinName),
 		)
 		fmt.Println("Giving exec permissions to stbackup file...")
 		os.Chmod("../stbackup", 0700)
@@ -136,7 +136,7 @@ func main() {
 		log.Info("linked")
 	case "version": // Print the current version,the author, and the licence
 		fmt.Println(
-			"STbackup version:",
+			"STBackup version:",
 			getdata.Version,
 			"\nUnder the MIT licence\nCreated by Tom5521",
 		)

@@ -25,7 +25,7 @@ func DownloadLatestBinary(binName string) int {
 	defer file.Close()
 	// Set the current url to download the binary
 	response, err := http.Get(
-		"https://github.com/Tom5521/STbackup/releases/latest/download/" + binName,
+		"https://github.com/Tom5521/STBackup/releases/latest/download/" + binName,
 	)
 	if err != nil {
 		log.Error("Error performing request", 17)

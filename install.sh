@@ -11,30 +11,30 @@ fi
 
 
 if [ "$1" != "" ] && [ "$1" != "clone" ]; then
-    if [ ! -d "STbackup" ]; then
-        mkdir STbackup
+    if [ ! -d "STBackup" ]; then
+        mkdir STBackup
     fi
-    cd STbackup
+    cd STBackup
     echo "Downloading latest binary..."
-    curl -LJo stbackup https://github.com/Tom5521/STbackup/releases/latest/download/$binary
+    curl -LJo STBackup https://github.com/Tom5521/STBackup/releases/latest/download/$binary
     echo "Giving execute permissions to the binary..."
-    chmod +x stbackup
+    chmod +x STBackup
     echo "Configure remote..."
-    ./stbackup remote
+    ./STBackup remote
     echo "Creating link in SillyTavern root directory..."
-    ./stbackup link
+    ./STBackup link
     echo Done!
 fi
 
 if [ "$1" == "clone" ]; then
     echo Cloning...
-    git clone https://github.com/Tom5521/STbackup.git
-    cd STbackup
+    git clone https://github.com/Tom5521/STBackup.git
+    cd STBackup
     echo Compiling...
-    go build -o stbackup main.go
+    go build .
     echo "Configure remote..."
-    ./stbackup remote
+    ./STBackup remote
     echo "Creating link in SillyTavern root directory..."
-    ./stbackup link
+    ./STBackup link
     echo Done!
 fi

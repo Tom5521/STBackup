@@ -13,7 +13,7 @@ import (
 
 const Folder, Back string = "../Backup/", "Backup/"
 
-const Version string = "2.7"
+const Version string = "2.7.1"
 
 var BinName string = func() string {
 	biname := os.Args[0]
@@ -33,7 +33,7 @@ var Remote string = func() string {
 const Def_include_folders string = "backgrounds 'group chats' 'KoboldAI Settings' settings.json characters groups notes sounds worlds chats 'NovelAI Settings' img 'OpenAI Settings' 'TextGen Settings' themes 'User Avatars' secrets.json thumbnails config.conf public uploads backups default "
 
 // Declare the default folders of sillytavern to exclude
-const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup "
+const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup STBackup "
 
 // Add exclude/include prefix to the rclone syntax + exclude/include in extra in config.json
 var Exclude_Folders string = AddPrefix(
@@ -211,8 +211,8 @@ Commands
 - restore tar: Restores files from a tarball in the backup destination.
 - route <destination>: Moves the backup folder to a new destination.
 - start: Starts the SillyTavern application.
-- update ST: Updates the STbackup application.
-- update me: Updates the STbackup application and rebuilds if necessary.
+- update ST: Updates the ST application.
+- update me: Updates the STBackup application and rebuilds if necessary.
 - ls: Lists files in the remote backup destination.
 - upload: Uploads files to the remote backup destination.
 - upload tar: Uploads a tarball to the remote backup destination.
