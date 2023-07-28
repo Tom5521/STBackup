@@ -117,6 +117,7 @@ In any case, the program is  and the backup or restore process is started as app
 
 ## Notes
 
+- #### As soon as SillyTavernSimpleLauncher for linux is released I will archive this repository as it is VERY useless as we already have the official tool.
 - This script requires the prior installation of the `curl` tool.
 - To use this script on other platforms, it is necessary to modify the file to add support for the specific platform.
 - This is for termux and linux friends. If you use windows i recommend you to learn how to use [Rclone](https://rclone.org/) and [SillyTavernSimpleLauncher](https://github.com/BlueprintCoding/SillyTavernSimpleLauncher).
