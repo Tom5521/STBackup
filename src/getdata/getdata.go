@@ -13,7 +13,7 @@ import (
 
 const Folder, Back string = "../Backup/", "Backup/"
 
-const Version string = "2.7.1"
+const Version string = "2.7.2"
 
 var BinName string = func() string {
 	biname := os.Args[0]
@@ -30,10 +30,10 @@ var Remote string = func() string {
 }()
 
 // Declare the default folders of sillytavern to make backup
-const Def_include_folders string = "backgrounds 'group chats' 'KoboldAI Settings' settings.json characters groups notes sounds worlds chats 'NovelAI Settings' img 'OpenAI Settings' 'TextGen Settings' themes 'User Avatars' secrets.json thumbnails config.conf public uploads backups default "
+const Def_include_folders string = `backgrounds "group chats" "KoboldAI Settings" settings.json characters groups notes sounds worlds chats "NovelAI Settings" img "OpenAI Settings" "TextGen Settings" themes "User Avatars" secrets.json thumbnails config.conf public uploads backups default instruct context stats.json  `
 
 // Declare the default folders of sillytavern to exclude
-const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup STBackup "
+const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup STBackup statsHelpers.js poe-test.js poe-error.log poe_device.json poe-success.log "
 
 // Add exclude/include prefix to the rclone syntax + exclude/include in extra in config.json
 var Exclude_Folders string = AddPrefix(
@@ -157,7 +157,7 @@ func WriteJsonData() {
 	if err != nil {
 		log.Error("error when serializing the structure", 22)
 	}
-	err = os.WriteFile("config.json", data, 0644)
+	err = os.WriteFile("config.json", data, os.ModePerm)
 	if err != nil {
 		log.Error("Error writing to the config.json file.", 15)
 	}
@@ -165,7 +165,16 @@ func WriteJsonData() {
 
 // Exec shell command func
 func (sh Sh) Cmd(input string) error {
-	cmd := exec.Command("sh", "-c", input)
+	shell := make([]string, 2)
+	if runtime.GOOS == "windows" {
+		shell[0] = "cmd"
+		shell[1] = "/C"
+	}
+	if runtime.GOOS == "linux" || runtime.GOOS == "android" {
+		shell[0] = "sh"
+		shell[1] = "-c"
+	}
+	cmd := exec.Command(shell[0], shell[1], input)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

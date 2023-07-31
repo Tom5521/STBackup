@@ -18,13 +18,13 @@ var sh = getdata.Sh{}
 func main() {
 	log.Info("--------Start--------")
 	defer log.Info("---------End---------")
-	update.RebuildCheck() // Check if rebuild arg is on
+	os.Chdir(getdata.Root) // Change to the root directory
+	update.RebuildCheck()  // Check if rebuild arg is on
 	func() {
 		go log.FetchLv()     // Init the channel to fetch the loglv var
 		getdata.SendLogLv()  // Send the loglv var
 		close(log.TempChan1) // Close temporal channel
 	}()
-	os.Chdir(getdata.Root)        // Change to the root directory
 	if !tools.CheckMainBranch() { // Check the git branch to display a warning
 		log.Warning("You are in the dev branch!")
 		fmt.Println(
