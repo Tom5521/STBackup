@@ -4,7 +4,7 @@ file="main.go"
 
 if [ "$1" == "d" ]; then
     echo Build for dev use...
-    go build -ldflags="-s -w" -gcflags=-trimpath -tags linux -o stbackup $file
+    go build -ldflags="-s -w" -gcflags=-trimpath -tags linux .
     exit
 fi
 echo Build for distribution...
