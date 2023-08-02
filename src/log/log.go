@@ -9,14 +9,17 @@ import (
 	"strings"
 )
 
-// Get the root directory
-var root string = func() string {
-	binpath, _ := filepath.Abs(os.Args[0])
-	return filepath.Dir(binpath)
-}()
-var TempChan1 = make(chan int)              // Init the channel for LogLevel
-var logger = SetupLogger(root + "/app.log") // Initialize the logger func
-var Loglevel int                            // Init the loglevel var
+// Declare the vars
+var (
+	// Get the root directory
+	root string = func() string {
+		binpath, _ := filepath.Abs(os.Args[0])
+		return filepath.Dir(binpath)
+	}()
+	TempChan1     = make(chan int)                 // Init the channel for LogLevel
+	logger        = SetupLogger(root + "/app.log") // Initialize the logger func
+	Loglevel  int                                  // Init the loglevel var
+)
 
 func Error(text string, errcode int, incheck ...string) {
 	var check string
@@ -26,18 +29,22 @@ func Error(text string, errcode int, incheck ...string) {
 			check = "| CHECK: " + incheck[1]
 		}
 	}
-	// Get the name of the function and the line of it
-	pc, _, line, _ := runtime.Caller(1)
-	prefuncname := runtime.FuncForPC(pc).Name()
-	parts := strings.Split(prefuncname, "/")
-	funcname := parts[len(parts)-1]
-	// Format the error sintax
-	errdata := fmt.Sprintf(
-		"ERROR: %s | code: %d | file: %v | line: %v "+check,
-		text,
-		errcode,
-		funcname,
-		line,
+
+	var (
+		// Get the name of the function and the line of it
+		pc, _, line, _ = runtime.Caller(1)
+		prefuncname    = runtime.FuncForPC(pc).Name()
+		parts          = strings.Split(prefuncname, "/")
+		funcname       = parts[len(parts)-1]
+
+		// Format the error sintax
+		errdata = fmt.Sprintf(
+			"ERROR: %s | code: %d | file: %v | line: %v "+check,
+			text,
+			errcode,
+			funcname,
+			line,
+		)
 	)
 	// Print the error data and write it in the log
 	fmt.Println(errdata)
@@ -50,11 +57,13 @@ func Warning(text string) {
 		return
 	}
 	// Get the function name in which this function was invoked
-	pc, _, _, _ := runtime.Caller(1)
-	prefuncname := runtime.FuncForPC(pc).Name()
-	parts := strings.Split(prefuncname, "/")
-	funcname := parts[len(parts)-1]
-	warndata := fmt.Sprintf("WARNING: %s | file: %v", text, funcname) // Format the warning
+	var (
+		pc, _, _, _ = runtime.Caller(1)
+		prefuncname = runtime.FuncForPC(pc).Name()
+		parts       = strings.Split(prefuncname, "/")
+		funcname    = parts[len(parts)-1]
+		warndata    = fmt.Sprintf("WARNING: %s | file: %v", text, funcname) // Format the warning
+	)
 	// Print the formated warning and write it in the log
 	fmt.Println(warndata)
 	logger.Println(warndata)
@@ -78,10 +87,12 @@ func Function() {
 	if Loglevel > 2 {
 		return
 	}
-	pc, _, _, _ := runtime.Caller(1)
-	prefuncname := runtime.FuncForPC(pc).Name()
-	parts := strings.Split(prefuncname, "/")
-	funcname := parts[len(parts)-1]
+	var (
+		pc, _, _, _ = runtime.Caller(1)
+		prefuncname = runtime.FuncForPC(pc).Name()
+		parts       = strings.Split(prefuncname, "/")
+		funcname    = parts[len(parts)-1]
+	)
 	logger.Println("FUNCTION:    ---" + funcname + "---")
 }
 
@@ -90,10 +101,12 @@ func Check(input string) {
 	if Loglevel < 2 {
 		return
 	}
-	pc, _, _, _ := runtime.Caller(1)
-	prefuncname := runtime.FuncForPC(pc).Name()
-	parts := strings.Split(prefuncname, "/")
-	funcname := parts[len(parts)-1]
+	var (
+		pc, _, _, _ = runtime.Caller(1)
+		prefuncname = runtime.FuncForPC(pc).Name()
+		parts       = strings.Split(prefuncname, "/")
+		funcname    = parts[len(parts)-1]
+	)
 	logger.Printf("CHECK:		 %v:%v \n", funcname, input)
 }
 

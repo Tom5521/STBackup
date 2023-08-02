@@ -64,8 +64,10 @@ func Rclone(parameter string) {
 			return
 		}
 	}
-	var com string
-	var Remote, Folder string = getdata.Remote, getdata.Folder
+	var (
+		com            string
+		Remote, Folder string = getdata.Remote, getdata.Folder
+	)
 	os.Chdir(getdata.Root)
 	// Check the func will be used for rclone
 	switch parameter {
@@ -283,9 +285,11 @@ func Rsync(pars ...string) {
 }
 
 func CompareVersions(version1, version2 string) string {
-	segments1 := strings.Split(version1, ".")
-	segments2 := strings.Split(version2, ".")
-	maxSegments := len(segments1)
+	var (
+		segments1   = strings.Split(version1, ".")
+		segments2   = strings.Split(version2, ".")
+		maxSegments = len(segments1)
+	)
 	if len(segments2) > maxSegments {
 		maxSegments = len(segments2)
 	}

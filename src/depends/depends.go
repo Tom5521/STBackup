@@ -17,12 +17,15 @@ var sh = getdata.Sh{}
 
 func DownloadRclone() {
 	log.Function()
-	var arch string = getdata.Architecture
-	var link_linux_amd64 string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-amd64.zip"
-	var link_linux_386 string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-386.zip"
-	var link_universal_linux_arm string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-arm.zip"
-	// Set link to download
-	var link string
+	// Declare the vars
+	var (
+		arch                     string = getdata.Architecture
+		link_linux_amd64         string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-amd64.zip"
+		link_linux_386           string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-386.zip"
+		link_universal_linux_arm string = "https://github.com/rclone/rclone/releases/download/v1.63.0/rclone-v1.63.0-linux-arm.zip"
+		// Set link to download
+		link string
+	)
 	if getdata.Architecture == "amd64" {
 		link = link_linux_amd64
 		arch = getdata.Architecture

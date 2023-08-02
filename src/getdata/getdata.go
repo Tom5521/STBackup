@@ -11,67 +11,68 @@ import (
 	"github.com/Tom5521/STBackup/src/log"
 )
 
-const Folder, Back string = "../Backup/", "Backup/"
+// Declare the constants
+const (
+	Folder, Back string = "../Backup/", "Backup/"
+	Version      string = "2.7.3"
+	// Declare the default folders of sillytavern to make backup
+	Def_include_folders string = `backgrounds "group chats" "KoboldAI Settings" settings.json characters groups notes sounds worlds chats "NovelAI Settings" img "OpenAI Settings" "TextGen Settings" themes "User Avatars" secrets.json thumbnails config.conf public uploads backups default instruct context stats.json  `
 
-const Version string = "2.7.2"
-
-var BinName string = func() string {
-	biname := os.Args[0]
-	return filepath.Base(biname)
-}()
-
-// Remote the final "/" in remote dir if it exist
-var Remote string = func() string {
-	if Configs.Remote != "" {
-		return strings.TrimRight(Configs.Remote, "/")
-	} else {
-		return ""
-	}
-}()
-
-// Declare the default folders of sillytavern to make backup
-const Def_include_folders string = `backgrounds "group chats" "KoboldAI Settings" settings.json characters groups notes sounds worlds chats "NovelAI Settings" img "OpenAI Settings" "TextGen Settings" themes "User Avatars" secrets.json thumbnails config.conf public uploads backups default instruct context stats.json  `
-
-// Declare the default folders of sillytavern to exclude
-const Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup STBackup statsHelpers.js poe-test.js poe-error.log poe_device.json poe-success.log "
-
-// Add exclude/include prefix to the rclone syntax + exclude/include in extra in config.json
-var Exclude_Folders string = AddPrefix(
-	Def_exclude_folders,
-	"--exclude ",
-) + AddPrefix(
-	Configs.Exclude_Folders,
-	"--exclude ",
+	// Declare the default folders of sillytavern to exclude
+	Def_exclude_folders string = "webfonts scripts index.html css img favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup STBackup statsHelpers.js poe-test.js poe-error.log poe_device.json poe-success.log "
+	// Get the architecture
+	Architecture string = runtime.GOARCH
 )
 
-var Include_Folders string = AddPrefix(
-	Def_include_folders,
-	"--include ",
-) + AddPrefix(
-	Configs.Include_Folders,
-	"--include ",
+// Declare the variables
+var (
+	BinName string = func() string {
+		biname := os.Args[0]
+		return filepath.Base(biname)
+	}()
+	// Remote the final "/" in remote dir if it exist
+	Remote string = func() string {
+		if Configs.Remote != "" {
+			return strings.TrimRight(Configs.Remote, "/")
+		} else {
+			return ""
+		}
+	}()
+	// Add exclude/include prefix to the rclone syntax + exclude/include in extra in config.json
+	Exclude_Folders string = AddPrefix(
+		Def_exclude_folders,
+		"--exclude ",
+	) + AddPrefix(
+		Configs.Exclude_Folders,
+		"--exclude ",
+	)
+
+	Include_Folders string = AddPrefix(
+		Def_include_folders,
+		"--include ",
+	) + AddPrefix(
+		Configs.Include_Folders,
+		"--include ",
+	)
+
+	// Set the rclone binary route
+	Local_rclone_route string = Root + "/src/bin/"
+
+	// Set the root local dir and get the root directory
+	Root string = func() string {
+		binpath, _ := filepath.Abs(os.Args[0])
+		return filepath.Dir(binpath)
+	}()
+
+	// get local rclone value true/false
+	Local_rclone bool = Configs.Local_rclone
+
+	// Get the config.json data
+	Configs = GetConfig()
+
+	// Initialize the shell functions
+	sh = Sh{}
 )
-
-// Get the architecture
-const Architecture string = runtime.GOARCH
-
-// Set the rclone binary route
-var Local_rclone_route string = Root + "/src/bin/"
-
-// Set the root local dir and get the root directory
-var Root string = func() string {
-	binpath, _ := filepath.Abs(os.Args[0])
-	return filepath.Dir(binpath)
-}()
-
-// get local rclone value true/false
-var Local_rclone bool = Configs.Local_rclone
-
-// Get the config.json data
-var Configs = GetConfig()
-
-// Initialize the shell functions
-var sh = Sh{}
 
 // Declare the struct of json file
 type config struct {
