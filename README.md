@@ -12,7 +12,7 @@ Well... school is demanding too much and I can't keep up with SillyTavern, so...
 ~~I'm sorry to announce this but **I don't recommend using this program** because I don't have time to maintain it anymore... anyway, it was fun while it lasted, right?~~
 
 Maybe from time to time an update or patch will be released, **but it is no longer guaranteed.**
-*I'll probably be back in December* when I have a vacation~~, but for now running this program on versions higher than the one specified unfortunately means **breaking SillyTavern.**~~
+*I'll probably be back in December* when I have a vacation ~~, but for now running this program on versions higher than the one specified unfortunately means **breaking SillyTavern.**~~
 
 UPDATE: ***I made some changes to make this program functional again.***
 
