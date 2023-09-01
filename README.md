@@ -13,6 +13,7 @@ I'm sorry to announce this but **I don't recommend using this program** because 
 
 Maybe from time to time an update or patch will be released, **but it is no longer guaranteed.**
 *I'll probably be back in December* when I have a vacation, but for now running this program on versions higher than the one specified unfortunately means **breaking SillyTavern.**
+
 See you later...
 
 This is a source code file written in the Go programming language, which provides a backup and restore tool for SillyTavern. The program uses the `rsync` command to synchronize the application files between the local server and the remote server. It also uses the `rclone` tool to synchronize SillyTavern files with a cloud storage service.
