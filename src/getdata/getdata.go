@@ -19,7 +19,7 @@ const (
 	Def_include_folders string = `backgrounds "group chats" "KoboldAI Settings" settings.json characters groups notes sounds worlds chats "NovelAI Settings" img "OpenAI Settings" "TextGen Settings" themes "User Avatars" secrets.json thumbnails config.conf public uploads backups default instruct context stats.json assets movingUI sounds QuickReplies user robots.txt `
 
 	// Declare the default folders of sillytavern to exclude
-	Def_exclude_folders string = `webfonts scripts index.html css favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup STBackup statsHelpers.js poe-test.js poe-error.log poe_device.json poe-success.log lib script.js  `
+	Def_exclude_folders string = `webfonts scripts index.html css favicon.ico script.js style.css Backup colab docker Dockerfile LICENSE node_modules package.json package-lock.json replit.nix server.js SillyTavernBackup src Start.bat start.sh UpdateAndStart.bat Update-Instructions.txt tools .dockerignore .editorconfig .git .github .gitignore .npmignore .replit install.sh Backup.tar app.log i18n.json stbackup STbackup STBackup statsHelpers.js poe-test.js poe-error.log poe_device.json poe-success.log lib script.js `
 	// Get the architecture
 	Architecture string = runtime.GOARCH
 )
