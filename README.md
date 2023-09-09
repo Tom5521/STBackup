@@ -102,15 +102,10 @@ To use this script, follow these steps:
 2. Run the installation file with the following command:
 
 ```
-bash install.sh <platform>
+bash install.sh 
 ```
 
-Where `<platform>` is the platform on which you want to install the program. You can use the following values:
-
-- `arm`: if you want to install the program on an Android device using the Termux app.
-- `x64`: if you want to install the program on a computer with x86-64 architecture.
-
-3. If you want to install the program on a platform other than `arm` or `x64`, you can modify the script to add support for that platform.
+The platform is setted automatically
 
 ## Functionality
 
