@@ -12,6 +12,8 @@ Well... school is demanding too much and I can't keep up with SillyTavern, so...
 
 Maybe from time to time an update or patch will be released, **but it is no longer guaranteed.**
 *I'll probably be back in December* when I have a vacation
+
+
 UPDATE: ***I made some changes to make this program functional again. V2***
 
 See you later...
