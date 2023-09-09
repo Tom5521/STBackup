@@ -14,7 +14,7 @@ import (
 // Declare the constants
 const (
 	Folder, Back string = "../Backup/", "Backup/"
-	Version      string = "2.7.5"
+	Version      string = "2.8"
 	// Declare the default folders of sillytavern to make backup
 	Def_include_folders string = `backgrounds "group chats" "KoboldAI Settings" settings.json characters groups notes sounds worlds chats "NovelAI Settings" "OpenAI Settings" "TextGen Settings" themes "User Avatars" secrets.json thumbnails config.conf public uploads backups default instruct context stats.json movingUI sounds QuickReplies user `
 
