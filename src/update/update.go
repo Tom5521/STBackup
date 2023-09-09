@@ -50,7 +50,7 @@ func Rebuild() {
 	os.Chdir(getdata.Root)
 	// Check if is in the dev branch for develop build
 	if !tools.CheckMainBranch() {
-		sh.Cmd("bash build.sh d")
+		sh.Cmd("bash build.sh dev")
 		os.Exit(0)
 		return
 	}

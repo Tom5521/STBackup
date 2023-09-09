@@ -8,13 +8,11 @@
 
 
 # Note:
-Well... school is demanding too much and I can't keep up with SillyTavern, so.... ~~This program is functional only up to sillytavern 1.10.# and below.~~
-~~I'm sorry to announce this but **I don't recommend using this program** because I don't have time to maintain it anymore... anyway, it was fun while it lasted, right?~~
+Well... school is demanding too much and I can't keep up with SillyTavern, so....
 
 Maybe from time to time an update or patch will be released, **but it is no longer guaranteed.**
-*I'll probably be back in December* when I have a vacation ~~, but for now running this program on versions higher than the one specified unfortunately means **breaking SillyTavern.**~~
-
-UPDATE: ***I made some changes to make this program functional again.***
+*I'll probably be back in December* when I have a vacation
+UPDATE: ***I made some changes to make this program functional again. V2***
 
 See you later...
 
@@ -36,9 +34,9 @@ This is a source code file written in the Go programming language, which provide
 3. Run the following command to compile the program:
 
 ```bash
-go build .
+./build.sh p
 ```
-1. Once compiled, you can use the program by running the `STBackup` binary file in the same folder as the source code file.
+1. Once compiled, you can use the program by running the `stbackup` binary file in the same folder as the source code file.
 2. (Optional) You can make a `./[binary] link` to be able to run the script from the root of SillyTavern and not need to enter the binary folder. This process is done automatically in the script
 ### Script Method
 Using the script. Below is how to use it
@@ -104,15 +102,10 @@ To use this script, follow these steps:
 2. Run the installation file with the following command:
 
 ```
-bash install.sh <platform>
+bash install.sh 
 ```
 
-Where `<platform>` is the platform on which you want to install the program. You can use the following values:
-
-- `arm`: if you want to install the program on an Android device using the Termux app.
-- `x64`: if you want to install the program on a computer with x86-64 architecture.
-
-3. If you want to install the program on a platform other than `arm` or `x64`, you can modify the script to add support for that platform.
+The platform is setted automatically
 
 ## Functionality
 

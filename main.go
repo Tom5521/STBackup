@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/Tom5521/STBackup/src/depends"
@@ -93,8 +94,14 @@ func main() {
 					update.DownloadLatestBinary("backup-x86-64")
 				}
 				if strings.Contains(getdata.Architecture, "arm") {
-					log.Info("Downloading arm binary")
-					update.DownloadLatestBinary("backup-arm")
+					if runtime.GOOS == "android" {
+						log.Info("Download android arm binary")
+						update.DownloadLatestBinary("backup-android-arm")
+					}
+					if runtime.GOOS == "linux" {
+						log.Info("Download linux arm binary")
+						update.DownloadLatestBinary("backup-linux-arm")
+					}
 				}
 			} else {
 				sh.Cmd("git pull")
@@ -191,6 +198,8 @@ func main() {
 			log.Error("This func only works in the dev branch", 26)
 			return
 		}
+		update.DownloadLatestBinary("backup-x86-64")
+		return
 		fmt.Println("//DATA TEST//")
 		fmt.Println("Config-Pars:")
 		fmt.Println("	Remote:", getdata.Configs.Remote)
