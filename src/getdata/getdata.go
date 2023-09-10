@@ -3,18 +3,19 @@ package getdata
 import (
 	"encoding/json"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/Tom5521/MyGolangTools/commands"
+	"github.com/Tom5521/MyGolangTools/file"
 	"github.com/Tom5521/STBackup/src/log"
 )
 
 // Declare the constants
 const (
 	Folder, Back string = "../Backup/", "Backup/"
-	Version      string = "2.8"
+	Version      string = "2.9"
 	// Declare the default folders of sillytavern to make backup
 	Def_include_folders string = `backgrounds "group chats" "KoboldAI Settings" settings.json characters groups notes sounds worlds chats "NovelAI Settings" "OpenAI Settings" "TextGen Settings" themes "User Avatars" secrets.json thumbnails config.conf public uploads backups default instruct context stats.json movingUI sounds QuickReplies user `
 
@@ -71,7 +72,7 @@ var (
 	Configs = GetConfig()
 
 	// Initialize the shell functions
-	sh = Sh{}
+	sh = commands.Sh{}
 )
 
 // Declare the struct of json file
@@ -102,16 +103,13 @@ func GetSTversion() string {
 	return info1.Version
 }
 
-// Declare the struct of shell functions
-type Sh struct{}
-
 // Get json data function,name very descriptive
 func GetConfig() config {
 	Conf := config{}
 	os.Chdir(Root)
-	ls, _ := sh.Out("ls")
 	// Check if config.json exist
-	if !strings.Contains(ls, "config.json") {
+	check, _ := file.CheckFile("config.json")
+	if !check {
 		log.Warning("config.json does not exist... Creating a new one...")
 		NewConFile() // Create new config file
 	}
@@ -129,11 +127,9 @@ func GetConfig() config {
 func NewConFile() {
 	log.Function()
 	os.Chdir(Root)
-	newdata := config{}                 // Initialize the config struct
-	file, _ := os.Create("config.json") // Create config.json file
-	defer file.Close()                  // Close the file in the end
-	data, _ := json.Marshal(newdata)    // Marshall the data
-	file.WriteString(string(data))      // Write the data in config.json file
+	newdata := config{}                           // Initialize the config struct
+	data, _ := json.Marshal(newdata)              // Marshall the data
+	file.ReWriteFile("config.json", string(data)) // Create & Write the data in config.json file
 }
 
 // Name very descriptive,prossess the strings in config.json for use in the Include_Folders and Exclude_Folders vars
@@ -158,43 +154,9 @@ func WriteJsonData() {
 	if err != nil {
 		log.Error("error when serializing the structure", 22)
 	}
-	err = os.WriteFile("config.json", data, os.ModePerm)
+	err = file.ReWriteFile("config.json", string(data))
 	if err != nil {
 		log.Error("Error writing to the config.json file.", 15)
-	}
-}
-
-// Exec shell command func
-func (sh Sh) Cmd(input string) error {
-	shell := make([]string, 2)
-	if runtime.GOOS == "windows" {
-		shell[0] = "cmd"
-		shell[1] = "/C"
-	}
-	if runtime.GOOS == "linux" || runtime.GOOS == "android" {
-		shell[0] = "sh"
-		shell[1] = "-c"
-	}
-	cmd := exec.Command(shell[0], shell[1], input)
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	err := cmd.Run()
-	if err != nil {
-		return err
-	} else {
-		return nil
-	}
-}
-
-// Get the output and the error executing a shell command
-func (sh Sh) Out(input string) (string, error) {
-	cmd := exec.Command("sh", "-c", input)
-	out, err := cmd.Output()
-	if err != nil {
-		return string(out), err
-	} else {
-		return string(out), nil
 	}
 }
 

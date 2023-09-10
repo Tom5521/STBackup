@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/Tom5521/MyGolangTools/commands"
 	"github.com/Tom5521/STBackup/src/depends"
 	"github.com/Tom5521/STBackup/src/getdata"
 	"github.com/Tom5521/STBackup/src/log"
@@ -14,7 +15,7 @@ import (
 )
 
 // Init shell function
-var sh = getdata.Sh{}
+var sh = commands.Sh{}
 
 func main() {
 	log.Info("--------Start--------")
@@ -28,7 +29,7 @@ func main() {
 	}()
 	if !tools.CheckMainBranch() { // Check the git branch to display a warning
 		log.Warning("You are in the dev branch!")
-		fmt.Println(
+		log.Warning(
 			"Note: You are using the dev branch. Which is usually always broken and is more for backup and anticipating changes than for users to experiment with.Please go back to the main branch, which is functional.",
 		)
 	}

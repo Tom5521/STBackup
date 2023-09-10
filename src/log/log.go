@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/gookit/color"
 )
 
 // Declare the vars
@@ -36,7 +38,6 @@ func Error(text string, errcode int, incheck ...string) {
 		prefuncname    = runtime.FuncForPC(pc).Name()
 		parts          = strings.Split(prefuncname, "/")
 		funcname       = parts[len(parts)-1]
-
 		// Format the error sintax
 		errdata = fmt.Sprintf(
 			"ERROR: %s | code: %d | file: %v | line: %v "+check,
@@ -47,15 +48,12 @@ func Error(text string, errcode int, incheck ...string) {
 		)
 	)
 	// Print the error data and write it in the log
-	fmt.Println(errdata)
+	color.Error.Println(errdata)
 	logger.Println(errdata)
 	Info("---------End---------")
 	os.Exit(errcode)
 }
 func Warning(text string) {
-	if Loglevel < 1 {
-		return
-	}
 	// Get the function name in which this function was invoked
 	var (
 		pc, _, _, _ = runtime.Caller(1)
@@ -65,7 +63,7 @@ func Warning(text string) {
 		warndata    = fmt.Sprintf("WARNING: %s | file: %v", text, funcname) // Format the warning
 	)
 	// Print the formated warning and write it in the log
-	fmt.Println(warndata)
+	color.Warn.Println(warndata)
 	logger.Println(warndata)
 }
 func Info(text string) {
