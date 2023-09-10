@@ -7,13 +7,14 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Tom5521/MyGolangTools/commands"
 	"github.com/Tom5521/STBackup/src/getdata"
 	"github.com/Tom5521/STBackup/src/log"
 	"github.com/Tom5521/STBackup/src/tools"
 )
 
 // Declare private shell functions
-var sh = getdata.Sh{}
+var sh = commands.Sh{}
 
 func DownloadRclone() {
 	log.Function()

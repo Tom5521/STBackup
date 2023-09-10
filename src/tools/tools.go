@@ -9,11 +9,12 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/Tom5521/MyGolangTools/commands"
 	"github.com/Tom5521/STBackup/src/getdata"
 	"github.com/Tom5521/STBackup/src/log"
 )
 
-var sh = getdata.Sh{}
+var sh = commands.Sh{}
 
 // Config the remote rclone dir
 func Makeconf() {

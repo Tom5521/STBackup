@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/Tom5521/MyGolangTools/commands"
 	"github.com/Tom5521/STBackup/src/depends"
 	"github.com/Tom5521/STBackup/src/getdata"
 	"github.com/Tom5521/STBackup/src/log"
@@ -14,7 +15,7 @@ import (
 )
 
 // Init shell function
-var sh = getdata.Sh{}
+var sh = commands.Sh{}
 
 func main() {
 	log.Info("--------Start--------")

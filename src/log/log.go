@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/gookit/color"
 )
 
 // Declare the vars
@@ -47,7 +49,7 @@ func Error(text string, errcode int, incheck ...string) {
 		)
 	)
 	// Print the error data and write it in the log
-	fmt.Println(errdata)
+	color.Red.Println(errdata)
 	logger.Println(errdata)
 	Info("---------End---------")
 	os.Exit(errcode)
@@ -65,7 +67,7 @@ func Warning(text string) {
 		warndata    = fmt.Sprintf("WARNING: %s | file: %v", text, funcname) // Format the warning
 	)
 	// Print the formated warning and write it in the log
-	fmt.Println(warndata)
+	color.Yellow.Println(warndata)
 	logger.Println(warndata)
 }
 func Info(text string) {

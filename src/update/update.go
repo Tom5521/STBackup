@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Tom5521/MyGolangTools/commands"
 	"github.com/Tom5521/STBackup/src/getdata"
 	"github.com/Tom5521/STBackup/src/log"
 	"github.com/Tom5521/STBackup/src/tools"
 )
 
-var sh getdata.Sh // Init the shell func
+var sh = commands.Sh{} // Init the shell func
 
 // Very descriptive name
 func DownloadLatestBinary(binName string) int {
